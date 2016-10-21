@@ -4,9 +4,14 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-
-<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="aajavafx.MainPageController">
+<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="aajavafx.MainPageController">
    <children>
-      <Label id="welcomeID" layoutX="266.0" layoutY="100.0" text="Welcome" />
+      <Label id="TitleID" layoutX="250.0" layoutY="35.0" text="Care Taking Agency" />
+      <Button layoutX="31.0" layoutY="98.0" mnemonicParsing="false" onAction="#handleButtonEmployeeAction" prefHeight="25.0" prefWidth="138.0" text="Employees" />
+      <Button layoutX="31.0" layoutY="142.0" mnemonicParsing="false" onAction="#handleButtonCustomerAction" prefHeight="25.0" prefWidth="138.0" text="Customers" />
+      <Button layoutX="31.0" layoutY="188.0" mnemonicParsing="false" onAction="#handleButtonVisitorAction" prefHeight="25.0" prefWidth="138.0" text="Visitors" />
+      <Button layoutX="31.0" layoutY="232.0" mnemonicParsing="false" onAction="#handleButtonScheduleAction" prefHeight="25.0" prefWidth="138.0" text="Schedule" />
+      <Label id="welcomemessageID" layoutX="341.0" layoutY="81.0" text="Welcome Admin!" />
+      <Button layoutX="501.0" layoutY="31.0" mnemonicParsing="false" onAction="#handleButtonSignOutAction" text="Sign Out" />
    </children>
 </AnchorPane>

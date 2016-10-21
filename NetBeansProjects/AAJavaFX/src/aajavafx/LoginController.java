@@ -5,8 +5,15 @@
  */
 package aajavafx;
 
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -28,18 +35,27 @@ public class LoginController extends ControllerClass {
     
     @FXML
     private Label outputmessageID;
-    @FXML
-    private Button login;
+    
     @FXML
     private TextField userID;
     @FXML
     private PasswordField passwordID;
     
+   private final String Username_Admin = "admin";  // hard coded username to login
+   private final String Password_Admin = "admin123"; //hard coded password to login
+   
+   
+    
+   
     @FXML
-    private void handleButtonloginAction(ActionEvent event) {
+    private void handleButtonLoginAction(ActionEvent event) {
         try {
             // An alternative to getting the Stage from a Node declared in the scene is
             // to ask the button pressed what scene it belongs to.
+            //if (userID.equals(Username_Admin)){
+              //  if(passwordID.equals(Password_Admin)) {
+            //}
+            //}
             Node node = (Node) event.getSource();       
             Stage stage = (Stage) node.getScene().getWindow(); 
 
@@ -50,13 +66,14 @@ public class LoginController extends ControllerClass {
             stage.setScene(scene);              
             stage.show();                       
 
-            System.out.println("Gatting you back to previous page!");
+            System.out.println("Taking you to next page!");
         }
         
        
         
         
         catch (Exception ex) {
+            System.out.println("Something went wrong!");
         }
       
        
@@ -66,9 +83,6 @@ public class LoginController extends ControllerClass {
         outputmessageID.setText("Hello World!");
     }
     
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        // TODO
-    }    
+   
     
 }
