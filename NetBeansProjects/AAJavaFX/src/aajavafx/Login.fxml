@@ -6,7 +6,7 @@
 
 <AnchorPane id="AnchorPane" prefHeight="300.0" prefWidth="402.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="aajavafx.LoginController">
     <children>
-        <Button id="login" fx:id="button" layoutX="164.0" layoutY="237.0" onAction="#handleButtonloginAction" text="Login" />
+        <Button id="login" fx:id="button" layoutX="164.0" layoutY="237.0" onAction="#handleButtonLoginAction" text="Login" />
         <Label id="outputmessageID" fx:id="label" layoutX="156.0" layoutY="209.0" minHeight="16" minWidth="69" />
       <TextField id="userID" layoutX="107.0" layoutY="99.0" promptText="Username" />
       <PasswordField id="passwordID" layoutX="107.0" layoutY="137.0" promptText="Password" />
