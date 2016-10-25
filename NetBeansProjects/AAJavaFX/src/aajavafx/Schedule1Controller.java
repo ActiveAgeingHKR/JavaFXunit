@@ -7,10 +7,14 @@ package aajavafx;
 
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Application;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -32,26 +36,30 @@ public class Schedule1Controller implements Initializable {
     /**
      * Initializes the controller class.
      */
-    //  private DatePicker datePicker;
-    private LocalDate localDate;
+    @FXML private DatePicker pickADate;
     @FXML
     Button calendar;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+        // Add some action (in Java 8 lambda syntax style).
+         pickADate.setValue(LocalDate.now());
+         pickADate.setOnAction(new EventHandler() {
+     public void handle(Event t) {
+         LocalDate date = pickADate.getValue();
+         System.err.println("Selected date: " + date);
+     }
+
+            
+ });
+         String date = pickADate.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+         System.out.println("Date now: "+date);
+      
     }
 
     @FXML
     public void handleDatePickerCalenderAction(ActionEvent event) {
-            System.out.println("date");
-        DatePicker datePicker = new DatePicker();
-        
-// Add some action (in Java 8 lambda syntax style).
-        datePicker.setOnAction(e -> {
-            LocalDate date = datePicker.getValue();
-            System.out.println("Selected date: " + date);
-        });
+        System.out.println("Bou");
 
     }
 
@@ -73,4 +81,8 @@ public class Schedule1Controller implements Initializable {
             Logger.getLogger(MainPageController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+    
+
+    
 }

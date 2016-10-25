@@ -116,7 +116,7 @@ public class MainPageController extends ControllerClass {
         } catch (Exception ex) {
         
 
-        System.out.println("ERROR!");
+        System.out.println("ERROR! "+ex);
         }
     }
     
