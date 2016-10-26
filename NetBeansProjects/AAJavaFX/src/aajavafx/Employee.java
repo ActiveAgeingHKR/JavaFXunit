@@ -102,7 +102,8 @@ public class Employee extends Person {
     public Employee() {
     }
 
-    public Employee(int id, String lastName, String firstName, String userName, String password, String email, String phone, int managerId,int isValidate) {
+    public Employee(int id, String lastName, String firstName, String userName, String password,
+            String email, String phone, int managerId,int isValidate) {
         super(id,lastName, firstName);
         setEmpUserName(userName);
         setEmpPassword(password);
@@ -111,5 +112,5 @@ public class Employee extends Person {
         setManagerId(managerId);
         setEmpValidation(isValidate);
     }
-
+  
 }

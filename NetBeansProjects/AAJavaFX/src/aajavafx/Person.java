@@ -24,7 +24,17 @@ public abstract class Person {
     private final StringProperty lastName = new SimpleStringProperty(this, "lastName");
     private final StringProperty firstName = new SimpleStringProperty(this, "firstName");
   
+   public IntegerProperty idProperty(){
+   return id;
+   }
    
+   public final int getId(){
+   return idProperty().get();
+   }
+   
+   public final void setId(int id){
+   idProperty().set(id);
+   }
     public StringProperty firstProperty() {
         return firstName;
     }
@@ -37,50 +47,27 @@ public abstract class Person {
         firstProperty().set(firstName);
     }
 
-    public StringProperty lastnProperty() {
+    public StringProperty lastNameProperty() {
         return lastName;
     }
 
     public final String getName() {
-        return lastnProperty().get();
+        return lastNameProperty().get();
     }
 
     public final void setLastName(String lastName) {
-        lastnProperty().set(lastName);
-    }
-
-   
-
-  
-
-    
-
-    
-
-    
-
-    
-
-    public IntegerProperty idProperty() {
-        return id;
-    }
-
-    public final int getId() {
-        return idProperty().get();
-    }
-
-    public final void setId(int id) {
-        idProperty().set(id);
+        lastNameProperty().set(lastName);
     }
 
     public Person() {
     }
 
-    public Person(int id,String lastname, String firstname) {
+   public Person(int id,String lastname, String firstname) {
         setId(id);
         setLastName(lastname);
         setFirstName(firstname);
             
     }
+   
 }
 
