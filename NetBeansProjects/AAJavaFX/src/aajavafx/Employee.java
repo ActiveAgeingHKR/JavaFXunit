@@ -9,15 +9,10 @@ package aajavafx;
  *
  * @author Iuliu
  */
-import aajavafx.Person;
-import java.util.ArrayList;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
