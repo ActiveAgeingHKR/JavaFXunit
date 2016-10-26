@@ -26,10 +26,10 @@
             <children>
                 <TextField fx:id="textLastName" onAction="#handleRegisterButton" promptText="Last Name" />
                 <TextField fx:id="textFirstName" onAction="#handleRegisterButton" promptText="First Name" />
-                <TextField fx:id="textAdress" onAction="#handleRegisterButton" promptText="Adress" />
+                <TextField fx:id="textUserName" onAction="#handleRegisterButton" promptText="User Name" />
                 <TextField fx:id="textPhone" onAction="#handleRegisterButton" promptText="Phone" />
                 <TextField fx:id="textEmail" onAction="#handleRegisterButton" promptText="Email" />
-                <TextField fx:id="textInitials" onAction="#handleRegisterButton" promptText="User Name" />
+                <TextField fx:id="textPassword" onAction="#handleRegisterButton" promptText="Password" />
                 <TextField fx:id="textSalary" onAction="#handleRegisterButton" promptText="Salary" text="boolean F/T" />
                 <Button fx:id="buttonRegister" mnemonicParsing="false" onAction="#handleRegisterButton" prefHeight="25.0" prefWidth="200.0" text="Validate" />
             </children>
@@ -46,10 +46,10 @@
          <children>
             <Label prefHeight="27.0" prefWidth="100.0" text="Last Name" />
             <Label prefHeight="24.0" prefWidth="100.0" text="First Name" />
-            <Label prefHeight="26.0" prefWidth="100.0" text="Adress" />
+            <Label prefHeight="26.0" prefWidth="100.0" text="User Name" />
             <Label prefHeight="24.0" prefWidth="100.0" text="Phone" />
             <Label prefHeight="25.0" prefWidth="100.0" text="Email" />
-            <Label prefHeight="25.0" prefWidth="100.0" text="User Name" />
+            <Label prefHeight="25.0" prefWidth="100.0" text="Password" />
             <Label prefHeight="25.0" prefWidth="100.0" text="Registered" />
          </children>
       </VBox>
