@@ -60,7 +60,7 @@ public class MainPageController extends ControllerClass {
             Node node = (Node) event.getSource();
             Stage stage = (Stage) node.getScene().getWindow();
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("Customers.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("Customer.fxml"));
             Parent root = loader.load();
 
             Scene scene = new Scene(root);
@@ -71,7 +71,7 @@ public class MainPageController extends ControllerClass {
         } catch (Exception ex) {
         
 
-        System.out.println("ERROR!");
+        System.out.println("ERROR!" +ex);
         }
     }
     
