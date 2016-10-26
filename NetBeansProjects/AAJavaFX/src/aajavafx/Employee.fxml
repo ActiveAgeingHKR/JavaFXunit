@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="599.0" prefWidth="879.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="aajavafx.EmployeeController">
+    <children>
+      <ImageView fitHeight="67.0" fitWidth="153.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@TheBookstoreLOGO.png" />
+         </image>
+      </ImageView>
+        <VBox layoutX="77.0" layoutY="80.0" prefHeight="126.0" prefWidth="101.0" AnchorPane.leftAnchor="77.0">
+            <children>
+                <Button fx:id="button4" mnemonicParsing="false" onAction="#handleNewButton" prefHeight="25.0" prefWidth="102.0" text="New" />
+                <Button fx:id="button5" mnemonicParsing="false" onAction="#handleDeleteButton" prefHeight="25.0" prefWidth="101.0" text="Delete" />
+                <Button fx:id="button1" mnemonicParsing="false" onAction="#handleGoBack" prefHeight="25.0" prefWidth="101.0" text="Back" />
+            </children>
+        </VBox>
+        <VBox layoutX="290.0" layoutY="27.0" prefHeight="195.0" prefWidth="76.0" AnchorPane.leftAnchor="290.0">
+            <children>
+                <TextField fx:id="textLastName" onAction="#handleRegisterButton" promptText="Last Name" />
+                <TextField fx:id="textFirstName" onAction="#handleRegisterButton" promptText="First Name" />
+                <TextField fx:id="textAdress" onAction="#handleRegisterButton" promptText="Adress" />
+                <TextField fx:id="textPhone" onAction="#handleRegisterButton" promptText="Phone" />
+                <TextField fx:id="textEmail" onAction="#handleRegisterButton" promptText="Email" />
+                <TextField fx:id="textInitials" onAction="#handleRegisterButton" promptText="User Name" />
+                <TextField fx:id="textSalary" onAction="#handleRegisterButton" promptText="Salary" text="boolean F/T" />
+                <Button fx:id="buttonRegister" mnemonicParsing="false" onAction="#handleRegisterButton" prefHeight="25.0" prefWidth="200.0" text="Validate" />
+            </children>
+        </VBox>
+      <TableView fx:id="tableEmployees" layoutX="5.0" layoutY="228.0" prefHeight="369.0" prefWidth="873.0" AnchorPane.bottomAnchor="2.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="228.0">
+        <columns>
+          <TableColumn prefWidth="28.0" text="C1" visible="false" />
+        </columns>
+         <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+         </columnResizePolicy>
+      </TableView>
+      <VBox layoutX="190.0" layoutY="27.0" prefHeight="200.0" prefWidth="100.0">
+         <children>
+            <Label prefHeight="27.0" prefWidth="100.0" text="Last Name" />
+            <Label prefHeight="24.0" prefWidth="100.0" text="First Name" />
+            <Label prefHeight="26.0" prefWidth="100.0" text="Adress" />
+            <Label prefHeight="24.0" prefWidth="100.0" text="Phone" />
+            <Label prefHeight="25.0" prefWidth="100.0" text="Email" />
+            <Label prefHeight="25.0" prefWidth="100.0" text="User Name" />
+            <Label prefHeight="25.0" prefWidth="100.0" text="Registered" />
+         </children>
+      </VBox>
+    </children>
+</AnchorPane>
