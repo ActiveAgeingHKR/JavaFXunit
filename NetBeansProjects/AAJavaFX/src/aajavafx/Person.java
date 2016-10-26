@@ -10,7 +10,6 @@ package aajavafx;
  * @author Iuliu
  */
 import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -21,13 +20,11 @@ import javafx.beans.property.StringProperty;
  */
 public abstract class Person {
     
-    
+    private final IntegerProperty id =new SimpleIntegerProperty (this, "id");
     private final StringProperty lastName = new SimpleStringProperty(this, "lastName");
     private final StringProperty firstName = new SimpleStringProperty(this, "firstName");
-    private final StringProperty email = new SimpleStringProperty(this, "email");
-    private final StringProperty adress = new SimpleStringProperty(this, "adress");
-    private final IntegerProperty phone = new SimpleIntegerProperty(this, "phone");
-
+  
+   
     public StringProperty firstProperty() {
         return firstName;
     }
@@ -52,53 +49,38 @@ public abstract class Person {
         lastnProperty().set(lastName);
     }
 
-    public StringProperty emailProperty() {
-        return email;
+   
+
+  
+
+    
+
+    
+
+    
+
+    
+
+    public IntegerProperty idProperty() {
+        return id;
     }
 
-    public final String getEmail() {
-        return emailProperty().get();
+    public final int getId() {
+        return idProperty().get();
     }
 
-    public final void setEmail(String email) {
-        emailProperty().set(email);
-    }
-
-    public StringProperty adressProperty() {
-        return adress;
-    }
-
-    public final String getAdress() {
-        return adressProperty().get();
-    }
-
-    public final void setAdress(String adress) {
-        adressProperty().set(adress);
-    }
-
-    public IntegerProperty phoneProperty() {
-        return phone;
-    }
-
-    public final int getPhone() {
-        return phoneProperty().get();
-    }
-
-    public final void setPhone(int phone) {
-        phoneProperty().set(phone);
+    public final void setId(int id) {
+        idProperty().set(id);
     }
 
     public Person() {
     }
 
-    public Person(String lastname, String firstname, String adress, String email, int phone) {
-        
+    public Person(int id,String lastname, String firstname) {
+        setId(id);
         setLastName(lastname);
         setFirstName(firstname);
-        setAdress(adress);
-        setEmail(email);
-        setPhone(phone);
+            
     }
-
 }
 

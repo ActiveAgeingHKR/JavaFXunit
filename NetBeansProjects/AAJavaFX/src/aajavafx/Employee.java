@@ -9,9 +9,6 @@ package aajavafx;
  *
  * @author Iuliu
  */
-
-
-
 import aajavafx.Person;
 import java.util.ArrayList;
 import javafx.beans.property.IntegerProperty;
@@ -33,43 +30,91 @@ import javafx.scene.control.cell.PropertyValueFactory;
  */
 public class Employee extends Person {
 
-    private final StringProperty initialer = new SimpleStringProperty(this, "initialer");
-    private final IntegerProperty salary = new SimpleIntegerProperty(this, "salary");
+    private final StringProperty empUserName = new SimpleStringProperty(this, "empUserName");
+    private final StringProperty empPassword = new SimpleStringProperty(this, "empPassword");
+    private final StringProperty empEmail = new SimpleStringProperty(this, "empEmail");
+    private final StringProperty empPhone = new SimpleStringProperty(this, "empPhone");
+    private final IntegerProperty managerId = new SimpleIntegerProperty(this, "managerId");
+    private final IntegerProperty empValidation = new SimpleIntegerProperty(this, "empValidation");
 
-    public StringProperty initialerProperty() {
-        return initialer;
+    public StringProperty empUserNameProperty() {
+        return empUserName;
     }
 
-    public final String getInitialer() {
-        return initialerProperty().get();
+    public final String getEmpUserName() {
+        return empUserNameProperty().get();
     }
 
-    public final void setInitialer(String title) {
-        initialerProperty().set(title);
+    public final void setEmpUserName(String userName) {
+        empUserNameProperty().set(userName);
     }
 
-    public IntegerProperty salaryProperty() {
-        return salary;
+    public StringProperty empPasswordProperty() {
+        return empPassword;
     }
 
-    public final int getSalary() {
-        return salaryProperty().get();
+    public final String getEmpPassword() {
+        return empPasswordProperty().get();
     }
 
-    public final void setSalary(int salary) {
-        salaryProperty().set(salary);
+    public final void setEmpPassword(String empPassword) {
+        empPasswordProperty().set(empPassword);
+    }
+ public StringProperty empEmailProperty() {
+        return empEmail;
     }
 
+    public final String getEmpEmail() {
+        return empEmailProperty().get();
+    }
+
+    public final void setEmpEmail(String empEmail) {
+        empEmailProperty().set(empEmail);
+    }
+     public StringProperty empPhoneProperty() {
+        return empPhone;
+    }
+
+    public final String getEmpPhone() {
+        return empPhoneProperty().get();
+    }
+
+    public final void setEmpPhone(String empPhone) {
+        empPhoneProperty().set(empPhone);
+    }
+     public IntegerProperty managerIdProperty() {
+        return managerId;
+    }
+
+    public final Integer getManagerId() {
+        return managerIdProperty().get();
+    }
+
+    public final void setManagerId(Integer managerId) {
+        managerIdProperty().set(managerId);
+    }
+     public IntegerProperty empValidationProperty() {
+        return empValidation;
+    }
+
+    public final Integer getEmpValidation() {
+        return empValidationProperty().get();
+    }
+
+    public final void setEmpValidation(Integer empValidation) {
+        empValidationProperty().set(empValidation);
+    }
     public Employee() {
     }
 
-    public Employee(String lastName, String firstName, String adress, String email, int phone, String initialer, int salary) {
-        super(lastName, firstName, adress, email, phone);
-        setInitialer(initialer);
-        setSalary(salary);
+    public Employee(int id, String lastName, String firstName, String userName, String password, String email, String phone, int managerId,int isValidate) {
+        super(id,lastName, firstName);
+        setEmpUserName(userName);
+        setEmpPassword(password);
+        setEmpEmail(email);
+        setEmpPhone(phone);
+        setManagerId(managerId);
+        setEmpValidation(isValidate);
     }
 
-   
 }
-
-
