@@ -31,9 +31,13 @@ public class Customer extends PersonCustomer {
      public Customer() {
     }
 
-    public Customer(String lastName, String firstName, String adress, int customerID, String birthdate, String personnumer, String initialer) {
-        super(lastName, firstName, adress, customerID, birthdate, personnumer);
-        setInitialer(initialer);
+    //public Customer(int customerID, String lastName, String firstName, String adress, String birthdate, String personnumer, String initialer) {
+      //  super(customerID,firstName, lastName, adress, birthdate, personnumer);
+        //setInitialer(initialer);
+        public Customer(int customerID, String lastName, String firstName, String adress, String birthdate, String personnumer) {
+        super(customerID,firstName, lastName, adress, birthdate, personnumer);
+        
+        
         
     }
     

@@ -9,6 +9,8 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -17,6 +19,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
@@ -30,6 +33,24 @@ public class CustomerController implements Initializable {
 
     @FXML
     private TableView<Customer> tableCustomers = new TableView<Customer>();
+    
+    @FXML
+    private TableView<Customer> tableCustomer;
+    @FXML
+    private TableColumn<Customer, Integer> idCustomer;
+     @FXML
+    private TableColumn<Customer, String> firstNameColumn;
+    @FXML
+    private TableColumn<Customer, String> lastNameColumn;
+      @FXML
+    private TableColumn<Customer, String> addressColumn;
+    @FXML
+    private TableColumn<Customer, String> birthdateColumn;
+      @FXML
+    private TableColumn<Customer, String> persunnumerColumn;
+   
+ 
+    
     @FXML
     private TextField customerID;
     @FXML
@@ -54,6 +75,17 @@ public class CustomerController implements Initializable {
         addressID.setVisible(false);
         birthdateID.setVisible(false);
         persunnumerID.setVisible(false);
+        
+        //initialize columns
+        firstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNameProperty());
+        lastNameColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
+        addressColumn.setCellValueFactory(cellData -> cellData.getValue().addressProperty());
+        birthdateColumn.setCellValueFactory(cellData -> cellData.getValue().birthdateProperty());
+        persunnumerColumn.setCellValueFactory(cellData -> cellData.getValue().personnumerProperty());
+        
+        idCustomer.setCellValueFactory(cellData -> cellData.getValue().customerIDProperty().asObject());
+        //Populate table 
+        tableCustomer.setItems(getCustomer());
     }    
     @FXML
     private void handleGoBack(ActionEvent event) {
@@ -152,5 +184,14 @@ public class CustomerController implements Initializable {
                
             }
     
+}
+     
+    public ObservableList<Customer> getCustomer() {
+        
+        ObservableList<Customer> customers = FXCollections.observableArrayList();
+        customers.add(new Customer(1, "Johny", "Walker", "London", "1972-07-01", "7207012222"));
+        
+        
+        return customers;
 }
 }

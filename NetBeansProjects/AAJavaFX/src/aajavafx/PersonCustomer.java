@@ -21,7 +21,7 @@ public abstract class PersonCustomer {
     private final IntegerProperty customerID = new SimpleIntegerProperty(this, "customerID");
     private final StringProperty lastName = new SimpleStringProperty(this, "lastName");
     private final StringProperty firstName = new SimpleStringProperty(this, "firstName");
-    private final StringProperty adress = new SimpleStringProperty(this, "adress");
+    private final StringProperty address = new SimpleStringProperty(this, "adress");
     private final StringProperty birthdate = new SimpleStringProperty(this, "birthdate");  //shall we keep birthday as string "1934-05-06" or declare as integer
     private final StringProperty personnumer = new SimpleStringProperty(this, "personnumer"); //same concern as of birthdate
 
@@ -37,30 +37,30 @@ public abstract class PersonCustomer {
         firstNameProperty().set(firstName);
     }
 
-    public StringProperty lastnProperty() {
+    public StringProperty lastNameProperty() {
         return lastName;
     }
 
     public final String getName() {
-        return lastnProperty().get();
+        return lastNameProperty().get();
     }
 
     public final void setLastName(String lastName) {
-        lastnProperty().set(lastName);
+        lastNameProperty().set(lastName);
     }
 
     
 
-    public StringProperty adressProperty() {
-        return adress;
+    public StringProperty addressProperty() {
+        return address;
     }
 
     public final String getAdress() {
-        return adressProperty().get();
+        return addressProperty().get();
     }
 
     public final void setAdress(String adress) {
-        adressProperty().set(adress);
+        addressProperty().set(adress);
     }
 
     public IntegerProperty customerIDProperty() {
@@ -104,12 +104,12 @@ public abstract class PersonCustomer {
     public PersonCustomer() {
     }
 
-    public PersonCustomer(String lastname, String firstname, String adress, int customerID, String birthdate, String personnumer) {
+    public PersonCustomer(int customerID, String firstname, String lastname, String adress, String birthdate, String personnumer) {
         
-        setLastName(lastname);
-        setFirstName(firstname);
-        setAdress(adress);  
         setCustomerID(customerID);
+        setFirstName(firstname);
+        setLastName(lastname);
+        setAdress(adress);  
         setBirthdate(birthdate);   
         setPersonnumer(personnumer); 
     }

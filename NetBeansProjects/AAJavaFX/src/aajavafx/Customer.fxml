@@ -19,14 +19,14 @@
          </children>
       </VBox>
       <Button layoutX="128.0" layoutY="130.0" mnemonicParsing="false" onAction="#handleGoBack" prefHeight="27.0" prefWidth="131.0" text="Back" />
-      <TableView fx:id="tableCustomers" layoutX="51.0" layoutY="206.0" prefHeight="180.0" prefWidth="460.0">
+      <TableView fx:id="tableCustomer" layoutX="51.0" layoutY="206.0" prefHeight="180.0" prefWidth="460.0">
         <columns>
-          <TableColumn prefWidth="75.0" text="cu_id" />
-          <TableColumn prefWidth="75.0" text="cu_firstname" />
-            <TableColumn prefWidth="75.0" text="cu_lastname" />
-            <TableColumn prefWidth="75.0" text="cu_address" />
-            <TableColumn prefWidth="75.0" text="cu_birthdate" />
-            <TableColumn prefWidth="84.0" text="cu_personnumer" />
+          <TableColumn fx:id="idCustomer" prefWidth="75.0" text="cu_id" />
+          <TableColumn fx:id="firstNameColumn" prefWidth="75.0" text="cu_firstname" />
+            <TableColumn fx:id="lastNameColumn" prefWidth="75.0" text="cu_lastname" />
+            <TableColumn fx:id="addressColumn" prefWidth="75.0" text="cu_address" />
+            <TableColumn fx:id="birthdateColumn" prefWidth="75.0" text="cu_birthdate" />
+            <TableColumn fx:id="persunnumerColumn" prefWidth="84.0" text="cu_personnumer" />
         </columns>
       </TableView>
       <Button id="registerButton" fx:id="buttonRegister" layoutX="411.0" layoutY="178.0" mnemonicParsing="false" onAction="#handleRegisterButton" text="Register" />
