@@ -161,6 +161,8 @@ public class EmployeeController implements Initializable {
         textEmail.setVisible(false);
         textPhone.setVisible(false);
         textPassword.setVisible(false);
+        int id=tableEmployees.getSelectionModel().getSelectedItem().getId();
+        System.out.println("you want to delete: "+id);
 
     }
 
