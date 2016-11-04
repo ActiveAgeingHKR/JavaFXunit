@@ -30,7 +30,7 @@
                 <TextField fx:id="textPhone" onAction="#handleRegisterButton" promptText="Phone" />
                 <TextField fx:id="textEmail" onAction="#handleRegisterButton" promptText="Email" />
                 <TextField fx:id="textPassword" onAction="#handleRegisterButton" promptText="Password" />
-                <TextField fx:id="textSalary" onAction="#handleRegisterButton" promptText="Salary" text="boolean F/T" />
+                <TextField fx:id="textActivate" onAction="#handleRegisterButton" promptText="Y/N" />
                 <Button fx:id="buttonRegister" mnemonicParsing="false" onAction="#handleRegisterButton" prefHeight="25.0" prefWidth="200.0" text="Validate" />
             </children>
         </VBox>
@@ -58,7 +58,7 @@
             <Label prefHeight="24.0" prefWidth="100.0" text="Phone" />
             <Label prefHeight="25.0" prefWidth="100.0" text="Email" />
             <Label prefHeight="25.0" prefWidth="100.0" text="Password" />
-            <Label prefHeight="25.0" prefWidth="100.0" text="Registered" />
+            <Label prefHeight="25.0" prefWidth="100.0" text="Activate" />
          </children>
       </VBox>
     </children>

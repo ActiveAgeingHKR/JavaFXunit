@@ -9,7 +9,10 @@ package aajavafx;
  *
  * @author Iuliu
  */
+import java.io.Serializable;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -23,14 +26,14 @@ import javafx.beans.property.StringProperty;
  *
  * @author Iuliu
  */
-public class Employee extends Person {
+public class EmployeeProperty extends PersonProperty {
 
     private final StringProperty empUserName = new SimpleStringProperty(this, "empUserName");
     private final StringProperty empPassword = new SimpleStringProperty(this, "empPassword");
     private final StringProperty empEmail = new SimpleStringProperty(this, "empEmail");
     private final StringProperty empPhone = new SimpleStringProperty(this, "empPhone");
     private final IntegerProperty managerId = new SimpleIntegerProperty(this, "managerId");
-    private final IntegerProperty empValidation = new SimpleIntegerProperty(this, "empValidation");
+    private final BooleanProperty empValidation = new SimpleBooleanProperty(this, "empValidation");
 
     public StringProperty empUserNameProperty() {
         return empUserName;
@@ -88,29 +91,29 @@ public class Employee extends Person {
     public final void setManagerId(Integer managerId) {
         managerIdProperty().set(managerId);
     }
-     public IntegerProperty empValidationProperty() {
+     public BooleanProperty empValidationProperty() {
         return empValidation;
     }
 
-    public final Integer getEmpValidation() {
+    public final boolean getEmpValidation() {
         return empValidationProperty().get();
     }
 
-    public final void setEmpValidation(Integer empValidation) {
+    public final void setEmpValidation(boolean empValidation) {
         empValidationProperty().set(empValidation);
     }
-    public Employee() {
+    public EmployeeProperty() {
     }
 
-    public Employee(int id, String lastName, String firstName, String userName, String password,
-            String email, String phone, int managerId,int isValidate) {
-        super(id,lastName, firstName);
-        setEmpUserName(userName);
-        setEmpPassword(password);
-        setEmpEmail(email);
-        setEmpPhone(phone);
-        setManagerId(managerId);
-        setEmpValidation(isValidate);
+    public EmployeeProperty(Integer empId, String empFirstname, String empLastname, String empUsername, String empPassword,
+            String empEmail, String empPhone, Integer managersID,boolean empRegistered) {
+        super(empId,empFirstname, empLastname);
+        setEmpUserName(empUsername);
+        setEmpPassword(empPassword);
+        setEmpEmail(empEmail);
+        setEmpPhone(empPhone);
+        setManagerId(managersID);
+        setEmpValidation(empRegistered);
     }
   
 }

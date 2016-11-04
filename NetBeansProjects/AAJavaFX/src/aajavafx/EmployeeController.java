@@ -10,8 +10,11 @@ package aajavafx;
  *
  * @author Iuliu
  */
+import com.google.gson.Gson;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,14 +28,16 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 /**
  * FXML Controller class
@@ -42,26 +47,26 @@ import javafx.stage.Stage;
 public class EmployeeController implements Initializable {
 
     @FXML
-    private TableView<Employee> tableEmployees;
-     @FXML
-    private TableColumn<Employee, String> firstNameColumn;
+    private TableView<EmployeeProperty> tableEmployees;
     @FXML
-    private TableColumn<Employee, String> lastNameColumn;
-      @FXML
-    private TableColumn<Employee, String> userNameColumn;
+    private TableColumn<EmployeeProperty, String> firstNameColumn;
     @FXML
-    private TableColumn<Employee, String> passwordColumn;
-      @FXML
-    private TableColumn<Employee, String> emailColumn;
+    private TableColumn<EmployeeProperty, String> lastNameColumn;
     @FXML
-    private TableColumn<Employee, String> phoneColumn;
-      @FXML
-    private TableColumn<Employee, Integer> idEmployee;
+    private TableColumn<EmployeeProperty, String> userNameColumn;
     @FXML
-    private TableColumn<Employee, Integer> idManager;
-  
+    private TableColumn<EmployeeProperty, String> passwordColumn;
     @FXML
-    private TableColumn<Employee, Integer> validateEmployee;
+    private TableColumn<EmployeeProperty, String> emailColumn;
+    @FXML
+    private TableColumn<EmployeeProperty, String> phoneColumn;
+    @FXML
+    private TableColumn<EmployeeProperty, Integer> idEmployee;
+    @FXML
+    private TableColumn<EmployeeProperty, Integer> idManager;
+
+    @FXML
+    private TableColumn<EmployeeProperty, Boolean> validateEmployee;
     @FXML
     private TextField textLastName;
     @FXML
@@ -74,21 +79,22 @@ public class EmployeeController implements Initializable {
     private TextField textPhone;
     @FXML
     private TextField textPassword;
+    @FXML
+    private TextField textActivate;
 
     @FXML
     private Button buttonRegister;
 
-    @FXML
-    private TextArea textViewActivity;
-  //  private final DBConnection dbConnection = new DBConnection();
+    //  private final DBConnection dbConnection = new DBConnection();
     //  private boolean isManager;
-
     @FXML
     //  private Button changeButton;
 
     /**
      * Initializes the controller class.
      */
+    private static String postEmployeesURL = "http://localhost:9090/MainServerREST/api/employees";
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         //    labelError.setText(null);
@@ -100,9 +106,9 @@ public class EmployeeController implements Initializable {
         textEmail.setVisible(false);
         textPhone.setVisible(false);
         textPassword.setVisible(false);
-
+        textActivate.setVisible(false);
         //initialize columns
-        firstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstProperty());
+        firstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNProperty());
         lastNameColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
         userNameColumn.setCellValueFactory(cellData -> cellData.getValue().empUserNameProperty());
         passwordColumn.setCellValueFactory(cellData -> cellData.getValue().empPasswordProperty());
@@ -111,10 +117,9 @@ public class EmployeeController implements Initializable {
         idEmployee.setCellValueFactory(cellData -> cellData.getValue().idProperty().asObject());
         idManager.setCellValueFactory(cellData -> cellData.getValue().managerIdProperty().asObject());
         validateEmployee.setCellValueFactory(cellData -> cellData.getValue().empValidationProperty().asObject());
-      //populate table
+        //populate table
         tableEmployees.setItems(getEmployee());
     }
-    
 
     @FXML
     private void handleGoBack(ActionEvent event) {
@@ -137,7 +142,6 @@ public class EmployeeController implements Initializable {
 
     @FXML
     private void handleNewButton(ActionEvent event) {
-       
 
         buttonRegister.setVisible(true);
         textLastName.setVisible(true);
@@ -146,54 +150,79 @@ public class EmployeeController implements Initializable {
         textEmail.setVisible(true);
         textPhone.setVisible(true);
         textPassword.setVisible(true);
-
+        textActivate.setVisible(true);
     }
 
     @FXML
     private void handleDeleteButton(ActionEvent event) {
-   
+        try {
+            buttonRegister.setVisible(false);
 
-        buttonRegister.setVisible(false);
-
-        textLastName.setVisible(false);
-        textFirstName.setVisible(false);
-        textUserName.setVisible(false);
-        textEmail.setVisible(false);
-        textPhone.setVisible(false);
-        textPassword.setVisible(false);
-        int id=tableEmployees.getSelectionModel().getSelectedItem().getId();
-        System.out.println("you want to delete: "+id);
-
+            textLastName.setVisible(false);
+            textFirstName.setVisible(false);
+            textUserName.setVisible(false);
+            textEmail.setVisible(false);
+            textPhone.setVisible(false);
+            textPassword.setVisible(false);
+            textActivate.setVisible(false);
+            int id = tableEmployees.getSelectionModel().getSelectedItem().getId();
+            System.out.println("you want to delete: " + id);
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
     }
 
     @FXML
     private void handleRegisterButton(ActionEvent event) {
         //labelError.setText(null);
 
+        String lastName = textLastName.getText();
+        textLastName.clear();
+        String firstName = textFirstName.getText();
+        textFirstName.clear();
+        String userName = textUserName.getText();
+        textUserName.clear();
+        String email = textEmail.getText();
+        textEmail.clear();
+        String phone = textPhone.getText();
+        textPhone.clear();
+        String password = textPassword.getText();
+        textPassword.clear();
+        Boolean register = false;
+        String tempValidation = textActivate.getText();
+        textActivate.clear();
+        if (tempValidation.contentEquals("Y")) {
+            register = true;
+        } else {
+            register = false;
+        }
+
         try {
-            String lastName = textLastName.getText();
-            textLastName.clear();
-            String firstName = textFirstName.getText();
-            textFirstName.clear();
-            String userName = textUserName.getText();
-            textUserName.clear();
-            String email = textEmail.getText();
-            textEmail.clear();
-            String temporaryPhone = textPhone.getText();
-            int phone = Integer.valueOf(temporaryPhone);
-            textPhone.clear();
-            String password = textPassword.getText();
-            textPassword.clear();
-       
-        } catch (Exception ex) {
-            
+            Gson gson = new Gson();
+            HttpClient httpClient = HttpClientBuilder.create().build();
+            HttpPost post = new HttpPost(postEmployeesURL);
+
+            Employees employee = new Employees(1, firstName, lastName, userName, password, email, phone, 1, register);
+
+            String jsonString = new String(gson.toJson(employee));
+            System.out.println("json string: " + jsonString);
+            StringEntity postString = new StringEntity(jsonString);
+
+            post.setEntity(postString);
+            post.setHeader("Content-type", "application/json");
+            HttpResponse response = httpClient.execute(post);
+
+        } catch (UnsupportedEncodingException ex) {
+            System.out.println(ex);
+        } catch (IOException e) {
+            System.out.println(e);
         }
 
     }
 
     @FXML
     private void handlePrintButton(ActionEvent event) {
-      //  labelError.setText(null);
+        //  labelError.setText(null);
 
         buttonRegister.setVisible(false);
 
@@ -202,13 +231,13 @@ public class EmployeeController implements Initializable {
         textUserName.setVisible(true);
         textEmail.setVisible(true);
         textPhone.setVisible(true);
-            //textSalary.setVisible(true);
+        //textSalary.setVisible(true);
 
     }
 
     @FXML
     private void handleChangeButton(ActionEvent event) {
-      //  labelError.setText(null);
+        //  labelError.setText(null);
 
         try {
             String lastName = textLastName.getText();
@@ -222,7 +251,7 @@ public class EmployeeController implements Initializable {
             String temporaryPhone = textPhone.getText();
             int phone = Integer.valueOf(temporaryPhone);
             textPhone.clear();
-              //  String temporarySalary = textSalary.getText();
+            //  String temporarySalary = textSalary.getText();
             //  int salary = Integer.valueOf(temporarySalary);
             // textSalary.clear();
 
@@ -274,11 +303,11 @@ public class EmployeeController implements Initializable {
      }
      }
      */
-    public ObservableList<Employee> getEmployee() {
-        
-        ObservableList<Employee> employees = FXCollections.observableArrayList();
-        employees.add(new Employee(1, "Bond", "James", "JB", "pass123", "jb@gmail.com", "phone1", 1, 0));
-        employees.add(new Employee(2,"Walker","Jonny","WJ","123pass","","hallo",1,0));
+    public ObservableList<EmployeeProperty> getEmployee() {
+
+        ObservableList<EmployeeProperty> employees = FXCollections.observableArrayList();
+        employees.add(new EmployeeProperty(1, "Bond", "James", "JB", "pass123", "jb@gmail.com", "phone1", 1, true));
+        employees.add(new EmployeeProperty(2, "Walker", "Jonny", "WJ", "123pass", "", "hallo", 1, false));
         return employees;
     }
 }
