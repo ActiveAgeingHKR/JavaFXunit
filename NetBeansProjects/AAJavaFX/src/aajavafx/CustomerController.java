@@ -5,6 +5,9 @@
  */
 package aajavafx;
 
+import com.google.gson.Gson;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -23,6 +26,12 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClientBuilder;
+
 
 /**
  * FXML Controller class
@@ -30,29 +39,32 @@ import javafx.stage.Stage;
  * @author lokeshdhakal
  */
 public class CustomerController implements Initializable {
+    
+    //private static String postCustomerURL = "http://localhost:8080/MainServerREST/api/customers";
+    
+    private static String postCustomerURL = "http://194.47.41.7:9090/MainServerREST/api/customers";
 
     @FXML
-    private TableView<Customer> tableCustomers = new TableView<Customer>();
+    private TableView<CustomerProperty> tableCustomers = new TableView<CustomerProperty>();
     
     @FXML
-    private TableView<Customer> tableCustomer;
+    private TableView<CustomerProperty> tableCustomer;
     @FXML
-    private TableColumn<Customer, Integer> idCustomer;
+    private TableColumn<CustomerProperty, Integer> idCustomer;
      @FXML
-    private TableColumn<Customer, String> firstNameColumn;
+    private TableColumn<CustomerProperty, String> firstNameColumn;
     @FXML
-    private TableColumn<Customer, String> lastNameColumn;
+    private TableColumn<CustomerProperty, String> lastNameColumn;
       @FXML
-    private TableColumn<Customer, String> addressColumn;
+    private TableColumn<CustomerProperty, String> addressColumn;
     @FXML
-    private TableColumn<Customer, String> birthdateColumn;
+    private TableColumn<CustomerProperty, String> birthdateColumn;
       @FXML
-    private TableColumn<Customer, String> persunnumerColumn;
+    private TableColumn<CustomerProperty, String> persunnumerColumn;
    
  
     
-    @FXML
-    private TextField customerID;
+    
     @FXML
     private TextField firstNameID;
     @FXML
@@ -66,10 +78,17 @@ public class CustomerController implements Initializable {
     @FXML
     private Button buttonRegister;
     
+    //in order to create customer object from "register" button
+    String lastName;
+    String firstName;
+    String address;
+    String birthdate;
+    String persunnumer;
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         buttonRegister.setVisible(false);
-        customerID.setVisible(false);
+       //customerID.setVisible(false);
         firstNameID.setVisible(false);
         lastNameID.setVisible(false);
         addressID.setVisible(false);
@@ -77,13 +96,13 @@ public class CustomerController implements Initializable {
         persunnumerID.setVisible(false);
         
         //initialize columns
-        firstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNameProperty());
+        firstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNProperty());
         lastNameColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
         addressColumn.setCellValueFactory(cellData -> cellData.getValue().addressProperty());
         birthdateColumn.setCellValueFactory(cellData -> cellData.getValue().birthdateProperty());
         persunnumerColumn.setCellValueFactory(cellData -> cellData.getValue().personnumerProperty());
         
-        idCustomer.setCellValueFactory(cellData -> cellData.getValue().customerIDProperty().asObject());
+        idCustomer.setCellValueFactory(cellData -> cellData.getValue().idProperty().asObject());
         //Populate table 
         tableCustomer.setItems(getCustomer());
     }    
@@ -108,7 +127,7 @@ public class CustomerController implements Initializable {
     @FXML
     private void handleNewButton(ActionEvent event) {
         buttonRegister.setVisible(true);
-        customerID.setVisible(true);
+        //customerID.setVisible(true);
         firstNameID.setVisible(true);
         lastNameID.setVisible(true);
         addressID.setVisible(true);
@@ -122,8 +141,8 @@ public class CustomerController implements Initializable {
         //labelError.setText(null);
        
             try {
-                String customerNumber = customerID.getText();
-                customerID.clear();
+                //String customerNumber = customerID.getText();
+                //customerID.clear();
             
                 String lastName = lastNameID.getText();
                 lastNameID.clear();
@@ -137,16 +156,41 @@ public class CustomerController implements Initializable {
                 String persunnumer = persunnumerID.getText();
                 persunnumerID.clear();
                 
+                try {
+            Gson gson = new Gson();
+            HttpClient httpClient = HttpClientBuilder.create().build();
+            HttpPost post = new HttpPost(postCustomerURL);
+
+            Customers customer = new Customers(1, firstName, lastName, address, birthdate, persunnumer);
+
+            String jsonString = new String(gson.toJson(customer));
+            System.out.println("json string: " + jsonString);
+            StringEntity postString = new StringEntity(jsonString);
+
+            post.setEntity(postString);
+            post.setHeader("Content-type", "application/json");
+            HttpResponse response = httpClient.execute(post);
+
+        } catch (UnsupportedEncodingException ex) {
+            System.out.println(ex);
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+
+            
+            
                 
-              //  dbConnection.setNewId(initials);
-               // int controller = dbConnection.setDataEmployee(lastName, firstName, adress, email, phone, initials, salary);
                 
-                   // tableEmployees.setItems(dbConnection.getDataEmployees());
+              
                    
             } catch (Exception ex) {
                // labelError.setText("Salary or phone field does not have a integer!");
             }
-        
+            
+            
+            
+            
+            
     }
 
     @FXML
@@ -155,7 +199,7 @@ public class CustomerController implements Initializable {
      
             buttonRegister.setVisible(false);
            
-            customerID.setVisible(true);
+            //customerID.setVisible(true);
             firstNameID.setVisible(true);
             lastNameID.setVisible(true);
             addressID.setVisible(true);
@@ -186,10 +230,10 @@ public class CustomerController implements Initializable {
     
 }
      
-    public ObservableList<Customer> getCustomer() {
+    public ObservableList<CustomerProperty> getCustomer() {
         
-        ObservableList<Customer> customers = FXCollections.observableArrayList();
-        customers.add(new Customer(1, "Johny", "Walker", "London", "1972-07-01", "7207012222"));
+        ObservableList<CustomerProperty> customers = FXCollections.observableArrayList();
+        customers.add(new CustomerProperty(1, "Johny", "Walker", "London", "1972-07-01", "7207012222"));
         
         
         return customers;
