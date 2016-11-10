@@ -201,8 +201,10 @@ public class EmployeeController implements Initializable {
             Gson gson = new Gson();
             HttpClient httpClient = HttpClientBuilder.create().build();
             HttpPost post = new HttpPost(postEmployeesURL);
-
-            Employees employee = new Employees(1, firstName, lastName, userName, password, email, phone, 1, register);
+            //  public Managers(Integer manId, String manFirstname, String manLastname, String manUsername, String manPassword, String manEmail, String manPhone)
+           // Managers manager = new Managers(1, "Tony", "Soprano", "Capo", "silence", "capo@g.com", "442455");
+            Managers manager=new Managers(1);
+            Employees employee = new Employees( 1,firstName, lastName, userName, password, email, phone, manager, register);
 
             String jsonString = new String(gson.toJson(employee));
             System.out.println("json string: " + jsonString);
@@ -212,6 +214,18 @@ public class EmployeeController implements Initializable {
             post.setHeader("Content-type", "application/json");
             HttpResponse response = httpClient.execute(post);
 
+           /*  ByteArrayOutputStream outstream = new ByteArrayOutputStream();
+                if (response != null) {
+                    response.getEntity().writeTo(outstream);
+                    byte[] responseBody = outstream.toByteArray();
+                    String str = new String(responseBody, "UTF-8");
+                    System.out.print(str);
+                } else {
+                    System.out.println("Success");
+                }
+            */
+            
+            
         } catch (UnsupportedEncodingException ex) {
             System.out.println(ex);
         } catch (IOException e) {

@@ -5,6 +5,13 @@
  */
 package aajavafx;
 
+import org.json.JSONObject;
+import org.apache.commons.io.IOUtils;
+import com.google.gson.Gson;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.Charset;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -15,10 +22,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.json.JSONException;
 
 /**
  *
- * @author lokeshdhakal
+ * @author lokeshdhakal,Iuliu
  */
 public class LoginController extends ControllerClass {
 
@@ -57,11 +65,11 @@ public class LoginController extends ControllerClass {
             matchedUserName = hash.validatePassword(USERNAME, generatedSecuredUserNameHash);
             matchedPassword = hash.validatePassword(PASSWORD, generatedSecurePasswordHash);
 
-            
             System.out.println(matchedUserName);
             System.out.println(matchedPassword);
-
-            if (matchedUserName==true && matchedPassword==true) {
+            String passwordFromDB = this.getPassword("1");
+          
+            if (passwordFromDB.equals(password_var)) {
                 Node node = (Node) event.getSource();
                 Stage stage = (Stage) node.getScene().getWindow();
 
@@ -84,4 +92,20 @@ public class LoginController extends ControllerClass {
 
     }
 
+    public static String getPassword(String userName) throws MalformedURLException, JSONException, IOException {
+        String password = "";
+
+        Managers manager = new Managers();
+        Gson gson = new Gson();
+
+      //JSONObject json = new JSONObject(IOUtils.toString(new URL("http://localhost:9090/MainServerREST/api/managers?manUsername=" + userName), Charset.forName("UTF-8")));
+        JSONObject json = new JSONObject(IOUtils.toString(new URL("http://localhost:9090/MainServerREST/api/managers/" + userName), Charset.forName("UTF-8")));
+        System.out.println(json.toString());
+        manager = gson.fromJson(json.toString(), Managers.class);
+        System.out.println(manager);
+
+        password = manager.getManPassword();
+        System.out.println(password);
+        return password;
+    }
 }

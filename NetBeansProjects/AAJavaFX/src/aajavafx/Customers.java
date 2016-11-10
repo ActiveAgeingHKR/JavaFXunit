@@ -6,6 +6,7 @@
 package aajavafx;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  *
@@ -29,7 +30,7 @@ public class Customers implements Serializable {
     public Customers() {
     }
 
-    public Customers(Integer cuId, String cuFirstname, String cuLastname, String cuBirthdate, String cuAddress, String cuPersonnummer) {
+    public Customers(Integer cuId, String cuFirstname, String cuLastname,  String cuAddress, String cuBirthdate,String cuPersonnummer) {
      
         
         this.cuID = cuID;

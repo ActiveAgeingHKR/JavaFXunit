@@ -7,7 +7,7 @@ package aajavafx;
 
 import java.io.Serializable;
 
-public class Employees extends Person implements Serializable {
+public class Employees  implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -18,21 +18,28 @@ public class Employees extends Person implements Serializable {
     private String empEmail;
 
     private String empPhone;
-    private Integer managersID;
+    private Managers managersManId;
 
+    private Integer empId;
+
+    private String empFirstname;
+
+    private String empLastname;
     private boolean empRegistered;
 
     public Employees() {
     }
 
-    public Employees(Integer empId, String empFirstname, String empLastname, String empUsername, String empPassword, String empEmail, String empPhone, Integer managersID, boolean empRegistered) {
-     
-        super(empId,empFirstname,empLastname);
+    public Employees( Integer empId,String empFirstname, String empLastname, String empUsername, String empPassword, String empEmail, String empPhone, Managers managersManId, boolean empRegistered) {
+
+        this.empId = empId;
+        this.empFirstname = empFirstname;
+        this.empLastname = empLastname;
         this.empUsername = empUsername;
         this.empPassword = empPassword;
         this.empEmail = empEmail;
         this.empPhone = empPhone;
-        this.managersID = managersID;
+        this.managersManId = managersManId;
         this.empRegistered = empRegistered;
     }
 
@@ -74,5 +81,36 @@ public class Employees extends Person implements Serializable {
 
     public void setEmpRegistered(boolean empRegistered) {
         this.empRegistered = empRegistered;
+    }
+
+    public Integer getEmpId() {
+        return empId;
+    }
+
+    public void setEmpId(Integer empId) {
+        this.empId = empId;
+    }
+
+    public String getEmpFirstname() {
+        return empFirstname;
+    }
+
+    public void setEmpFirstname(String empFirstname) {
+        this.empFirstname = empFirstname;
+    }
+
+    public String getEmpLastname() {
+        return empLastname;
+    }
+
+    public void setEmpLastname(String empLastname) {
+        this.empLastname = empLastname;
+    }
+     public Managers getManagersManId() {
+        return managersManId;
+    }
+
+    public void setManagersManId(Managers managersManId) {
+        this.managersManId = managersManId;
     }
 }

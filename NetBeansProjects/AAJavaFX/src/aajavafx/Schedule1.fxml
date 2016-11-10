@@ -7,26 +7,45 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="aajavafx.Schedule1Controller">
+<AnchorPane id="AnchorPane" prefHeight="513.0" prefWidth="600.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="aajavafx.Schedule1Controller">
     <children>
-        <Button layoutX="66.0" layoutY="341.0" mnemonicParsing="false" onAction="#handleGoBack" text="Back" />
+        <Button layoutX="14.0" layoutY="474.0" mnemonicParsing="false" onAction="#handleGoBack" text="Back" />
         <DatePicker fx:id="pickADate" layoutX="14.0" layoutY="21.0" />
-      <TableView layoutX="14.0" layoutY="111.0" prefHeight="200.0" prefWidth="200.0">
+      <TableView layoutX="14.0" layoutY="111.0" prefHeight="97.0" prefWidth="200.0">
         <columns>
           <TableColumn prefWidth="47.0" text="Name" />
-          <TableColumn prefWidth="49.0" text="Start" />
-            <TableColumn prefWidth="41.0" text="Finish" />
-            <TableColumn prefWidth="62.0" text="Id" />
+          <TableColumn prefWidth="89.0" text="Nr. hours" />
+            <TableColumn prefWidth="63.0" text="Id" />
         </columns>
       </TableView>
-      <TableView layoutX="267.0" layoutY="111.0" prefHeight="200.0" prefWidth="200.0">
+      <TableView layoutX="360.0" layoutY="111.0" prefHeight="97.0" prefWidth="209.0">
         <columns>
-          <TableColumn prefWidth="96.0" text="Name" />
-          <TableColumn prefWidth="61.0" text="Assigned" />
-            <TableColumn prefWidth="41.0" text="Id" />
+            <TableColumn prefWidth="71.0" text="Name" />
+          <TableColumn prefWidth="52.0" text="Id" />
+            <TableColumn prefWidth="85.0" text="Nr. of visits" />
         </columns>
       </TableView>
       <Label layoutX="14.0" layoutY="79.0" prefHeight="17.0" prefWidth="174.0" text="Employees" />
-      <Label layoutX="264.0" layoutY="79.0" prefHeight="17.0" prefWidth="200.0" text="Customer" />
+      <Label layoutX="360.0" layoutY="79.0" prefHeight="17.0" prefWidth="200.0" text="Customer" />
+      <TableView layoutX="14.0" layoutY="254.0" prefHeight="174.0" prefWidth="554.0">
+        <columns>
+          <TableColumn prefWidth="75.0" text="Id" />
+          <TableColumn prefWidth="75.0" text="EmployeeId" />
+            <TableColumn prefWidth="75.0" text="CustomerId" />
+            <TableColumn prefWidth="75.0" text="Start" />
+            <TableColumn prefWidth="75.0" text="Finish" />
+            <TableColumn prefWidth="75.0" text="Date" />
+            <TableColumn prefWidth="103.0" text="Visited" />
+        </columns>
+      </TableView>
+      <Label layoutX="214.0" layoutY="25.0" prefHeight="17.0" prefWidth="356.0" text="Display messages" />
+      <Button layoutX="88.0" layoutY="474.0" mnemonicParsing="false" text="View Schedule" />
+      <Button layoutX="214.0" layoutY="474.0" mnemonicParsing="false" text="Create new" />
+      <Button layoutX="323.0" layoutY="474.0" mnemonicParsing="false" text="Modify" />
+      <Button layoutX="408.0" layoutY="474.0" mnemonicParsing="false" text="Validate Modification" />
+      <TextField layoutX="88.0" layoutY="229.0" prefHeight="25.0" prefWidth="76.0" promptText="EmployeeId" />
+      <TextField layoutX="164.0" layoutY="229.0" prefHeight="25.0" prefWidth="76.0" text="CustomerId" />
+      <TextField layoutX="240.0" layoutY="229.0" prefHeight="25.0" prefWidth="76.0" text="Start" />
+      <TextField layoutX="316.0" layoutY="229.0" prefHeight="25.0" prefWidth="76.0" text="Finish" />
     </children>
 </AnchorPane>

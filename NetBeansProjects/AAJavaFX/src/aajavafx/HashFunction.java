@@ -19,19 +19,7 @@ import javax.crypto.spec.PBEKeySpec;
 
 public class HashFunction
 {
-	/*public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException 
-	{
-		String  originalPassword = "password";
-		String generatedSecuredPasswordHash = generateStorngPasswordHash(originalPassword);
-		System.out.println(generatedSecuredPasswordHash);
-		
-		boolean matched = validatePassword("password", generatedSecuredPasswordHash);
-		System.out.println(matched+"bou");
-		
-		matched = validatePassword("password1", generatedSecuredPasswordHash);
-		System.out.println(matched);
-	}
-	*/
+	
 	boolean validatePassword(String originalPassword, String storedPassword) throws NoSuchAlgorithmException, InvalidKeySpecException
 	{
 		String[] parts = storedPassword.split(":");
