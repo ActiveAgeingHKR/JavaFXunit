@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package aajavafx;
+package aajavafx.entities;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -16,7 +16,7 @@ public class Customers implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private String cuID;
+    private Integer cuId;
 
     private String cuFirstname;
 
@@ -29,11 +29,13 @@ public class Customers implements Serializable {
 
     public Customers() {
     }
-
+public Customers(Integer cuId) {
+        this.cuId = cuId;
+    }
     public Customers(Integer cuId, String cuFirstname, String cuLastname,  String cuAddress, String cuBirthdate,String cuPersonnummer) {
      
         
-        this.cuID = cuID;
+        this.cuId = cuId;
         this.cuFirstname = cuFirstname;
         this.cuLastname = cuLastname;
         this.cuBirthdate = cuBirthdate;
@@ -41,12 +43,12 @@ public class Customers implements Serializable {
         this.cuPersonnummer = cuPersonnummer;
     }
 
-    public String getCuID() {
-        return cuID;
+    public int getCuId() {
+        return cuId;
     }
 
-    public void setCuID(String cuID) {
-        this.cuID = cuID;
+    public void setCuID(int cuId) {
+        this.cuId = cuId;
     }
 
     public String getCuFirstname() {

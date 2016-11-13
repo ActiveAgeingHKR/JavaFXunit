@@ -10,8 +10,12 @@ package aajavafx;
  *
  * @author Iuliu
  */
+import aajavafx.entities.Managers;
+import aajavafx.entities.Employees;
+import entitiesproperty.EmployeeProperty;
 import com.google.gson.Gson;
-import java.io.ByteArrayOutputStream;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -29,9 +33,9 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.apache.commons.io.IOUtils;
@@ -90,21 +94,18 @@ public class EmployeeController implements Initializable {
     @FXML
     private Button buttonRegister;
 
-    //  private final DBConnection dbConnection = new DBConnection();
-    //  private boolean isManager;
+    private static String postEmployeesURL = "http://localhost:9090/MainServerREST/api/employees/";
+  
     @FXML
-    //  private Button changeButton;
-
-    /**
-     * Initializes the controller class.
-     */
-    private static String postEmployeesURL = "http://localhost:9090/MainServerREST/api/employees";
+    private Label labelError;
+    Client client = Client.create();
+    Managers manager = new Managers(1);
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        //    labelError.setText(null);
+        labelError.setText(null);
         buttonRegister.setVisible(false);
-        //    changeButton.setVisible(false);
+      
         textLastName.setVisible(false);
         textFirstName.setVisible(false);
         textUserName.setVisible(false);
@@ -166,9 +167,10 @@ public class EmployeeController implements Initializable {
 
     @FXML
     private void handleDeleteButton(ActionEvent event) {
+        Employees employee = new Employees();
+
         try {
             buttonRegister.setVisible(false);
-
             textLastName.setVisible(false);
             textFirstName.setVisible(false);
             textUserName.setVisible(false);
@@ -177,15 +179,26 @@ public class EmployeeController implements Initializable {
             textPassword.setVisible(false);
             textActivate.setVisible(false);
             int id = tableEmployees.getSelectionModel().getSelectedItem().getId();
+            String idToDelete = id + "";
+            WebResource webResource = client.resource("http://localhost:9090/MainServerREST/api/employees");
+            Employees myReturnedObject = webResource.path(idToDelete).delete(Employees.class);
             System.out.println("you want to delete: " + id);
         } catch (Exception ex) {
             System.out.println(ex);
+        }
+        try {
+            //populate table
+            tableEmployees.setItems(getEmployee());
+        } catch (IOException ex) {
+            Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (JSONException ex) {
+            Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     @FXML
     private void handleRegisterButton(ActionEvent event) {
-        //labelError.setText(null);
+        labelError.setText(null);
 
         String lastName = textLastName.getText();
         textLastName.clear();
@@ -211,30 +224,18 @@ public class EmployeeController implements Initializable {
         try {
             Gson gson = new Gson();
             HttpClient httpClient = HttpClientBuilder.create().build();
-            HttpPost post = new HttpPost(postEmployeesURL);
-            //  public Managers(Integer manId, String manFirstname, String manLastname, String manUsername, String manPassword, String manEmail, String manPhone)
-            // Managers manager = new Managers(1, "Tony", "Soprano", "Capo", "silence", "capo@g.com", "442455");
-            Managers manager = new Managers(1);
+            HttpPost post = new HttpPost("http://localhost:9090/MainServerREST/api/employees");
+
             Employees employee = new Employees(1, firstName, lastName, userName, password, email, phone, manager, register);
 
-            String jsonString = new String(gson.toJson(employee));
+            String jsonString = gson.toJson(employee);
             System.out.println("json string: " + jsonString);
             StringEntity postString = new StringEntity(jsonString);
 
             post.setEntity(postString);
             post.setHeader("Content-type", "application/json");
             HttpResponse response = httpClient.execute(post);
-
-            /*  ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-             if (response != null) {
-             response.getEntity().writeTo(outstream);
-             byte[] responseBody = outstream.toByteArray();
-             String str = new String(responseBody, "UTF-8");
-             System.out.print(str);
-             } else {
-             System.out.println("Success");
-             }
-             */
+            
         } catch (UnsupportedEncodingException ex) {
             System.out.println(ex);
         } catch (IOException e) {
@@ -250,49 +251,42 @@ public class EmployeeController implements Initializable {
         }
     }
 
+   
     @FXML
-    private void handlePrintButton(ActionEvent event) {
-        //  labelError.setText(null);
+    private void handleChangeValidation(ActionEvent event) throws UnsupportedEncodingException, IOException, JSONException {
 
-        buttonRegister.setVisible(false);
+        Gson gson = new Gson();
+        int id = tableEmployees.getSelectionModel().getSelectedItem().getId();
+        String idToChange = id + "";
 
-        textLastName.setVisible(true);
-        textFirstName.setVisible(true);
-        textUserName.setVisible(true);
-        textEmail.setVisible(true);
-        textPhone.setVisible(true);
-        //textSalary.setVisible(true);
+        boolean tempValidation = tableEmployees.getSelectionModel().getSelectedItem().getEmpValidation();
+        if (tempValidation == true) {
+            labelError.setText("This employee is valid!!!");
+        } else {
+            try {
+                JSONObject json1 = new JSONObject(IOUtils.toString(new URL(postEmployeesURL + idToChange), Charset.forName("UTF-8")));
+                Employees employeeTemp = new Employees();
+                System.out.println("Bou" + json1.toString());
+                employeeTemp = gson.fromJson(json1.toString(), Employees.class);
 
-    }
+                boolean register = true;
 
-    @FXML
-    private void handleChangeButton(ActionEvent event) {
-        //  labelError.setText(null);
+                //String jsonString = gson.toJson(employee);
+                WebResource resource = client.resource(postEmployeesURL + idToChange);
 
-        try {
-            String lastName = textLastName.getText();
-            textLastName.clear();
-            String firstName = textFirstName.getText();
-            textFirstName.clear();
-            String userName = textUserName.getText();
-            textUserName.clear();
-            String email = textEmail.getText();
-            textEmail.clear();
-            String temporaryPhone = textPhone.getText();
-            int phone = Integer.valueOf(temporaryPhone);
-            textPhone.clear();
-            //  String temporarySalary = textSalary.getText();
-            //  int salary = Integer.valueOf(temporarySalary);
-            // textSalary.clear();
+                employeeTemp.setEmpRegistered(register);
+                Employees response = resource.put(Employees.class, employeeTemp);
+                tableEmployees.setItems(getEmployee());
+            } catch (IOException ex) {
+                Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (JSONException ex) {
+                Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
+            }
 
-        } catch (Exception ex) {
-            System.out.println("Is not a integer!");
-            //     labelError.setText("Is not a integer!");
         }
 
     }
-
-    public ObservableList<EmployeeProperty> getEmployee() throws IOException, JSONException {
+     public ObservableList<EmployeeProperty> getEmployee() throws IOException, JSONException {
         Employees myEmployee = new Employees();
         Managers manager = new Managers();
         Gson gson = new Gson();
@@ -311,4 +305,5 @@ public class EmployeeController implements Initializable {
         }
         return employeesProperty;
     }
+
 }

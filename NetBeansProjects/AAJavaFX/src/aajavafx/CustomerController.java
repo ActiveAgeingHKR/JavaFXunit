@@ -5,6 +5,8 @@
  */
 package aajavafx;
 
+import aajavafx.entities.Customers;
+import entitiesproperty.CustomerProperty;
 import com.google.gson.Gson;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -98,13 +100,14 @@ public class CustomerController implements Initializable {
         persunnumerID.setVisible(false);
 
         //initialize columns
-        firstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNProperty());
+        idCustomer.setCellValueFactory(cellData -> cellData.getValue().customerIdProperty().asObject());
+        firstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNameProperty());
         lastNameColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
         addressColumn.setCellValueFactory(cellData -> cellData.getValue().addressProperty());
         birthdateColumn.setCellValueFactory(cellData -> cellData.getValue().birthdateProperty());
         persunnumerColumn.setCellValueFactory(cellData -> cellData.getValue().personnumerProperty());
 
-        idCustomer.setCellValueFactory(cellData -> cellData.getValue().idProperty().asObject());
+       
         //Populate table 
         tableCustomer.setItems(getCustomer());
     }

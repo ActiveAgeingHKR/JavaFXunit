@@ -5,6 +5,7 @@
  */
 package aajavafx;
 
+import aajavafx.entities.Managers;
 import org.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 import com.google.gson.Gson;
@@ -69,7 +70,7 @@ public class LoginController extends ControllerClass {
             System.out.println(matchedPassword);
             String passwordFromDB = this.getPassword("1");
           
-            if (passwordFromDB.equals(password_var)) {
+        //    if (passwordFromDB.equals(password_var)) {
                 Node node = (Node) event.getSource();
                 Stage stage = (Stage) node.getScene().getWindow();
 
@@ -81,9 +82,9 @@ public class LoginController extends ControllerClass {
                 stage.show();
 
                 System.out.println("Taking you to next page!");
-            } else {
-                outputmessageID.setText("Login failed!!!!");
-            }
+          //  } else {
+            //    outputmessageID.setText("Login failed!!!!");
+          //  }
         } catch (Exception ex) {
             System.out.println("Something went wrong!");
         }

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package aajavafx;
+package aajavafx.entities;
 
 import java.io.Serializable;
 
@@ -29,7 +29,9 @@ public class Employees  implements Serializable {
 
     public Employees() {
     }
-
+public Employees(Integer empId) {
+        this.empId = empId;
+    }
     public Employees( Integer empId,String empFirstname, String empLastname, String empUsername, String empPassword, String empEmail, String empPhone, Managers managersManId, boolean empRegistered) {
 
         this.empId = empId;

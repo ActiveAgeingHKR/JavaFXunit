@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package aajavafx;
+package entitiesproperty;
 
 /**
  *
@@ -115,5 +115,8 @@ public class EmployeeProperty extends PersonProperty {
         setManagerId(managersID);
         setEmpValidation(empRegistered);
     }
-  
+  public EmployeeProperty(Integer empId, String empFirstname, String empLastname) {
+        super(empId,empFirstname, empLastname);
+       
+    }
 }

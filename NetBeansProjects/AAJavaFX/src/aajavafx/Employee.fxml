@@ -15,11 +15,12 @@
             <Image url="@TheBookstoreLOGO.png" />
          </image>
       </ImageView>
-        <VBox layoutX="77.0" layoutY="80.0" prefHeight="126.0" prefWidth="101.0" AnchorPane.leftAnchor="77.0">
+        <VBox layoutX="62.0" layoutY="80.0" prefHeight="126.0" prefWidth="116.0" AnchorPane.leftAnchor="62.0">
             <children>
-                <Button fx:id="button4" mnemonicParsing="false" onAction="#handleNewButton" prefHeight="25.0" prefWidth="102.0" text="New" />
-                <Button fx:id="button5" mnemonicParsing="false" onAction="#handleDeleteButton" prefHeight="25.0" prefWidth="101.0" text="Delete" />
-                <Button fx:id="button1" mnemonicParsing="false" onAction="#handleGoBack" prefHeight="25.0" prefWidth="101.0" text="Back" />
+                <Button fx:id="button4" mnemonicParsing="false" onAction="#handleNewButton" prefHeight="25.0" prefWidth="127.0" text="New" />
+                <Button fx:id="button5" mnemonicParsing="false" onAction="#handleDeleteButton" prefHeight="25.0" prefWidth="118.0" text="Delete" />
+            <Button mnemonicParsing="false" onAction="#handleChangeValidation" prefHeight="25.0" prefWidth="119.0" text="Change Validation" />
+                <Button fx:id="button1" mnemonicParsing="false" onAction="#handleGoBack" prefHeight="25.0" prefWidth="119.0" text="Back" />
             </children>
         </VBox>
         <VBox layoutX="290.0" layoutY="27.0" prefHeight="195.0" prefWidth="76.0" AnchorPane.leftAnchor="290.0">
@@ -34,7 +35,7 @@
                 <Button fx:id="buttonRegister" mnemonicParsing="false" onAction="#handleRegisterButton" prefHeight="25.0" prefWidth="200.0" text="Validate" />
             </children>
         </VBox>
-      <TableView fx:id="tableEmployees" layoutX="4.0" layoutY="237.0" prefHeight="369.0" prefWidth="720.0" AnchorPane.bottomAnchor="-7.0" AnchorPane.leftAnchor="4.0" AnchorPane.rightAnchor="196.0" AnchorPane.topAnchor="237.0">
+      <TableView fx:id="tableEmployees" layoutX="4.0" layoutY="237.0" prefHeight="351.0" prefWidth="679.0" AnchorPane.bottomAnchor="11.0" AnchorPane.leftAnchor="4.0" AnchorPane.rightAnchor="196.0" AnchorPane.topAnchor="237.0">
         <columns>
             <TableColumn fx:id="idEmployee" maxWidth="314.0" minWidth="75.0" prefWidth="131.0" text="Id" />
             <TableColumn fx:id="lastNameColumn" maxWidth="75.0" minWidth="75.0" prefWidth="222.0" text="Last Name" />
@@ -61,5 +62,6 @@
             <Label prefHeight="25.0" prefWidth="100.0" text="Activate" />
          </children>
       </VBox>
+      <Label fx:id="labelError" layoutX="401.0" layoutY="72.0" prefHeight="17.0" prefWidth="404.0" />
     </children>
 </AnchorPane>

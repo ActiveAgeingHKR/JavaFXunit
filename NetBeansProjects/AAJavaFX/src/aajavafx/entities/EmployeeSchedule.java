@@ -3,32 +3,24 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package aajavafx;
+package aajavafx.entities;
 
 import java.io.Serializable;
-import java.util.Date;
 
 
 
 public class EmployeeSchedule implements Serializable {
 
     private static final long serialVersionUID = 1L;
-  
-    
+   
     private Integer schId;
-   
-    
-    private Date schDate;
-   
-    
-    private Date schFromTime;
-  
-    
-    private Date schUntilTime;
-    private Integer employeeId;
-    private Integer customerId;
-    
+    private String schDate;
+    private String schFromTime;
+    private String schUntilTime;
     private boolean emplVisitedCust;
+    private Customers customersCuId;
+    private Employees employeesEmpId;
+            
 
     public EmployeeSchedule() {
     }
@@ -37,14 +29,15 @@ public class EmployeeSchedule implements Serializable {
         this.schId = schId;
     }
 
-    public EmployeeSchedule(Integer schId,Integer employeeId,Integer customerId, Date schDate, Date schFromTime, Date schUntilTime, boolean emplVisitedCust) {
+    public EmployeeSchedule(Integer schId, String schDate, String schFromTime, String schUntilTime,
+            boolean emplVisitedCust,Customers customersCuId,Employees employeesEmpId) {
         this.schId = schId;
-        this.employeeId=employeeId;
-        this.customerId=customerId;     
         this.schDate = schDate;
         this.schFromTime = schFromTime;
         this.schUntilTime = schUntilTime;
         this.emplVisitedCust = emplVisitedCust;
+        this.customersCuId=customersCuId;
+        this.employeesEmpId=employeesEmpId;
     }
 
     public Integer getSchId() {
@@ -55,27 +48,27 @@ public class EmployeeSchedule implements Serializable {
         this.schId = schId;
     }
 
-    public Date getSchDate() {
+    public String getSchDate() {
         return schDate;
     }
 
-    public void setSchDate(Date schDate) {
+    public void setSchDate(String schDate) {
         this.schDate = schDate;
     }
 
-    public Date getSchFromTime() {
+    public String getSchFromTime() {
         return schFromTime;
     }
 
-    public void setSchFromTime(Date schFromTime) {
+    public void setSchFromTime(String schFromTime) {
         this.schFromTime = schFromTime;
     }
 
-    public Date getSchUntilTime() {
+    public String getSchUntilTime() {
         return schUntilTime;
     }
 
-    public void setSchUntilTime(Date schUntilTime) {
+    public void setSchUntilTime(String schUntilTime) {
         this.schUntilTime = schUntilTime;
     }
 
@@ -85,6 +78,22 @@ public class EmployeeSchedule implements Serializable {
 
     public void setEmplVisitedCust(boolean emplVisitedCust) {
         this.emplVisitedCust = emplVisitedCust;
+    }
+    
+    public Customers getCustomersCuId() {
+        return customersCuId;
+    }
+
+    public void setCustomersCuId(Customers customersCuId) {
+        this.customersCuId = customersCuId;
+    }
+
+    public Employees getEmployeesEmpId() {
+        return employeesEmpId;
+    }
+
+    public void setEmployeesEmpId(Employees employeesEmpId) {
+        this.employeesEmpId = employeesEmpId;
     }
 
     @Override
@@ -110,22 +119,6 @@ public class EmployeeSchedule implements Serializable {
     @Override
     public String toString() {
         return "entities.EmployeeSchedule[ schId=" + schId + " ]";
-    }
-
-    public Integer getEmployeeId() {
-        return employeeId;
-    }
-
-    public void setEmployeeId(Integer employeeId) {
-        this.employeeId = employeeId;
-    }
-
-    public Integer getCustomerId() {
-        return customerId;
-    }
-
-    public void setCustomerId(Integer customerId) {
-        this.customerId = customerId;
     }
     
 }
