@@ -6,12 +6,16 @@
 package aajavafx;
 
 import aajavafx.entities.Customers;
+import aajavafx.entities.Employees;
+import aajavafx.entities.Managers;
 import entitiesproperty.CustomerProperty;
 import com.google.gson.Gson;
+import entitiesproperty.EmployeeProperty;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -35,11 +39,15 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * FXML Controller class
@@ -107,9 +115,14 @@ public class CustomerController implements Initializable {
         birthdateColumn.setCellValueFactory(cellData -> cellData.getValue().birthdateProperty());
         persunnumerColumn.setCellValueFactory(cellData -> cellData.getValue().personnumerProperty());
 
-       
+       try{
         //Populate table 
         tableCustomer.setItems(getCustomer());
+    } catch (IOException ex) {
+            Logger.getLogger(CustomerController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (JSONException ex) {
+            Logger.getLogger(CustomerController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @FXML
@@ -235,11 +248,27 @@ public class CustomerController implements Initializable {
 
     }
 
-    public ObservableList<CustomerProperty> getCustomer() {
+    public ObservableList<CustomerProperty> getCustomer() throws IOException, JSONException{
 
         ObservableList<CustomerProperty> customers = FXCollections.observableArrayList();
-        customers.add(new CustomerProperty(1, "Johny", "Walker", "London", "1972-07-01", "7207012222"));
+        //customers.add(new CustomerProperty(1, "Johny", "Walker", "London", "1972-07-01", "7207012222"));
+        Customers myCustomer = new Customers();
+        //Managers manager = new Managers();
+        Gson gson = new Gson();
+        ObservableList<CustomerProperty> customersProperty = FXCollections.observableArrayList();
+        JSONObject jo = new JSONObject();
+        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL("http://localhost:9090/MainServerREST/api/customers"), Charset.forName("UTF-8")));
+        System.out.println(jsonArray);
+        for (int i = 0; i < jsonArray.length(); i++) {
+            jo = (JSONObject) jsonArray.getJSONObject(i);
+            myCustomer = gson.fromJson(jo.toString(), Customers.class);
+            System.out.println(myCustomer.getCuId());
+            customersProperty.add(new CustomerProperty(myCustomer.getCuId(), myCustomer.getCuFirstname(),
+                    myCustomer.getCuLastname(), myCustomer.getCuBirthdate(), myCustomer.getCuAddress(),
+                    myCustomer.getCuPersonnummer()));
 
-        return customers;
+        
     }
+        return customersProperty;
+}
 }
