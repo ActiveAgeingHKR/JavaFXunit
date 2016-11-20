@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="aajavafx.DevicesController">
+   <children>
+      <TextField id="DevID" fx:id="DevName" layoutX="53.0" layoutY="61.0" prefHeight="27.0" prefWidth="126.0" promptText="Device Name" />
+      <TextField id="DevName" fx:id="CuID" layoutX="208.0" layoutY="61.0" prefHeight="27.0" prefWidth="126.0" promptText="Customer ID" />
+      <Button layoutX="116.0" layoutY="131.0" mnemonicParsing="false" onAction="#handleAddButton" text="ADD" />
+      <Button layoutX="222.0" layoutY="131.0" mnemonicParsing="false" onAction="#handleBackButton" text="Back" />
+   </children>
+</AnchorPane>

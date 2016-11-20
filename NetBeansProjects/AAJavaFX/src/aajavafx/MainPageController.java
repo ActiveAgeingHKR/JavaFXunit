@@ -121,6 +121,29 @@ public class MainPageController extends ControllerClass {
         }
     }
     
+    @FXML
+    public void handleButtonDevicesAction (ActionEvent event) {
+
+        try {
+            
+            Node node = (Node) event.getSource();
+            Stage stage = (Stage) node.getScene().getWindow();
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("Devices.fxml"));
+            Parent root = loader.load();
+
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+
+            System.out.println("You clicked Schedule!");
+        } catch (Exception ex) {
+        
+
+        System.out.println("ERROR! "+ex);
+        }
+    }
+    
      @FXML
     public void handleButtonSignOutAction (ActionEvent event) {
 
