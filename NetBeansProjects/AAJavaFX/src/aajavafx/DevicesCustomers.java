@@ -16,21 +16,21 @@ public class DevicesCustomers implements Serializable {
 
     private static final long serialVersionUID = 1L;
     
-    private Integer devId;
+    private String devId;
     private String devName;
-    private Customers customersCuID;
+    private Customers customersCuId;
     
     public DevicesCustomers() {
     }
 
-    public DevicesCustomers(Integer devId) {
+    public DevicesCustomers(String devId) {
         this.devId = devId;
     }
 
-    public DevicesCustomers(Integer devId, String devName, Customers customersCuID) {
+    public DevicesCustomers(String devId, String devName, Customers customersCuID) {
         this.devId = devId;
         this.devName = devName;
-        this.customersCuID = customersCuID;
+        this.customersCuId = customersCuID;
     }
 
     
@@ -43,11 +43,11 @@ public class DevicesCustomers implements Serializable {
     }
     
     public Customers getCustomersCuID() {
-        return customersCuID;
+        return customersCuId;
     }
 
     public void setCustomersCuID(Customers cuID) {
-        this.customersCuID = cuID;
+        this.customersCuId = cuID;
     }
     
 }

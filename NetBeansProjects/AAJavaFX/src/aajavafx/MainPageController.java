@@ -94,7 +94,30 @@ public class MainPageController extends ControllerClass {
         } catch (Exception ex) {
         
 
-        System.out.println("ERROR!");
+        System.out.println("ERROR!"+ex);
+        }
+    }
+    
+    @FXML
+    public void handleButtonVisitorSchedule (ActionEvent event) {
+
+        try {
+            
+            Node node = (Node) event.getSource();
+            Stage stage = (Stage) node.getScene().getWindow();
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("VisitorSchedule.fxml"));
+            Parent root = loader.load();
+
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+
+            System.out.println("You clicked Visitor Schedule!");
+        } catch (Exception ex) {
+        
+
+        System.out.println("ERROR!"+ex);
         }
     }
     

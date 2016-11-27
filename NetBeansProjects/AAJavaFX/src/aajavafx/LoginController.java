@@ -6,19 +6,30 @@
 package aajavafx;
 
 import aajavafx.entities.Managers;
+import aajavafx.entities.UserCredentials;
 import org.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 import com.google.gson.Gson;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -38,9 +49,14 @@ public class LoginController extends ControllerClass {
     private TextField userID;
     @FXML
     private PasswordField passwordID;
+    
+    @FXML
+    private CheckBox saveCredentials;
 
     private final String USERNAME = "a";  // hard coded username to login
     private final String PASSWORD = "1"; //hard coded password to login
+    
+    Path savedCredentials = Paths.get("usr.conf");
 
     private String username_var;
     private String password_var;
@@ -65,10 +81,24 @@ public class LoginController extends ControllerClass {
             System.out.println(generatedSecurePasswordHash);
             matchedUserName = hash.validatePassword(USERNAME, generatedSecuredUserNameHash);
             matchedPassword = hash.validatePassword(PASSWORD, generatedSecurePasswordHash);
-
             System.out.println(matchedUserName);
             System.out.println(matchedPassword);
-            String passwordFromDB = this.getPassword("1");
+            //String passwordFromDB = this.getPassword("1");
+            
+            if (saveCredentials.isSelected()) {
+
+            //create serializable user credentials
+            UserCredentials userCred = new UserCredentials(username_var, password_var);
+
+            //save the file to the destination defined in variable savedCredentials
+            try (ObjectOutputStream out = new ObjectOutputStream(Files.newOutputStream(savedCredentials))) {
+                out.writeObject(userCred);
+            } catch (IOException ex) {
+                System.out.println("IO Exception: "+ex);
+            } catch (Exception ex) {
+                System.out.println("Exception: "+ex);;
+            }
+        }
           
         //    if (passwordFromDB.equals(password_var)) {
                 Node node = (Node) event.getSource();
@@ -86,7 +116,7 @@ public class LoginController extends ControllerClass {
             //    outputmessageID.setText("Login failed!!!!");
           //  }
         } catch (Exception ex) {
-            System.out.println("Something went wrong!");
+            System.out.println("LOAD PAGE EXCEPTION: "+ex);
         }
 
         System.out.println("You clicked me!");
@@ -108,5 +138,26 @@ public class LoginController extends ControllerClass {
         password = manager.getManPassword();
         System.out.println(password);
         return password;
+    }
+    
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        //Disables checkbox if username and password are blank
+        saveCredentials.disableProperty().bind(Bindings.isEmpty(userID.textProperty())
+                .or(Bindings.isEmpty(passwordID.textProperty())
+                ));
+        if (Files.isReadable(savedCredentials)) {
+            //reads file and autofills the textfields
+            try (ObjectInputStream in = new ObjectInputStream(Files.newInputStream(savedCredentials))) {
+                UserCredentials user = (UserCredentials) in.readObject();
+                userID.setText(user.getUsername());
+                passwordID.setText(user.getPassword());
+
+            } catch (IOException ex) {
+                System.out.println("IO Exception: "+ex);
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(LoginController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 }

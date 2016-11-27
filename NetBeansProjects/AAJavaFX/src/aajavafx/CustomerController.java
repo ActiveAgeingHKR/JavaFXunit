@@ -56,7 +56,7 @@ import org.json.JSONObject;
  */
 public class CustomerController implements Initializable {
 
-    private static String postCustomerURL = "http://localhost:9090/MainServerREST/api/customers";
+    private static String postCustomerURL = "http://localhost:8080/MainServerREST/api/customers";
    // private static String postCustomerURL = "http://192.168.43.205:8080/MainServerREST/api/customers";
 
     @FXML
@@ -257,7 +257,7 @@ public class CustomerController implements Initializable {
         Gson gson = new Gson();
         ObservableList<CustomerProperty> customersProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL("http://localhost:9090/MainServerREST/api/customers"), Charset.forName("UTF-8")));
+        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL("http://localhost:8080/MainServerREST/api/customers"), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
