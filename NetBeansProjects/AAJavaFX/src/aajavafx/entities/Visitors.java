@@ -11,7 +11,7 @@ import java.io.Serializable;
  */
 public class Visitors implements Serializable {
     private static final long serialVersionUID = 1L;
-    private int visId;
+    private String visId;
     private String visFirstname;
     private String visLastname;
     private String visEmail;
@@ -21,11 +21,11 @@ public class Visitors implements Serializable {
     public Visitors() {
     }
 
-    public Visitors(Integer visId) {
+    public Visitors(String visId) {
         this.visId = visId;
     }
 
-    public Visitors(Integer visId, String visFirstname, String visLastname, String visEmail, String visPhone, Company companyId) {
+    public Visitors(String visId, String visFirstname, String visLastname, String visEmail, String visPhone, Company companyId) {
         this.visId = visId;
         this.visFirstname = visFirstname;
         this.visLastname = visLastname;
@@ -34,11 +34,11 @@ public class Visitors implements Serializable {
         this.companyCompId = companyId;
     }
 
-    public Integer getVisId() {
+    public String getVisId() {
         return visId;
     }
 
-    public void setVisId(Integer visId) {
+    public void setVisId(String visId) {
         this.visId = visId;
     }
 

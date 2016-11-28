@@ -7,7 +7,6 @@ package aajavafx;
 
 import aajavafx.entities.Company;
 import entitiesproperty.VisitorsProperty;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -31,14 +30,30 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import aajavafx.entities.Visitors;
 import com.google.gson.Gson;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
+import java.awt.Desktop;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.ArrayList;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.stage.FileChooser;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.InputStreamBody;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -53,6 +68,10 @@ public class VisitorController implements Initializable {
     @FXML
     private Button buttonRegister;
     @FXML
+    private Button buttonSave;
+    @FXML
+    private Button editButton;
+    @FXML
     private TextField visitorIDField;
     @FXML
     private TextField firstNameField;
@@ -63,11 +82,15 @@ public class VisitorController implements Initializable {
     @FXML
     private TextField phoneNumberField;
     @FXML
-    private TextField companyIDField;
+    private ComboBox companyBox;
+    @FXML 
+    private ImageView imageView; 
+    @FXML
+    private Label errorLabel;
     @FXML
     private TableView<VisitorsProperty> tableVisitors;
     @FXML
-    private TableColumn<VisitorsProperty, Integer> visitorIDColumn;
+    private TableColumn<VisitorsProperty, String> visitorIDColumn;
     @FXML
     private TableColumn<VisitorsProperty, String> firstNameColumn;
     @FXML
@@ -79,25 +102,33 @@ public class VisitorController implements Initializable {
     @FXML
     private TableColumn<VisitorsProperty, Integer> companyIDColumn;
     
-    private static String postVisitorsURL = "http://localhost:9090/MainServerREST/api/visitors/";
-    Company company = new Company();
-    Client client = Client.create();
+    private Desktop desktop = Desktop.getDesktop();
+    
+    //this will store the list of companies for use in the combo box
+    ArrayList<Company> companies = new ArrayList<>();
+    
+    //we can store the root directory of visitors and company here, where most methods are based
+    private static String VisitorsRootURL = "http://localhost:8080/MainServerREST/api/visitors/";
+    private static String CompanyRootURL = "http://localhost:8080/MainServerREST/api/company";
+    private static String postHTML = "http://localhost:8080/MainServerREST/api/visitorschedule/upload";
+    
+    File imageFile;
     
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
-        buttonRegister.setVisible(false);
-        visitorIDField.setVisible(false);
-        firstNameField.setVisible(false);
-        lastNameField.setVisible(false);
-        emailField.setVisible(false);
-        phoneNumberField.setVisible(false);
-        companyIDField.setVisible(false);
+        //instead of invisible, make the text fields locked for editing at first
+        visitorIDField.setEditable(false);
+        firstNameField.setEditable(false);
+        lastNameField.setEditable(false);
+        emailField.setEditable(false);
+        phoneNumberField.setEditable(false);
+        companyBox.setDisable(true);
+        errorLabel.setVisible(false);
         
-        visitorIDColumn.setCellValueFactory(cellData -> cellData.getValue().visIdProperty().asObject());
+        visitorIDColumn.setCellValueFactory(cellData -> cellData.getValue().visIdProperty());
         firstNameColumn.setCellValueFactory(cellData -> cellData.getValue().visFirstnameProperty());
         lastNameColumn.setCellValueFactory(cellData -> cellData.getValue().visLastnameProperty());
         emailColumn.setCellValueFactory(cellData -> cellData.getValue().visEmailProperty());
@@ -106,41 +137,58 @@ public class VisitorController implements Initializable {
         
         try{
             //Populate table
+            getCompanyList();
             tableVisitors.setItems(getVisitors());
+            ObservableList<String> companyList = FXCollections.observableArrayList();
+            for(Company c: companies) {
+                companyList.add(c.getCompName());
+            }
+            companyBox.setItems(companyList);
+            companyBox.getItems().add("Add company");
         } catch (IOException ex) {
             Logger.getLogger(VisitorController.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (JSONException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(VisitorController.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        tableVisitors.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                visitorIDField.setText(""+newSelection.visIdProperty().getValue());
+                firstNameField.setText(newSelection.getVisFirstname());
+                lastNameField.setText(newSelection.getVisLastname());
+                emailField.setText(newSelection.getVisEmail());
+                phoneNumberField.setText(newSelection.getVisPhone());
+                companyBox.setValue(getCompanyNameFromID(newSelection.getCompanyCompId()));
+            }
+        });
+   
     }
     
     @FXML
     private void handleNewVisitor(ActionEvent event) {
-        buttonRegister.setVisible(true);
-        visitorIDField.setVisible(true);
-        firstNameField.setVisible(true);
-        lastNameField.setVisible(true);
-        emailField.setVisible(true);
-        phoneNumberField.setVisible(true);
-        companyIDField.setVisible(true);
+        visitorIDField.clear();
+        firstNameField.clear();
+        lastNameField.clear();
+        emailField.clear();
+        phoneNumberField.clear();
+        visitorIDField.setEditable(true);
+        firstNameField.setEditable(true);
+        lastNameField.setEditable(true);
+        emailField.setEditable(true);
+        phoneNumberField.setEditable(true);
+        companyBox.setDisable(false);
     }
     
     @FXML
     private void handleRemoveVisitor(ActionEvent event) {
+        //remove is annotated with @DELETE on server so we use a HttpDelete object
         try {
-            buttonRegister.setVisible(false);
-            visitorIDField.setVisible(false);
-            firstNameField.setVisible(false);
-            lastNameField.setVisible(false);
-            emailField.setVisible(false);
-            phoneNumberField.setVisible(false);
-            companyIDField.setVisible(false);
-            
-            int id = tableVisitors.getSelectionModel().getSelectedItem().getVisId();
-            String idToDelete = id + "";
-            WebResource webResource = client.resource("http://localhost:9090/MainServerREST/api/employees");
-            Visitors myReturnedObject = webResource.path(idToDelete).delete(Visitors.class);
-            System.out.println("you want to delete: " + id);
+            HttpClient httpClient = HttpClientBuilder.create().build();
+            String idToDelete = visitorIDField.getText();
+            //add the id to the end of the URL so this will call the method at MainServerREST/api/visitors/id
+            HttpDelete delete = new HttpDelete(VisitorsRootURL+idToDelete);
+            HttpResponse response = httpClient.execute(delete);
+            System.out.println("response from server " + response.getStatusLine());
         } catch (Exception ex) {
             System.out.println(ex);
         }
@@ -148,12 +196,123 @@ public class VisitorController implements Initializable {
             //populate table
             tableVisitors.setItems(getVisitors());
         } catch (IOException ex) {
-            Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (JSONException ex) {
-            Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(VisitorController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            Logger.getLogger(VisitorController.class.getName()).log(Level.SEVERE, null, ex);
         }
+              
+    }
+    
+    @FXML
+    private void handleEditVisitor(ActionEvent event) {
+        firstNameField.setEditable(true);
+        lastNameField.setEditable(true);
+        emailField.setEditable(true);
+        phoneNumberField.setEditable(true);
+        companyBox.setDisable(false);    
+    }
+    
+    @FXML
+    private void handleSave(ActionEvent event) {
+        if(imageFile!=null) {
+                 
+        String visitorId = visitorIDField.getText();
+        visitorIDField.clear();
+        String firstName = firstNameField.getText();
+        firstNameField.clear();
+        String lastName = lastNameField.getText();
+        lastNameField.clear();
+        String email = emailField.getText();
+        emailField.clear();
+        String phoneNumber = phoneNumberField.getText();
+        phoneNumberField.clear();
+        Integer companyId = getCompanyIDFromName(companyBox.getValue().toString());
+        try {
+            Gson gson = new Gson();
+            HttpClient httpClient = HttpClientBuilder.create().build();
+            HttpEntityEnclosingRequestBase HttpEntity = null; //this is the superclass for post, put, get, etc
+            if(visitorIDField.isEditable()) { //then we are posting a new record
+                HttpEntity = new HttpPost(VisitorsRootURL); //so make a http post object
+            } else { //we are editing a record 
+                HttpEntity = new HttpPut(VisitorsRootURL); //so make a http put object
+            }
+            Company company = getCompany(companyId);
+            Visitors visitor = new Visitors(visitorId, firstName, lastName, email, phoneNumber, company);
+            
+            String jsonString = new String(gson.toJson(visitor));
+            System.out.println("json string: " + jsonString);
+            StringEntity postString = new StringEntity(jsonString);
+            
+            HttpEntity.setEntity(postString);
+            HttpEntity.setHeader("Content-type", "application/json");
+            HttpResponse response = httpClient.execute(HttpEntity);
+            int statusCode = response.getStatusLine().getStatusCode();
+            if(statusCode == 204) {
+                System.out.println("New visitor posted successfully");
+            } else{
+                System.out.println("Server error: "+response.getStatusLine());
+            }
+            visitorIDField.setEditable(false);
+            firstNameField.setEditable(false);
+            lastNameField.setEditable(false);
+            emailField.setEditable(false);
+            phoneNumberField.setEditable(false);
+            companyBox.setEditable(false);
+            visitorIDField.clear();
+            firstNameField.clear();
+            lastNameField.clear();
+            emailField.clear();
+            tableVisitors.setItems(getVisitors());
+        } catch (UnsupportedEncodingException ex) {
+            System.out.println(ex);
+        } catch (IOException e) {
+            System.out.println(e);
+        } catch (JSONException je) {
+            System.out.println("JSON error: "+je);
+        }
+                
+	FileInputStream fis = null;
+	try {
+            
+            fis = new FileInputStream(imageFile);
+            HttpClient httpClient = HttpClientBuilder.create().build();
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            FileBody fileBody = new FileBody(new File(imageFile.getName())); //image should be a String
+            builder.addPart("file", new InputStreamBody(fis, imageFile.getName())); 
+            //builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+			
+            // server back-end URL
+            HttpPost httppost = new HttpPost(postHTML);
+            //MultipartEntity entity = new MultipartEntity();
+            // set the file input stream and file name as arguments
+            //entity.addPart("file", new InputStreamBody(fis, inFile.getName()));
+            HttpEntity entity = builder.build();
+            httppost.setEntity(entity);
+            // execute the request
+            HttpResponse response = httpClient.execute(httppost);
+			
+            int statusCode = response.getStatusLine().getStatusCode();
+            HttpEntity responseEntity = response.getEntity();
+            String responseString = EntityUtils.toString(responseEntity, "UTF-8");
+			
+            System.out.println("[" + statusCode + "] " + responseString);
+			
+            } catch (ClientProtocolException e) {
+		System.err.println("Unable to make connection");
+		e.printStackTrace();
+            } catch (IOException e) {
+		System.err.println("Unable to read file");
+		e.printStackTrace();
+            } finally {
+                try {
+                    if (fis != null) fis.close();
+		} catch (IOException e) {}
+            }
         
-        
+        } else {
+            errorLabel.setText("Record Not Saved: Please attach a photo for this visitor");
+            errorLabel.setVisible(true);
+        }   
     }
     
     @FXML
@@ -167,66 +326,61 @@ public class VisitorController implements Initializable {
             stage.setScene(scene);
             
             stage.setTitle("Main menu");
-            stage.show();
-            
+            stage.show();        
         } catch (Exception ex) {
             Logger.getLogger(MainPageController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
     @FXML
-    private void handleRegister(ActionEvent event) {
-        
-        //  String visitorId = visitorIDField.getText();
-        //  visitorIDField.clear();
-        String firstName = firstNameField.getText();
-        firstNameField.clear();
-        String lastName = lastNameField.getText();
-        lastNameField.clear();
-        String email = emailField.getText();
-        emailField.clear();
-        String phoneNumber = phoneNumberField.getText();
-        phoneNumberField.clear();
-        String companyId = companyIDField.getText();
-        companyIDField.clear();
-        
-        try {
-            Gson gson = new Gson();
-            HttpClient httpClient = HttpClientBuilder.create().build();
-            HttpPost post = new HttpPost(postVisitorsURL);
-            
-            Visitors visitor = new Visitors(1, firstName, lastName, email, phoneNumber, company);
-            
-            String jsonString = new String(gson.toJson(visitor));
-            System.out.println("json string: " + jsonString);
-            StringEntity postString = new StringEntity(jsonString);
-            
-            post.setEntity(postString);
-            post.setHeader("Content-type", "application/json");
-            HttpResponse response = httpClient.execute(post);
-            ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-            if (response != null) {
-                response.getEntity().writeTo(outstream);
-                byte[] responseBody = outstream.toByteArray();
-                String str = new String(responseBody, "UTF-8");
-                System.out.print(str);
-            } else {
-                System.out.println("Success");
+    private void handleImageButton(ActionEvent event) {
+        Node node = (Node) event.getSource();
+        Stage stage = (Stage) node.getScene().getWindow();
+        FileChooser fileChooser = new FileChooser();
+        configureFileChooser(fileChooser);
+        fileChooser.setTitle("Open Resource File");
+        imageFile = fileChooser.showOpenDialog(stage);
+        if(imageFile!=null) {
+            try {
+            System.out.println("abs path: "+imageFile.getAbsolutePath());
+            System.out.println("can oath: "+imageFile.getCanonicalPath());
+            FileInputStream fis = new FileInputStream(imageFile.getCanonicalPath());
+            Image image = new Image(fis);
+            imageView.setImage(image);
             }
-        } catch (UnsupportedEncodingException ex) {
-            System.out.println(ex);
-        } catch (IOException e) {
-            System.out.println(e);
-        }
+            catch(IOException ie) {
+                System.out.println("IO Error: "+ie);
+            }
+        }    
+        /*if(file != null) {
+            openFile(file);          
+        }*/     
     }
     
+     private void openFile(File file) {
+        try {
+            desktop.open(file);
+        } catch (IOException ex) {
+            Logger.getLogger(
+                VisitorController.class.getName()).log(
+                    Level.SEVERE, null, ex
+                );
+        }
+    }
+     
+    private static void configureFileChooser(final FileChooser fileChooser){                           
+        fileChooser.setTitle("Select Visitor Photo");
+        fileChooser.setInitialDirectory(
+            new File("src/resources")
+        ); 
+    }
     
-    public ObservableList<VisitorsProperty> getVisitors() throws IOException, JSONException{
+    public ObservableList<VisitorsProperty> getVisitors() throws IOException, JSONException {
         Visitors myVisitors = new Visitors();
         Gson gson = new Gson();
         ObservableList<VisitorsProperty> visitorsProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL("http://localhost:9090/MainServerREST/api/visitors"), Charset.forName("UTF-8")));
+        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL(VisitorsRootURL), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
@@ -239,4 +393,47 @@ public class VisitorController implements Initializable {
         return visitorsProperty;
     }
     
+    //download the list of available companies from the server so we know what we can select from
+    public void getCompanyList() throws IOException, JSONException {
+        Gson gson = new Gson();
+        JSONObject jo = new JSONObject();
+        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL(CompanyRootURL), Charset.forName("UTF-8")));
+        System.out.println(jsonArray);
+        for (int i = 0; i < jsonArray.length(); i++) {
+            jo = (JSONObject) jsonArray.getJSONObject(i);
+            Company company = gson.fromJson(jo.toString(), Company.class);
+            companies.add(company);
+            System.out.println(company.getCompId());
+        }
+    }
+    
+    public String getCompanyNameFromID(int ID) {
+        String s = "No company";
+        for(Company c: companies) {
+            if(c.getCompId() == ID) {
+                return c.getCompName();
+            }
+        }
+        return s;
+    }
+    
+    public Integer getCompanyIDFromName(String compName) {
+        Integer i = 1;
+        for(Company c: companies) {
+            if(c.getCompName().equalsIgnoreCase(compName)) {
+                return c.getCompId();
+            }
+        }
+        return i;
+    }
+    
+    public Company getCompany(Integer companyID) {
+        Company company = null;
+        for(Company c: companies) {
+            if(c.getCompId() == companyID) {
+                return c;
+            }
+        }
+        return company;
+    }
 }

@@ -15,22 +15,22 @@ import javafx.beans.property.StringProperty;
  * @author Rolandas
  */
 public class VisitorsProperty {
-    private final IntegerProperty visId = new SimpleIntegerProperty(this, "visId");
+    private final StringProperty visId = new SimpleStringProperty(this, "visId");
     private final StringProperty visFirstname = new SimpleStringProperty(this, "visFirstname");
     private final StringProperty visLastname = new SimpleStringProperty(this, "visLastname");
     private final StringProperty visEmail = new SimpleStringProperty(this, "visEmail");
     private final StringProperty visPhone = new SimpleStringProperty(this, "visPhone");
     private final IntegerProperty companyCompId = new SimpleIntegerProperty(this, "companyCompId");
 
-    public IntegerProperty visIdProperty() {
+    public StringProperty visIdProperty() {
         return visId;
     }
 
-    public final Integer getVisId() {
+    public final String getVisId() {
         return visIdProperty().get();
     }
 
-    public final void setVisId(Integer visitorId) {
+    public final void setVisId(String visitorId) {
         visIdProperty().set(visitorId);
     }
 
@@ -97,7 +97,7 @@ public class VisitorsProperty {
     public VisitorsProperty() {
     }
 
-    public VisitorsProperty(Integer visId, String visFirstname, String visLastname, String visEmail, String visPhone, Integer companyId) {
+    public VisitorsProperty(String visId, String visFirstname, String visLastname, String visEmail, String visPhone, Integer companyId) {
 
         setVisId(visId);
         setVisFirstname(visFirstname);
