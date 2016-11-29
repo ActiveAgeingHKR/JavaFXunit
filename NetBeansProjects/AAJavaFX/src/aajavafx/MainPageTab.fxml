@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane id="AnchorPane" fx:id="mainPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="aajavafx.MainPageTabController">
+   <children>
+      <TabPane tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab fx:id="homeTab" text="Home">
+            <content>
+              <fx:include source="MainPage.fxml" />
+            </content>
+          </Tab>
+          <Tab fx:id="customrsTab" text="Customers">
+            <content>
+              <fx:include source="Customer.fxml" />
+            </content>
+          </Tab>
+            <Tab fx:id="devicesTab" text="Devices">
+              <content>
+                <fx:include source="Devices.fxml" />
+              </content>
+            </Tab>
+            <Tab fx:id="employeesTab" text="Employees">
+              <content>
+                <fx:include source="Employee.fxml" />
+              </content>
+            </Tab>
+            <Tab fx:id="empSchedTab" text="EmpSched">
+              <content>
+                <fx:include source="Schedule1.fxml" />
+              </content>
+            </Tab>
+            <Tab fx:id="visitorsTab" text="Visitors">
+              <content>
+                <fx:include source="Visitor.fxml" />
+              </content>
+            </Tab>
+            <Tab fx:id="visitSchedTab" text="VisitSched">
+              <content>
+                <fx:include source="VisitorSchedule.fxml" />
+              </content>
+            </Tab>
+        </tabs>
+      </TabPane>
+   </children>
+</AnchorPane>
