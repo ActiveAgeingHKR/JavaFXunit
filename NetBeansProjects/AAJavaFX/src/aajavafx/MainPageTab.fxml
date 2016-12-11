@@ -18,6 +18,11 @@
               <fx:include source="Customer.fxml" />
             </content>
           </Tab>
+            <Tab fx:id="custMedTab" text="CustomersMedicines">
+              <content>
+                <fx:include source="CustomerTakesMedicine.fxml" />
+              </content>
+            </Tab>
             <Tab fx:id="devicesTab" text="Devices">
               <content>
                 <fx:include source="Devices.fxml" />
@@ -31,6 +36,11 @@
             <Tab fx:id="empSchedTab" text="EmpSched">
               <content>
                 <fx:include source="Schedule1.fxml" />
+              </content>
+            </Tab>
+            <Tab fx:id="medicinesTab" text="Medicines">
+              <content>
+                <fx:include source="Medicines.fxml" />
               </content>
             </Tab>
             <Tab fx:id="visitorsTab" text="Visitors">

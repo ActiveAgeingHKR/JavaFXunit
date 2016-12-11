@@ -5,6 +5,7 @@
  */
 package aajavafx;
 
+import aajavafx.entities.Company;
 import aajavafx.entities.Customers;
 import aajavafx.entities.VisitorSchedule;
 import aajavafx.entities.VisitorSchedulePK;
@@ -12,12 +13,14 @@ import aajavafx.entities.Visitors;
 import com.google.gson.Gson;
 import entitiesproperty.CustomerProperty;
 import entitiesproperty.VisitorScheduleProperty;
+import entitiesproperty.VisitorsProperty;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,6 +42,7 @@ import javafx.stage.Stage;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -51,7 +55,7 @@ import org.json.JSONObject;
 /**
  * FXML Controller class
  *
- * @author Rolandas
+ * @author Rolandis
  */
 public class VisitorScheduleController implements Initializable {
     
@@ -173,9 +177,12 @@ public class VisitorScheduleController implements Initializable {
             
             stage.setTitle("Main menu");
             stage.show();
+            
         } catch (Exception ex) {
             Logger.getLogger(MainPageController.class.getName()).log(Level.SEVERE, null, ex);
-        }     
+        }
+        
+        
     }
     
     @FXML
@@ -191,8 +198,11 @@ public class VisitorScheduleController implements Initializable {
         customerBox.setDisable(false);
         visitorBox.setDisable(false);
         datePicker.setDisable(false);
-        repeatingBox.setDisable(false);     
+        repeatingBox.setDisable(false);
+        
+        
     }
+    
     
     @FXML
     private void handleEditButton(ActionEvent event) {
@@ -207,6 +217,8 @@ public class VisitorScheduleController implements Initializable {
         visitorBox.setDisable(false);
         datePicker.setDisable(false);
         repeatingBox.setDisable(false);
+        
+        
     }
     
     @FXML
@@ -222,12 +234,11 @@ public class VisitorScheduleController implements Initializable {
         String startTime = startHours.getText()+":"+startMins.getText()+":"+startSecs.getText();
         String endTime = endHours.getText()+":"+endMins.getText()+":"+endSecs.getText();
         String repeating = (String)repeatingBox.getValue();
-        
-        // Later on fix this with normal hash with unique visit data.
         String hash = hashField.getText();
         VisitorSchedulePK vsPK = new VisitorSchedulePK(schId, visitorId, custId);
         VisitorSchedule vs = new VisitorSchedule(vsPK, date, startTime, endTime, repeating, hash);
-              
+        
+        
         try {
             Gson gson = new Gson();
             HttpClient httpClient = HttpClientBuilder.create().build();
@@ -248,7 +259,6 @@ public class VisitorScheduleController implements Initializable {
             int statusCode = response.getStatusLine().getStatusCode();
             if(statusCode == 204) {
                 System.out.println("New visitor posted successfully");
-                // Later on generate qr code and send mail to visitor with the qr code.
             } else{
                 System.out.println("Server error: "+response.getStatusLine());
             }
@@ -281,12 +291,15 @@ public class VisitorScheduleController implements Initializable {
             System.out.println(ex);
         } catch (IOException e) {
             System.out.println(e);
-        }
+        } /*catch (JSONException je) {
+            System.out.println("JSON error: "+je);
+        }*/
     }
     
-    @FXML
+     @FXML
     private void handleRemoveButton(ActionEvent event) {
         //remove is annotated with @DELETE on server so we use a HttpDelete object
+        
         
     }
     
@@ -302,23 +315,19 @@ public class VisitorScheduleController implements Initializable {
             jo = (JSONObject) jsonArray.getJSONObject(i);
             vs = gson.fromJson(jo.toString(), VisitorSchedule.class);
             System.out.println("VIS ID: "+vs.getVisitorSchedulePK().getVisitorsVisId());
-            vsProperty.add(new VisitorScheduleProperty(
-                    vs.getVisitorSchedulePK().getVisSchId(),
-                    vs.getVisitorSchedulePK().getVisitorsVisId(),
-                    vs.getVisitorSchedulePK().getCustomersCuId(),
-                    vs.getVisitStartDate(),
-                    vs.getVisitStartTime(),
-                    vs.getVisitEndTime(),
-                    vs.getVisRepetitionCircle(),
-                    vs.getVisitHash()));
+            vsProperty.add(new VisitorScheduleProperty(vs.getVisitorSchedulePK().getVisSchId(), vs.getVisitorSchedulePK().getVisitorsVisId(), 
+            vs.getVisitorSchedulePK().getCustomersCuId(), vs.getVisitStartDate(),
+    vs.getVisitStartTime(), vs.getVisitEndTime(), vs.getVisRepetitionCircle(), vs.getVisitHash()));
         }
         return vsProperty;
     }
      
      public ObservableList<String> getCustomer() throws IOException, JSONException{
-        ObservableList<String> customerStrings = FXCollections.observableArrayList();
-        Customers myCustomer = new Customers();
 
+        ObservableList<String> customerStrings = FXCollections.observableArrayList();
+        //customers.add(new CustomerProperty(1, "Johny", "Walker", "London", "1972-07-01", "7207012222"));
+        Customers myCustomer = new Customers();
+        //Managers manager = new Managers();
         Gson gson = new Gson();
         JSONObject jo = new JSONObject();
         JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL("http://localhost:8080/MainServerREST/api/customers"), Charset.forName("UTF-8")));
@@ -336,9 +345,11 @@ public class VisitorScheduleController implements Initializable {
     }
      
      public ObservableList<String> getVisitor() throws IOException, JSONException{
-        ObservableList<String> visitorStrings = FXCollections.observableArrayList();
-        Visitors visitor = new Visitors();
 
+        ObservableList<String> visitorStrings = FXCollections.observableArrayList();
+        //customers.add(new CustomerProperty(1, "Johny", "Walker", "London", "1972-07-01", "7207012222"));
+        Visitors visitor = new Visitors();
+        //Managers manager = new Managers();
         Gson gson = new Gson();
         ObservableList<CustomerProperty> customersProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();

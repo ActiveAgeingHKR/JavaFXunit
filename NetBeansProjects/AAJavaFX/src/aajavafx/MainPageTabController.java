@@ -15,7 +15,7 @@ import javafx.stage.Stage;
 /**
  * FXML Controller class
  *
- * @author Suraj
+ * @author Chris
  */
 public class MainPageTabController implements Initializable {
     

@@ -16,6 +16,7 @@ import entitiesproperty.EmployeeProperty;
 import com.google.gson.Gson;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.spi.inject.Errors;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -45,8 +46,9 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONException;
+
 
 /**
  * FXML Controller class
@@ -94,11 +96,11 @@ public class EmployeeController implements Initializable {
     @FXML
     private Button buttonRegister;
 
-    private static String postEmployeesURL = "http://localhost:9090/MainServerREST/api/employees/";
+    private static String postEmployeesURL = "http://localhost:8080/MainServerREST/api/employees/";
   
     @FXML
     private Label labelError;
-    Client client = Client.create();
+    //Client client = Client.create();
     Managers manager = new Managers(1);
 
     @Override
@@ -167,6 +169,7 @@ public class EmployeeController implements Initializable {
 
     @FXML
     private void handleDeleteButton(ActionEvent event) {
+        /*
         Employees employee = new Employees();
 
         try {
@@ -180,7 +183,7 @@ public class EmployeeController implements Initializable {
             textActivate.setVisible(false);
             int id = tableEmployees.getSelectionModel().getSelectedItem().getId();
             String idToDelete = id + "";
-            WebResource webResource = client.resource("http://localhost:9090/MainServerREST/api/employees");
+            WebResource webResource = client.resource("http://localhost:8080/MainServerREST/api/employees");
             Employees myReturnedObject = webResource.path(idToDelete).delete(Employees.class);
             System.out.println("you want to delete: " + id);
         } catch (Exception ex) {
@@ -194,6 +197,7 @@ public class EmployeeController implements Initializable {
         } catch (JSONException ex) {
             Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
         }
+        */
     }
 
     @FXML
@@ -224,7 +228,7 @@ public class EmployeeController implements Initializable {
         try {
             Gson gson = new Gson();
             HttpClient httpClient = HttpClientBuilder.create().build();
-            HttpPost post = new HttpPost("http://localhost:9090/MainServerREST/api/employees");
+            HttpPost post = new HttpPost("http://localhost:8080/MainServerREST/api/employees");
 
             Employees employee = new Employees(1, firstName, lastName, userName, password, email, phone, manager, register);
 
@@ -236,11 +240,9 @@ public class EmployeeController implements Initializable {
             post.setHeader("Content-type", "application/json");
             HttpResponse response = httpClient.execute(post);
             
-        } catch (UnsupportedEncodingException ex) {
-            System.out.println(ex);
-        } catch (IOException e) {
-            System.out.println(e);
-        }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } 
         try {
             //populate table
             tableEmployees.setItems(getEmployee());
@@ -254,7 +256,7 @@ public class EmployeeController implements Initializable {
    
     @FXML
     private void handleChangeValidation(ActionEvent event) throws UnsupportedEncodingException, IOException, JSONException {
-
+/*
         Gson gson = new Gson();
         int id = tableEmployees.getSelectionModel().getSelectedItem().getId();
         String idToChange = id + "";
@@ -284,7 +286,7 @@ public class EmployeeController implements Initializable {
             }
 
         }
-
+*/
     }
      public ObservableList<EmployeeProperty> getEmployee() throws IOException, JSONException {
         Employees myEmployee = new Employees();
@@ -292,7 +294,7 @@ public class EmployeeController implements Initializable {
         Gson gson = new Gson();
         ObservableList<EmployeeProperty> employeesProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL("http://localhost:9090/MainServerREST/api/employees"), Charset.forName("UTF-8")));
+        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL("http://localhost:8080/MainServerREST/api/employees"), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);

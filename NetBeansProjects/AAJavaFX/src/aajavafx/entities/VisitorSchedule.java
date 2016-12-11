@@ -7,7 +7,7 @@ package aajavafx.entities;
 
 /**
  *
- * @author Rolandas
+ * @author Chris
  */
 public class VisitorSchedule {
      

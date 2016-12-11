@@ -12,9 +12,9 @@ import javafx.beans.property.StringProperty;
 
 /**
  *
- * @author Chris
+ * @author Suraj
  */
-public class DevicesCustomerProperty {
+public class MedicinesProperty {
     
     private final IntegerProperty cuId = new SimpleIntegerProperty(this, "cuId");
 
@@ -25,8 +25,10 @@ public class DevicesCustomerProperty {
     private final StringProperty cuAddress = new SimpleStringProperty(this, "cuAddress");
     private final StringProperty cuPersonnummer = new SimpleStringProperty(this, "cuPersonnumer"); //same concern as of cuBirthdate
 
-    private final StringProperty cuDevId = new SimpleStringProperty(this, "cuDevId");
-    private final StringProperty cuDevName = new SimpleStringProperty(this, "cuDevName");
+    private final StringProperty cuMedId = new SimpleStringProperty(this, "cuMedId");
+    private final StringProperty cuMedName = new SimpleStringProperty(this, "cuMedName");
+    private final StringProperty cuvolume = new SimpleStringProperty(this, "cuvolume");
+    private final StringProperty cumedMeasurementUnit = new SimpleStringProperty(this, "cumedMeasurementUnit");
     
     
     public StringProperty firstNameProperty() {
@@ -101,35 +103,57 @@ public class DevicesCustomerProperty {
         personnumerProperty().set(personnumer);
     }
     
-    public StringProperty cuDevIdProperty() {
-        return cuDevId;
+    public StringProperty cuMedIdProperty() {
+        return cuMedId;
     }
     
-    public final String getCuDevId() {
-        return cuDevIdProperty().get();
+    public final String getCuMedId() {
+        return cuMedIdProperty().get();
     }
     
-    public final void setCuDevId(String cuDevId) {
-        cuDevIdProperty().set(cuDevId);
+    public final void setCuMedId(String cuMedId) {
+        cuMedIdProperty().set(cuMedId);
     }
     
-    public StringProperty cuDevNameProperty() {
-        return cuDevName;
+    public StringProperty cuMedNameProperty() {
+        return cuMedName;
     }
     
-    public final String getCuDevName() {
-        return cuDevNameProperty().get();
+    public final String getCuMedName() {
+        return cuMedNameProperty().get();
     }
     
-    public final void setCuDevName(String cuDevName) {
-        cuDevNameProperty().set(cuDevName);
+    public final void setCuMedName(String cuMedName) {
+        cuMedNameProperty().set(cuMedName);
+    }
+    
+    public StringProperty cuvolumeProperty() {
+        return cuvolume;
+    }
+    public final String getCuvolume() {
+        return cuvolumeProperty().get();
+    }
+     public final void setCuvolume(String cuvolume) {
+        cuvolumeProperty().set(cuvolume);
+    }
+     
+    public StringProperty cumedMeasurementUnitProperty(){
+        return cumedMeasurementUnit;
+    } 
+    
+    public final String getCumedMeasurementUnit() {
+        return cumedMeasurementUnitProperty().get();
+    } 
+    
+    public final void setCumedMeasurementUnit(String cumedMeasurementUnit) {
+        cumedMeasurementUnitProperty().set(cumedMeasurementUnit);
     }
 
-    public DevicesCustomerProperty() {
+    public MedicinesProperty() {
     }
 
-    public DevicesCustomerProperty(Integer cuId, String cuFirstname, String cuLastname, String cuBirthdate, 
-            String cuAddress, String cuPersonnumer, String cuDevId, String cuDevName) {
+    public MedicinesProperty(Integer cuId, String cuFirstname, String cuLastname, String cuBirthdate, 
+            String cuAddress, String cuPersonnumer, String cuMedId, String cuMedName, String cuvolume, String cumedMeasurementUnit) {
 
         setCustomerId(cuId);
         setFirstName(cuFirstname);
@@ -137,12 +161,14 @@ public class DevicesCustomerProperty {
         setAdress(cuBirthdate);
         setBirthdate(cuAddress);
         setPersonnumer(cuPersonnumer);
-        setCuDevId(cuDevId);
-        setCuDevName(cuDevName);
+        setCuMedId(cuMedId);
+        setCuMedName(cuMedName);
+        setCuvolume(cuvolume);
+        setCumedMeasurementUnit(cumedMeasurementUnit);
     }
 
    // CustomerProperty customer = new CustomerProperty (0, lastName, firstName, birthdate, address, persunnumer);
-    public DevicesCustomerProperty(Integer cuId,String cuFirstname, String cuLastname, String e) {
+    public MedicinesProperty(Integer cuId,String cuFirstname, String cuLastname, String e) {
 
         setCustomerId(cuId);
         setFirstName(cuFirstname);

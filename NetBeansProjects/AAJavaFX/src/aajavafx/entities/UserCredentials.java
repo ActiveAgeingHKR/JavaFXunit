@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 /**
  *
- * @author lokeshdhakal
+ * @author Chris
  */
 public class UserCredentials implements Serializable {
     

@@ -22,7 +22,7 @@ import javafx.util.StringConverter;
 
 /**
  *
- * @author Iuliu
+ * @author Fouad
  */
 public class CalendarController implements Initializable
 {

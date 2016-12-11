@@ -90,4 +90,10 @@ public Customers(Integer cuId) {
     public void setCuPersonnummer(String cuPersonnummer) {
         this.cuPersonnummer = cuPersonnummer;
     }
+    //set what we want to get back when calling toString on a customer object (eg. for displaying in drop down menus)
+    
+    @Override
+    public String toString() {
+        return cuId +". " + cuFirstname + " " + cuLastname + " " + cuPersonnummer;
+    }
 }

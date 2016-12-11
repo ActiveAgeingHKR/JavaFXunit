@@ -1,10 +1,9 @@
-
-package aajavafx;
-/**
- *
- * @author lokeshdhakal
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
-
+package aajavafx;
 
 import aajavafx.entities.Company;
 import aajavafx.entities.Customers;
@@ -260,9 +259,9 @@ public class DevicesController implements Initializable {
             //refresh table
             tableCustomer.setItems(getDevicesCustomer());
         } catch (IOException ex) {
-            Logger.getLogger(DevicesController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(VisitorController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
-            Logger.getLogger(DevicesController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(VisitorController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     

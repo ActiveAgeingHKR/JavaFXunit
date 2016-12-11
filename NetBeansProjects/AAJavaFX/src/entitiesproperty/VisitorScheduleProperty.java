@@ -12,7 +12,7 @@ import javafx.beans.property.StringProperty;
 
 /**
  *
- * @author Rolandas
+ * @author Rolandis
  */
 public class VisitorScheduleProperty {
     

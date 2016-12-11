@@ -7,6 +7,7 @@ package aajavafx;
 
 import aajavafx.entities.Company;
 import entitiesproperty.VisitorsProperty;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -30,6 +31,8 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import aajavafx.entities.Visitors;
 import com.google.gson.Gson;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.FileInputStream;
@@ -114,6 +117,9 @@ public class VisitorController implements Initializable {
     
     File imageFile;
     
+    //Company company = new Company();
+    //Client client = Client.create();
+    
     /**
      * Initializes the controller class.
      */
@@ -161,7 +167,8 @@ public class VisitorController implements Initializable {
                 companyBox.setValue(getCompanyNameFromID(newSelection.getCompanyCompId()));
             }
         });
-   
+        
+        
     }
     
     @FXML
@@ -200,7 +207,8 @@ public class VisitorController implements Initializable {
         } catch (Exception ex) {
             Logger.getLogger(VisitorController.class.getName()).log(Level.SEVERE, null, ex);
         }
-              
+        
+        
     }
     
     @FXML
@@ -209,13 +217,15 @@ public class VisitorController implements Initializable {
         lastNameField.setEditable(true);
         emailField.setEditable(true);
         phoneNumberField.setEditable(true);
-        companyBox.setDisable(false);    
+        companyBox.setDisable(false);
+        
     }
     
     @FXML
     private void handleSave(ActionEvent event) {
         if(imageFile!=null) {
-                 
+            
+        
         String visitorId = visitorIDField.getText();
         visitorIDField.clear();
         String firstName = firstNameField.getText();
@@ -270,7 +280,8 @@ public class VisitorController implements Initializable {
         } catch (JSONException je) {
             System.out.println("JSON error: "+je);
         }
-                
+        
+        
 	FileInputStream fis = null;
 	try {
             
@@ -312,7 +323,8 @@ public class VisitorController implements Initializable {
         } else {
             errorLabel.setText("Record Not Saved: Please attach a photo for this visitor");
             errorLabel.setVisible(true);
-        }   
+        }
+        
     }
     
     @FXML
@@ -326,7 +338,8 @@ public class VisitorController implements Initializable {
             stage.setScene(scene);
             
             stage.setTitle("Main menu");
-            stage.show();        
+            stage.show();
+            
         } catch (Exception ex) {
             Logger.getLogger(MainPageController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -351,10 +364,13 @@ public class VisitorController implements Initializable {
             catch(IOException ie) {
                 System.out.println("IO Error: "+ie);
             }
-        }    
+        }
+        
         /*if(file != null) {
-            openFile(file);          
-        }*/     
+            openFile(file);
+            
+        }*/
+        
     }
     
      private void openFile(File file) {
