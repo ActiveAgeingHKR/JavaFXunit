@@ -6,7 +6,6 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import com.google.zxing.*;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -14,7 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import javax.activation.DataHandler;
@@ -37,34 +35,15 @@ import javax.mail.internet.MimeMultipart;
  * @author Rolandas
  */
 public class QrCodeHandler {
-        /*
-             For qr code to work you need ZXing library.
-             For sending mail to work you need JavaMail API.
-    
-        String name ="name";
-        String lastName = "lastname";
-        String url = "url/";
-        String hash = hashHandler(name, lastName);
-        String fileName = "visitor";
-        qrCodeGenerator(url, hash, fileName);
-        
-        final String filePath = "src/" + fileName + ".jpg";   
-        // enter email you wish to send to
-        final String to = "   < recipient email address >   ";    
-        // enter your gmail account
-        final String from = "  < gmail id >   ";
-        // enter your gmail account password
-        final String password = "   < password >   ";
-        
-        sendMail(filePath, to, from, password);
-    
-        */
-    
+    /*
+    For qr code to work you need ZXing library.
+    For sending mail to work you need JavaMail API. 
+    */
     
     // Get hash of some input data.
-    public String hashHandler(String firstName, String lastName) throws Exception {
-        //Seperating both strings with #
-        String str = firstName+"#"+lastName;
+    public String hashHandler(int customerId, String visitorId, String startDate, String startTime, String endTime) throws Exception {
+        //Seperating variables with #
+        String str = customerId +"#"+ visitorId +"#" + startDate +"#"+ startTime +"#" + endTime;
 
         MessageDigest md = MessageDigest.getInstance("SHA-512");
         md.update(str.getBytes());
@@ -80,13 +59,10 @@ public class QrCodeHandler {
     }
     
     // generate qr code with given parameters.
-    public void qrCodeGenerator(String url, String hash, String fileName) {
-        
-        String myCodeText = "https://www.dropbox.com/s/u3unzq5mkygt709/ID.png?dl=0";
-        
+    public void qrCodeGenerator(String url, String hash, String fileName) {       
         String urlandHash = url+hash;
         
-        String filePath = "src/" + fileName + ".jpg";
+        String filePath = "src/resources/qrCode/" + fileName + ".jpg";
         int size = 250;
         String fileType = "jpg";
         File myFile = new File(filePath);
@@ -129,14 +105,13 @@ public class QrCodeHandler {
     }
     
     //Send email from Gmail account to any other account.
-    public void sendMail(
-            String filePath,
-            String toEmail,
-            String fromEmail,
-            String fromEmailPassword)
-            throws AddressException, MessagingException, IOException {
- 
-        String emailBody = "Test email by Crunchify.com JavaMail API example. " + "<br><br> Regards, <br>Crunchify Admin";
+    public void sendMail(String toEmail, String fileName) throws AddressException, MessagingException, IOException {
+        // enter your gmail account
+        final String fromEmail = "hkr.soft.engineering@gmail.com";
+        // enter your gmail account password
+        final String fromEmailPassword = "hkrsoftwareengineering";
+        
+        String emailBody = "Use this qr code during your visit. " + "<br><br> Regards, <br>Adjutus team";
         
         System.out.println("\n 1st ===> setup Mail Server Properties..");
         Properties props = System.getProperties();
@@ -154,9 +129,9 @@ public class QrCodeHandler {
             // Set To: header field of the header.
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
             // Set Subject: header field
-            message.setSubject("Greetings human !");
+            message.setSubject("Visit qr code");
             
-             // This mail has 2 part, the BODY and the embedded image
+            // This mail has 2 part, the BODY and the embedded image
             MimeMultipart multipart = new MimeMultipart("related");
             // first part (the html)
             BodyPart messageBodyPart = new MimeBodyPart();
@@ -165,12 +140,12 @@ public class QrCodeHandler {
 
             // second part (the image)
             messageBodyPart = new MimeBodyPart();
-            DataSource source = new FileDataSource(filePath);
+            DataSource source = new FileDataSource("src/resources/qrCode/" + fileName + ".jpg");
             /* 
             set file name  
             ********************** by doing that some random thing appears above picture in mail.
             */   
-            messageBodyPart.setFileName("qr code");
+            messageBodyPart.setFileName("visitation qr code");
             messageBodyPart.setDataHandler(new DataHandler(source));
             messageBodyPart.setHeader("Content-ID", "<image>");
             // add image to the multipart

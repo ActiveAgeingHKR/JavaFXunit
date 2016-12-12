@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
@@ -9,8 +12,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane id="AnchorPane" prefHeight="436.0" prefWidth="625.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.60" fx:controller="aajavafx.VisitorScheduleController">
+<AnchorPane id="AnchorPane" prefHeight="436.0" prefWidth="625.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="aajavafx.VisitorScheduleController">
    <children>
       <TableView fx:id="tableVisitorSchedule" layoutX="17.0" layoutY="197.0" prefHeight="199.0" prefWidth="595.0">
         <columns>
@@ -27,7 +29,6 @@
       <DatePicker fx:id="datePicker" layoutX="226.0" layoutY="31.0" promptText="Date" />
       <Button fx:id="backButton" layoutX="36.0" layoutY="164.0" mnemonicParsing="false" onAction="#handleBackButton" text="Back" />
       <TextField fx:id="schIdField" layoutX="36.0" layoutY="31.0" promptText="Schedule ID" />
-      <TextField fx:id="hashField" layoutX="431.0" layoutY="79.0" promptText="Hash" />
       <ComboBox fx:id="repeatingBox" layoutX="431.0" layoutY="31.0" prefWidth="150.0" promptText="Repeating" />
       <Button layoutX="133.0" layoutY="164.0" mnemonicParsing="false" onAction="#handleNewButton" text="New" />
       <Button layoutX="226.0" layoutY="164.0" mnemonicParsing="false" onAction="#handleEditButton" text="Edit" />

@@ -1,8 +1,8 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+* To change this license header, choose License Headers in Project Properties.
+* To change this template file, choose Tools | Templates
+* and open the template in the editor.
+*/
 package aajavafx;
 
 import aajavafx.entities.Company;
@@ -60,7 +60,7 @@ import org.json.JSONObject;
 public class VisitorScheduleController implements Initializable {
     
     @FXML
-    private TextField schIdField, hashField, startHours, startMins, startSecs, endHours, endMins, endSecs;
+    private TextField schIdField, startHours, startMins, startSecs, endHours, endMins, endSecs;
     @FXML
     private DatePicker datePicker;
     @FXML
@@ -106,7 +106,6 @@ public class VisitorScheduleController implements Initializable {
         endHours.setEditable(false);
         endHours.setEditable(false);
         endHours.setEditable(false);
-        hashField.setEditable(false);
         customerBox.setDisable(true);
         visitorBox.setDisable(true);
         datePicker.setDisable(true);
@@ -160,10 +159,9 @@ public class VisitorScheduleController implements Initializable {
                 endMins.setText(endParts[1]);
                 endSecs.setText(endParts[2]);
                 repeatingBox.setValue(newSelection.getVisRepetitionCircle());
-                hashField.setText(newSelection.getVisitHash());
             }
         });
-    }    
+    }
     
     @FXML
     private void handleBackButton(ActionEvent event) {
@@ -180,9 +178,7 @@ public class VisitorScheduleController implements Initializable {
             
         } catch (Exception ex) {
             Logger.getLogger(MainPageController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        
+        }     
     }
     
     @FXML
@@ -194,13 +190,10 @@ public class VisitorScheduleController implements Initializable {
         endHours.setEditable(true);
         endMins.setEditable(true);
         endSecs.setEditable(true);
-        hashField.setEditable(true);
         customerBox.setDisable(false);
         visitorBox.setDisable(false);
         datePicker.setDisable(false);
-        repeatingBox.setDisable(false);
-        
-        
+        repeatingBox.setDisable(false);  
     }
     
     
@@ -212,29 +205,29 @@ public class VisitorScheduleController implements Initializable {
         endHours.setEditable(true);
         endMins.setEditable(true);
         endSecs.setEditable(true);
-        hashField.setEditable(true);
         customerBox.setDisable(false);
         visitorBox.setDisable(false);
         datePicker.setDisable(false);
-        repeatingBox.setDisable(false);
-        
-        
+        repeatingBox.setDisable(false);     
     }
     
     @FXML
-    private void handleSaveButton(ActionEvent event) {
+    private void handleSaveButton(ActionEvent event) throws Exception {
+        QrCodeHandler qrCodeHandler = new QrCodeHandler();
         int schId = Integer.parseInt(schIdField.getText());
         String string = (String)customerBox.getValue();
         System.out.println("STRING VALUE: "+string);
         int custId = Integer.parseInt(""+string.charAt(0));
         String string2 = (String)visitorBox.getValue();
         System.out.println("STRING VALUE: "+string);
-        String visitorId  = string2.split("\\.")[0]; 
+        String visitorId  = string2.split("\\.")[0];
         String date = datePicker.getValue().toString();
         String startTime = startHours.getText()+":"+startMins.getText()+":"+startSecs.getText();
         String endTime = endHours.getText()+":"+endMins.getText()+":"+endSecs.getText();
         String repeating = (String)repeatingBox.getValue();
-        String hash = hashField.getText();
+        
+        String hash = qrCodeHandler.hashHandler(custId, visitorId, date, startTime, endTime);
+        
         VisitorSchedulePK vsPK = new VisitorSchedulePK(schId, visitorId, custId);
         VisitorSchedule vs = new VisitorSchedule(vsPK, date, startTime, endTime, repeating, hash);
         
@@ -245,7 +238,7 @@ public class VisitorScheduleController implements Initializable {
             HttpEntityEnclosingRequestBase HttpEntity = null; //this is the superclass for post, put, get, etc
             if(schIdField.isEditable()) { //then we are posting a new record
                 HttpEntity = new HttpPost(VisitorScheduleRootURL); //so make a http post object
-            } else { //we are editing a record 
+            } else { //we are editing a record
                 HttpEntity = new HttpPut(VisitorScheduleRootURL); //so make a http put object
             }
             
@@ -259,13 +252,20 @@ public class VisitorScheduleController implements Initializable {
             int statusCode = response.getStatusLine().getStatusCode();
             if(statusCode == 204) {
                 System.out.println("New visitor posted successfully");
+                // generate qr code
+                String url = "http://localhost:8080/MainServerREST/";
+                qrCodeHandler.qrCodeGenerator(url, hash, hash);
+                // send email
+                // specify to which email to send, for testing purposes you can use your own. 
+                // qrCodeHandler.sendMail(email to send to, qr code file name to send);
+                qrCodeHandler.sendMail(getVisitorEmail(visitorId), hash);
+ 
             } else{
                 System.out.println("Server error: "+response.getStatusLine());
             }
             schIdField.setEditable(false);
             customerBox.setDisable(true);
             visitorBox.setDisable(true);
-            hashField.setEditable(false);
             datePicker.setDisable(true);
             startHours.setEditable(false);
             startMins.setEditable(false);
@@ -277,7 +277,6 @@ public class VisitorScheduleController implements Initializable {
             schIdField.clear();
             customerBox.getSelectionModel().clearSelection();
             visitorBox.getSelectionModel().clearSelection();
-            hashField.clear();
             startHours.clear();
             startMins.clear();
             startSecs.clear();
@@ -292,18 +291,35 @@ public class VisitorScheduleController implements Initializable {
         } catch (IOException e) {
             System.out.println(e);
         } /*catch (JSONException je) {
-            System.out.println("JSON error: "+je);
+        System.out.println("JSON error: "+je);
         }*/
     }
     
-     @FXML
+    @FXML //TO DO: possibly delete qr code picture as well related to deleted entry
     private void handleRemoveButton(ActionEvent event) {
         //remove is annotated with @DELETE on server so we use a HttpDelete object
-        
+        try {
+            HttpClient httpClient = HttpClientBuilder.create().build();
+            String idToDelete = schIdField.getText();
+            //add the id to the end of the URL so this will call the method at MainServerREST/api/visitorschedule/id
+            HttpDelete delete = new HttpDelete(VisitorScheduleRootURL+idToDelete);
+            HttpResponse response = httpClient.execute(delete);
+            System.out.println("response from server " + response.getStatusLine());
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+        try {
+            //populate table
+            tableVisitorSchedule.setItems(getVisitorSchedules());
+        } catch (IOException ex) {
+            Logger.getLogger(VisitorController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            Logger.getLogger(VisitorController.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
     }
     
-     public ObservableList<VisitorScheduleProperty> getVisitorSchedules() throws IOException, JSONException {
+    public ObservableList<VisitorScheduleProperty> getVisitorSchedules() throws IOException, JSONException {
         VisitorSchedule vs = new VisitorSchedule();
         VisitorSchedulePK VisitorSchedulePK = new VisitorSchedulePK();
         Gson gson = new Gson();
@@ -315,15 +331,15 @@ public class VisitorScheduleController implements Initializable {
             jo = (JSONObject) jsonArray.getJSONObject(i);
             vs = gson.fromJson(jo.toString(), VisitorSchedule.class);
             System.out.println("VIS ID: "+vs.getVisitorSchedulePK().getVisitorsVisId());
-            vsProperty.add(new VisitorScheduleProperty(vs.getVisitorSchedulePK().getVisSchId(), vs.getVisitorSchedulePK().getVisitorsVisId(), 
-            vs.getVisitorSchedulePK().getCustomersCuId(), vs.getVisitStartDate(),
-    vs.getVisitStartTime(), vs.getVisitEndTime(), vs.getVisRepetitionCircle(), vs.getVisitHash()));
+            vsProperty.add(new VisitorScheduleProperty(vs.getVisitorSchedulePK().getVisSchId(), vs.getVisitorSchedulePK().getVisitorsVisId(),
+                    vs.getVisitorSchedulePK().getCustomersCuId(), vs.getVisitStartDate(),
+                    vs.getVisitStartTime(), vs.getVisitEndTime(), vs.getVisRepetitionCircle(), vs.getVisitHash()));
         }
         return vsProperty;
     }
-     
-     public ObservableList<String> getCustomer() throws IOException, JSONException{
-
+    
+    public ObservableList<String> getCustomer() throws IOException, JSONException{
+        
         ObservableList<String> customerStrings = FXCollections.observableArrayList();
         //customers.add(new CustomerProperty(1, "Johny", "Walker", "London", "1972-07-01", "7207012222"));
         Customers myCustomer = new Customers();
@@ -339,13 +355,13 @@ public class VisitorScheduleController implements Initializable {
             System.out.println(myCustomer.getCuId());
             String s = myCustomer.getCuId()+". "+myCustomer.getCuFirstname() + " " + myCustomer.getCuLastname();
             customerStrings.add(s);
-    }
+        }
         custStrings = customerStrings;
         return customerStrings;
     }
-     
-     public ObservableList<String> getVisitor() throws IOException, JSONException{
-
+    
+    public ObservableList<String> getVisitor() throws IOException, JSONException{
+        
         ObservableList<String> visitorStrings = FXCollections.observableArrayList();
         //customers.add(new CustomerProperty(1, "Johny", "Walker", "London", "1972-07-01", "7207012222"));
         Visitors visitor = new Visitors();
@@ -362,11 +378,12 @@ public class VisitorScheduleController implements Initializable {
             System.out.println(visitor.getVisId());
             String s = visitor.getVisId()+". "+visitor.getVisFirstname() + " " + visitor.getVisLastname();
             visitorStrings.add(s);
-    }
+            
+        }
         visStrings = visitorStrings;
         return visitorStrings;
     }
-     
+    
     public String getCustomerStringFromID(String ID) {
         for(String s: custStrings) {
             System.out.println("customer string: "+s);
@@ -376,7 +393,7 @@ public class VisitorScheduleController implements Initializable {
             }
         }
         return new String();
-    } 
+    }
     
     public String getVisitorStringFromID(String ID) {
         for(String s : visStrings) {
@@ -385,5 +402,24 @@ public class VisitorScheduleController implements Initializable {
             }
         }
         return new String();
+    }
+    
+    public String getVisitorEmail(String id) throws IOException, JSONException {    
+        String email = "";
+        Visitors visitor = new Visitors();
+        //Managers manager = new Managers();
+        Gson gson = new Gson();
+        JSONObject jo = new JSONObject();
+        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL("http://localhost:8080/MainServerREST/api/visitors"), Charset.forName("UTF-8")));
+        System.out.println(jsonArray);
+        for (int i = 0; i < jsonArray.length(); i++) {
+            jo = (JSONObject) jsonArray.getJSONObject(i);
+            visitor = gson.fromJson(jo.toString(), Visitors.class);
+            if (id.equals(visitor.getVisId())) {
+                email = visitor.getVisEmail();
+                break;
+            }
+        }     
+        return email;
     }
 }
