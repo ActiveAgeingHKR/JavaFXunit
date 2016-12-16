@@ -15,16 +15,10 @@ import aajavafx.entities.Employees;
 import entitiesproperty.EmployeeProperty;
 import com.google.gson.Gson;
 import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,18 +37,17 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -106,7 +99,7 @@ public class EmployeeController implements Initializable {
     @FXML
     private Button buttonRegister;
 
-    private static String putEmployeesURL = "https://localhost:8181/MainServerREST/api/employees/";
+    private static String postEmployeesURL = "http://localhost:8080/MainServerREST/api/employees/";
 
     @FXML
     private Label labelError;
@@ -204,8 +197,7 @@ public class EmployeeController implements Initializable {
     }
 
     @FXML
-    private void handleRegisterButton(ActionEvent event
-    ) throws Exception {
+    private void handleRegisterButton(ActionEvent event) throws Exception {
         labelError.setText(null);
 
         String lastName = textLastName.getText();
@@ -232,7 +224,6 @@ public class EmployeeController implements Initializable {
 
         this.validate(employee);
         try {
-            //populate table
             tableEmployees.setItems(getEmployee());
         } catch (IOException ex) {
             Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
@@ -242,7 +233,7 @@ public class EmployeeController implements Initializable {
     }
 
     @FXML
-    private void handleChangeValidation(ActionEvent event) throws UnsupportedEncodingException, IOException, JSONException, Exception {
+    private void handleChangeValidation(ActionEvent event) throws Exception {
 
         Gson gson = new Gson();
         int id = tableEmployees.getSelectionModel().getSelectedItem().getId();
@@ -252,20 +243,9 @@ public class EmployeeController implements Initializable {
         if (tempValidation == true) {
             labelError.setText("This employee is valid!!!");
         } else {
+
+            change(id);
             try {
-                JSONObject json1 = new JSONObject(IOUtils.toString(new URL(putEmployeesURL + idToChange), Charset.forName("UTF-8")));
-                Employees employeeTemp = new Employees();
-                System.out.println("Bou" + json1.toString());
-                employeeTemp = gson.fromJson(json1.toString(), Employees.class);
-                System.out.println("1 " + employeeTemp.getEmpRegistered());
-                boolean register = true;
-
-                //String jsonString = gson.toJson(employee);
-                WebResource resource = client.resource(putEmployeesURL);
-
-                employeeTemp.setEmpRegistered(register);
-                this.deleteRow(id);
-                validate(employeeTemp);
                 tableEmployees.setItems(getEmployee());
             } catch (IOException ex) {
                 Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
@@ -283,8 +263,16 @@ public class EmployeeController implements Initializable {
         Gson gson = new Gson();
         ObservableList<EmployeeProperty> employeesProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
-       // JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL("https://localhost:8181/MainServerREST/api/employees"), Charset.forName("UTF-8")));
-        JSONArray jsonArray=new JSONArray(this.sendGet());
+        CredentialsProvider provider = new BasicCredentialsProvider();
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+        provider.setCredentials(AuthScope.ANY, credentials);
+        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/employees");
+
+        HttpResponse response = client.execute(get);
+        System.out.println("RESPONSE IS: " + response);
+
+        JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
@@ -293,23 +281,21 @@ public class EmployeeController implements Initializable {
             employeesProperty.add(new EmployeeProperty(myEmployee.getEmpId(), myEmployee.getEmpLastname(),
                     myEmployee.getEmpFirstname(), myEmployee.getEmpUsername(), myEmployee.getEmpPassword(),
                     myEmployee.getEmpEmail(), myEmployee.getEmpPhone(), myEmployee.getManagersManId().getManId(), myEmployee.getEmpRegistered()));
-
         }
         return employeesProperty;
     }
 
     public static void validate(Employees emp) {
-        //   emp=new Employees();
         try {
-
             Gson gson = new Gson();
-            HttpClient httpClient = HttpClientBuilder.create().build();
-            HttpPost post = new HttpPost("https://localhost:8181/MainServerREST/api/employees");
-
-            String jsonString = gson.toJson(emp);
+            String jsonString = new String(gson.toJson(emp));
             System.out.println("json string: " + jsonString);
             StringEntity postString = new StringEntity(jsonString);
-            System.out.println("Entity post" + postString);
+            CredentialsProvider provider = new BasicCredentialsProvider();
+            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+            provider.setCredentials(AuthScope.ANY, credentials);
+            HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+            HttpPost post = new HttpPost(postEmployeesURL);
             post.setEntity(postString);
             post.setHeader("Content-type", "application/json");
             HttpResponse response = httpClient.execute(post);
@@ -321,71 +307,50 @@ public class EmployeeController implements Initializable {
         }
     }
 
-    private String sendGet() throws Exception {
-
-        String url = "https://localhost:8181/MainServerREST/api/employees";
-        //String url = "https://www.google.se/";
-        SSLContext ssclc = SSLContext.getInstance("TLS");
-        ssclc.init(new KeyManager[0], new TrustManager[]{new DefaultTrustManager()}, new SecureRandom());
-        SSLContext.setDefault(ssclc);
-        URL obj = new URL(url);
-        HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
-        con.setHostnameVerifier(new HostnameVerifier() {
-            @Override
-            public boolean verify(String arg0, SSLSession arg1) {
-                return true;
-            }
-        });
-
-        // optional default is GET
-        con.setRequestMethod("GET");
-
-        //add request header
-        //con.setRequestProperty("User-Agent", USER_AGENT);
-        int responseCode = con.getResponseCode();
-        System.out.println("\nSending 'GET' request to URL : " + url);
-        System.out.println("Response Code : " + responseCode);
-
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-
-        //print result
-        System.out.println(response.toString());
-        return response.toString();
-    }
-
     public void deleteRow(int id) {
         try {
-
             String idToDelete = id + "";
-            WebResource webResource = client.resource("https://localhost:8181/MainServerREST/api/employees");
-            Employees myReturnedObject = webResource.path(idToDelete).delete(Employees.class);
+            CredentialsProvider provider = new BasicCredentialsProvider();
+            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE","password");
+            provider.setCredentials(AuthScope.ANY, credentials);
+            HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+            HttpDelete delete = new HttpDelete(postEmployeesURL + idToDelete);
+            HttpResponse response = httpClient.execute(delete);
             System.out.println("you want to delete: " + id);
         } catch (Exception ex) {
             System.out.println(ex);
         }
     }
 
-    private static class DefaultTrustManager implements X509TrustManager {
+    public void change(int id) throws IOException, JSONException {
+        Employees myEmployee = new Employees();
 
-        @Override
-        public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
-        }
+        Gson gson = new Gson();
+        Employees employeeNew = null;
+        JSONObject jo = new JSONObject();
+        CredentialsProvider provider = new BasicCredentialsProvider();
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+        provider.setCredentials(AuthScope.ANY, credentials);
+        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/employees");
 
-        @Override
-        public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
-        }
+        HttpResponse response = client.execute(get);
+        System.out.println("RESPONSE IS: " + response);
+        boolean register = true;
+        JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
+        System.out.println(jsonArray);
+        for (int i = 0; i < jsonArray.length(); i++) {
+            jo = (JSONObject) jsonArray.getJSONObject(i);
+            myEmployee = gson.fromJson(jo.toString(), Employees.class);
+            if (myEmployee.getEmpId().equals(id)) {
+                employeeNew = new Employees(1, myEmployee.getEmpFirstname(), myEmployee.getEmpLastname(),
+                        myEmployee.getEmpUsername(), myEmployee.getEmpPassword(),
+                        myEmployee.getEmpEmail(), myEmployee.getEmpPhone(), manager, register);
+            }
 
-        @Override
-        public X509Certificate[] getAcceptedIssuers() {
-            return null;
         }
+        deleteRow(id);
+        validate(employeeNew);
     }
+
 }

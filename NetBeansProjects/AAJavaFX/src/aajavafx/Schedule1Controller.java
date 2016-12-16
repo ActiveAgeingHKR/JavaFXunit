@@ -8,6 +8,7 @@ package aajavafx;
 import aajavafx.entities.Customers;
 import aajavafx.entities.Employees;
 import aajavafx.entities.EmployeeSchedule;
+import aajavafx.entities.Managers;
 import com.google.gson.Gson;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
@@ -44,9 +45,15 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -137,7 +144,7 @@ public class Schedule1Controller implements Initializable {
         empFirstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNProperty());
         empLastColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
         empUserNameColumn.setCellValueFactory(cellData -> cellData.getValue().empUserNameProperty());
-        
+
         cuIdColumn.setCellValueFactory(cellData -> cellData.getValue().customerIdProperty().asObject());
         cuFirstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNameProperty());
         cuLastNameColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
@@ -190,6 +197,7 @@ public class Schedule1Controller implements Initializable {
         try {
 
             tableSchedule.setItems(getSchedule());
+            System.out.println("Update");
         } catch (IOException ex) {
             Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (JSONException ex) {
@@ -226,9 +234,19 @@ public class Schedule1Controller implements Initializable {
 
         ObservableList<EmployeeScheduleProperty> employeeScheduleProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL("http://localhost:8080/MainServerRESTVechi/api/employeeschedule"), Charset.forName("UTF-8")));
+
+        CredentialsProvider provider = new BasicCredentialsProvider();
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+        provider.setCredentials(AuthScope.ANY, credentials);
+        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/employeeschedule");
+        HttpResponse response = client.execute(get);
+        System.out.println("RESPONSE IS: " + response);
+
+        JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
+            jo = (JSONObject) jsonArray.getJSONObject(i);
             jo = (JSONObject) jsonArray.getJSONObject(i);
             mySchedule
                     = gson.fromJson(jo.toString(), EmployeeSchedule.class
@@ -238,20 +256,26 @@ public class Schedule1Controller implements Initializable {
                     new EmployeeScheduleProperty(mySchedule.getSchId(), mySchedule.getSchDate(),
                             mySchedule.getSchFromTime(), mySchedule.getSchUntilTime(), mySchedule.getEmplVisitedCust(),
                             mySchedule.getCustomersCuId().getCuPersonnummer(), mySchedule.getEmployeesEmpId().getEmpUsername()));
-
         }
+
         return employeeScheduleProperty;
     }
 
     public ObservableList<CustomerProperty> getCustomer() throws IOException, JSONException {
-
         Customers customers = new Customers();
-
         Gson gson = new Gson();
-
         ObservableList<CustomerProperty> customerProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL("http://localhost:8080/MainServerRESTVechi/api/customers"), Charset.forName("UTF-8")));
+
+        CredentialsProvider provider = new BasicCredentialsProvider();
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+        provider.setCredentials(AuthScope.ANY, credentials);
+        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/customers");
+        HttpResponse response = client.execute(get);
+        System.out.println("RESPONSE IS: " + response);
+
+        JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
@@ -261,7 +285,6 @@ public class Schedule1Controller implements Initializable {
 
             customerProperty.add(
                     new CustomerProperty(customers.getCuId(), customers.getCuFirstname(), customers.getCuLastname(), customers.getCuPersonnummer()));
-
         }
         return customerProperty;
 
@@ -271,19 +294,27 @@ public class Schedule1Controller implements Initializable {
         Employees myEmployee = new Employees();
 
         Gson gson = new Gson();
-
-        ObservableList<EmployeeProperty> employeeProperty = FXCollections.observableArrayList();
+        ObservableList<EmployeeProperty> employeesProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL("http://localhost:8080/MainServerRESTVechi/api/employees"), Charset.forName("UTF-8")));
+
+        CredentialsProvider provider = new BasicCredentialsProvider();
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+        provider.setCredentials(AuthScope.ANY, credentials);
+        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/employees");
+        HttpResponse response = client.execute(get);
+        System.out.println("RESPONSE IS: " + response);
+
+        JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
             myEmployee = gson.fromJson(jo.toString(), Employees.class);
             if (myEmployee.getEmpRegistered() == true) {
-                employeeProperty.add(new EmployeeProperty(myEmployee.getEmpId(), myEmployee.getEmpFirstname(), myEmployee.getEmpLastname(),myEmployee.getEmpUsername()));
+                employeesProperty.add(new EmployeeProperty(myEmployee.getEmpId(), myEmployee.getEmpFirstname(), myEmployee.getEmpLastname(), myEmployee.getEmpUsername()));
             }
         }
-        return employeeProperty;
+        return employeesProperty;
     }
 
     public ObservableList<CustomerProperty> getUnsignedCustomers() throws IOException, JSONException {
@@ -295,9 +326,16 @@ public class Schedule1Controller implements Initializable {
         ObservableList<CustomerProperty> customerPropertyCustomersSigned = FXCollections.observableArrayList();
         ObservableList<CustomerProperty> customerPropertyAllCustomers = this.getCustomer();
         JSONObject jo = new JSONObject();
-        JSONArray jsonArray
-                = new JSONArray(IOUtils.toString(new URL("http://localhost:8080/MainServerRESTVechi/api/employeeschedule/date/" + getDate()),
-                                Charset.forName("UTF-8")));
+
+        CredentialsProvider provider = new BasicCredentialsProvider();
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+        provider.setCredentials(AuthScope.ANY, credentials);
+        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/employeeschedule/date/" + getDate());
+        HttpResponse response = client.execute(get);
+        System.out.println("RESPONSE IS: " + response);
+
+        JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
         System.out.println("1 " + jsonArray);
 
         for (int i = 0; i < jsonArray.length(); i++) {
@@ -338,9 +376,17 @@ public class Schedule1Controller implements Initializable {
 
         Gson gson = new Gson();
         JSONObject jo = new JSONObject();
-        JSONArray jsonArray
-                = new JSONArray(IOUtils.toString(new URL("http://localhost:8080/MainServerRESTVechi/api/employeeschedule/date/" + getDate()),
-                                Charset.forName("UTF-8")));
+
+        CredentialsProvider provider = new BasicCredentialsProvider();
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+        provider.setCredentials(AuthScope.ANY, credentials);
+        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/employeeschedule/date/" + getDate());
+        HttpResponse response = client.execute(get);
+        System.out.println("RESPONSE IS: " + response);
+
+        JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
+
         System.out.println("2 " + jsonArray);
 
         for (int i = 0; i < jsonArray.length(); i++) {
@@ -401,14 +447,19 @@ public class Schedule1Controller implements Initializable {
         tempStart = textStart.getText();
         int empId = Integer.valueOf(tempEmpId);
         int cuId = Integer.valueOf(tempCustId);
+
         try {
             Gson gson = new Gson();
             Employees employee = new Employees(empId);
             Customers customers = new Customers(cuId);
-            HttpClient httpClient = HttpClientBuilder.create().build();
-            HttpPost post = new HttpPost("http://localhost:8080/MainServerRESTVechi/api/employeeschedule");
-//EmployeeSchedule(Integer schId, String schDate, String schFromTime, String schUntilTime, boolean emplVisitedCust)
             EmployeeSchedule schedule = new EmployeeSchedule(1, tempDate, tempStart, tempFinish, false, customers, employee);
+
+            CredentialsProvider provider = new BasicCredentialsProvider();
+            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+            provider.setCredentials(AuthScope.ANY, credentials);
+
+            HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+            HttpPost post = new HttpPost("http://localhost:8080/MainServerREST/api/employeeschedule");
 
             String jsonString = gson.toJson(schedule);
             System.out.println("json string: " + jsonString);
@@ -417,14 +468,13 @@ public class Schedule1Controller implements Initializable {
             post.setEntity(postString);
             post.setHeader("Content-type", "application/json");
             HttpResponse response = httpClient.execute(post);
-
+            System.out.println("Post response: "+response);
         } catch (UnsupportedEncodingException ex) {
             System.out.println(ex);
         } catch (IOException e) {
             System.out.println(e);
         }
         try {
-            //populate table
             tableSchedule.setItems(getSchedule());
         } catch (IOException ex) {
             Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
@@ -435,11 +485,15 @@ public class Schedule1Controller implements Initializable {
     }
 
     public void deleteRow(int id) {
-        try {
 
+        try {
             String idToDelete = id + "";
-            WebResource webResource = client.resource("http://localhost:8080/MainServerRESTVechi/api/employeeschedule");
-            Employees myReturnedObject = webResource.path(idToDelete).delete(Employees.class);
+            CredentialsProvider provider = new BasicCredentialsProvider();
+            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+            provider.setCredentials(AuthScope.ANY, credentials);
+            HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+            HttpDelete delete = new HttpDelete("http://localhost:8080/MainServerREST/api/employeeschedule/" + id);
+            HttpResponse response = httpClient.execute(delete);
             System.out.println("you want to delete: " + id);
         } catch (Exception ex) {
             System.out.println(ex);
