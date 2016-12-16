@@ -9,7 +9,6 @@ package entitiesproperty;
  *
  * @author Iuliu
  */
-import java.io.Serializable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -115,8 +114,9 @@ public class EmployeeProperty extends PersonProperty {
         setManagerId(managersID);
         setEmpValidation(empRegistered);
     }
-  public EmployeeProperty(Integer empId, String empFirstname, String empLastname) {
+  public EmployeeProperty(Integer empId, String empFirstname, String empLastname,String empUsername) {
         super(empId,empFirstname, empLastname);
+        setEmpUserName(empUsername);
        
     }
 }

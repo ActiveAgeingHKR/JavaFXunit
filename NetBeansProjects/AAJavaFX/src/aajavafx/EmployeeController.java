@@ -16,11 +16,15 @@ import entitiesproperty.EmployeeProperty;
 import com.google.gson.Gson;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.spi.inject.Errors;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,6 +43,13 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -46,9 +57,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONArray;
-import org.json.JSONObject;
 import org.json.JSONException;
-
+import org.json.JSONObject;
 
 /**
  * FXML Controller class
@@ -96,18 +106,18 @@ public class EmployeeController implements Initializable {
     @FXML
     private Button buttonRegister;
 
-    private static String postEmployeesURL = "http://localhost:8080/MainServerREST/api/employees/";
-  
+    private static String putEmployeesURL = "https://localhost:8181/MainServerREST/api/employees/";
+
     @FXML
     private Label labelError;
-    //Client client = Client.create();
+    Client client = Client.create();
     Managers manager = new Managers(1);
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         labelError.setText(null);
         buttonRegister.setVisible(false);
-      
+
         textLastName.setVisible(false);
         textFirstName.setVisible(false);
         textUserName.setVisible(false);
@@ -131,6 +141,8 @@ public class EmployeeController implements Initializable {
         } catch (IOException ex) {
             Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (JSONException ex) {
+            Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
             Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -168,40 +180,32 @@ public class EmployeeController implements Initializable {
     }
 
     @FXML
-    private void handleDeleteButton(ActionEvent event) {
-        /*
+    private void handleDeleteButton(ActionEvent event) throws Exception {
         Employees employee = new Employees();
 
+        buttonRegister.setVisible(false);
+        textLastName.setVisible(false);
+        textFirstName.setVisible(false);
+        textUserName.setVisible(false);
+        textEmail.setVisible(false);
+        textPhone.setVisible(false);
+        textPassword.setVisible(false);
+        textActivate.setVisible(false);
+        int id = tableEmployees.getSelectionModel().getSelectedItem().getId();
+        this.deleteRow(id);
         try {
-            buttonRegister.setVisible(false);
-            textLastName.setVisible(false);
-            textFirstName.setVisible(false);
-            textUserName.setVisible(false);
-            textEmail.setVisible(false);
-            textPhone.setVisible(false);
-            textPassword.setVisible(false);
-            textActivate.setVisible(false);
-            int id = tableEmployees.getSelectionModel().getSelectedItem().getId();
-            String idToDelete = id + "";
-            WebResource webResource = client.resource("http://localhost:8080/MainServerREST/api/employees");
-            Employees myReturnedObject = webResource.path(idToDelete).delete(Employees.class);
-            System.out.println("you want to delete: " + id);
-        } catch (Exception ex) {
-            System.out.println(ex);
-        }
-        try {
-            //populate table
+
             tableEmployees.setItems(getEmployee());
         } catch (IOException ex) {
             Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (JSONException ex) {
             Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        */
     }
 
     @FXML
-    private void handleRegisterButton(ActionEvent event) {
+    private void handleRegisterButton(ActionEvent event
+    ) throws Exception {
         labelError.setText(null);
 
         String lastName = textLastName.getText();
@@ -224,25 +228,9 @@ public class EmployeeController implements Initializable {
         } else {
             register = false;
         }
+        Employees employee = new Employees(1, firstName, lastName, userName, password, email, phone, manager, register);
 
-        try {
-            Gson gson = new Gson();
-            HttpClient httpClient = HttpClientBuilder.create().build();
-            HttpPost post = new HttpPost("http://localhost:8080/MainServerREST/api/employees");
-
-            Employees employee = new Employees(1, firstName, lastName, userName, password, email, phone, manager, register);
-
-            String jsonString = gson.toJson(employee);
-            System.out.println("json string: " + jsonString);
-            StringEntity postString = new StringEntity(jsonString);
-
-            post.setEntity(postString);
-            post.setHeader("Content-type", "application/json");
-            HttpResponse response = httpClient.execute(post);
-            
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        } 
+        this.validate(employee);
         try {
             //populate table
             tableEmployees.setItems(getEmployee());
@@ -253,10 +241,9 @@ public class EmployeeController implements Initializable {
         }
     }
 
-   
     @FXML
-    private void handleChangeValidation(ActionEvent event) throws UnsupportedEncodingException, IOException, JSONException {
-/*
+    private void handleChangeValidation(ActionEvent event) throws UnsupportedEncodingException, IOException, JSONException, Exception {
+
         Gson gson = new Gson();
         int id = tableEmployees.getSelectionModel().getSelectedItem().getId();
         String idToChange = id + "";
@@ -266,18 +253,19 @@ public class EmployeeController implements Initializable {
             labelError.setText("This employee is valid!!!");
         } else {
             try {
-                JSONObject json1 = new JSONObject(IOUtils.toString(new URL(postEmployeesURL + idToChange), Charset.forName("UTF-8")));
+                JSONObject json1 = new JSONObject(IOUtils.toString(new URL(putEmployeesURL + idToChange), Charset.forName("UTF-8")));
                 Employees employeeTemp = new Employees();
                 System.out.println("Bou" + json1.toString());
                 employeeTemp = gson.fromJson(json1.toString(), Employees.class);
-
+                System.out.println("1 " + employeeTemp.getEmpRegistered());
                 boolean register = true;
 
                 //String jsonString = gson.toJson(employee);
-                WebResource resource = client.resource(postEmployeesURL + idToChange);
+                WebResource resource = client.resource(putEmployeesURL);
 
                 employeeTemp.setEmpRegistered(register);
-                Employees response = resource.put(Employees.class, employeeTemp);
+                this.deleteRow(id);
+                validate(employeeTemp);
                 tableEmployees.setItems(getEmployee());
             } catch (IOException ex) {
                 Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
@@ -286,15 +274,17 @@ public class EmployeeController implements Initializable {
             }
 
         }
-*/
+
     }
-     public ObservableList<EmployeeProperty> getEmployee() throws IOException, JSONException {
+
+    public ObservableList<EmployeeProperty> getEmployee() throws IOException, JSONException, Exception {
         Employees myEmployee = new Employees();
         Managers manager = new Managers();
         Gson gson = new Gson();
         ObservableList<EmployeeProperty> employeesProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL("http://localhost:8080/MainServerREST/api/employees"), Charset.forName("UTF-8")));
+       // JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL("https://localhost:8181/MainServerREST/api/employees"), Charset.forName("UTF-8")));
+        JSONArray jsonArray=new JSONArray(this.sendGet());
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
@@ -308,4 +298,94 @@ public class EmployeeController implements Initializable {
         return employeesProperty;
     }
 
+    public static void validate(Employees emp) {
+        //   emp=new Employees();
+        try {
+
+            Gson gson = new Gson();
+            HttpClient httpClient = HttpClientBuilder.create().build();
+            HttpPost post = new HttpPost("https://localhost:8181/MainServerREST/api/employees");
+
+            String jsonString = gson.toJson(emp);
+            System.out.println("json string: " + jsonString);
+            StringEntity postString = new StringEntity(jsonString);
+            System.out.println("Entity post" + postString);
+            post.setEntity(postString);
+            post.setHeader("Content-type", "application/json");
+            HttpResponse response = httpClient.execute(post);
+
+        } catch (UnsupportedEncodingException ex) {
+            System.out.println(ex);
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+    }
+
+    private String sendGet() throws Exception {
+
+        String url = "https://localhost:8181/MainServerREST/api/employees";
+        //String url = "https://www.google.se/";
+        SSLContext ssclc = SSLContext.getInstance("TLS");
+        ssclc.init(new KeyManager[0], new TrustManager[]{new DefaultTrustManager()}, new SecureRandom());
+        SSLContext.setDefault(ssclc);
+        URL obj = new URL(url);
+        HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
+        con.setHostnameVerifier(new HostnameVerifier() {
+            @Override
+            public boolean verify(String arg0, SSLSession arg1) {
+                return true;
+            }
+        });
+
+        // optional default is GET
+        con.setRequestMethod("GET");
+
+        //add request header
+        //con.setRequestProperty("User-Agent", USER_AGENT);
+        int responseCode = con.getResponseCode();
+        System.out.println("\nSending 'GET' request to URL : " + url);
+        System.out.println("Response Code : " + responseCode);
+
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(con.getInputStream()));
+        String inputLine;
+        StringBuffer response = new StringBuffer();
+
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+        in.close();
+
+        //print result
+        System.out.println(response.toString());
+        return response.toString();
+    }
+
+    public void deleteRow(int id) {
+        try {
+
+            String idToDelete = id + "";
+            WebResource webResource = client.resource("https://localhost:8181/MainServerREST/api/employees");
+            Employees myReturnedObject = webResource.path(idToDelete).delete(Employees.class);
+            System.out.println("you want to delete: " + id);
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+    }
+
+    private static class DefaultTrustManager implements X509TrustManager {
+
+        @Override
+        public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+        }
+
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+            return null;
+        }
+    }
 }

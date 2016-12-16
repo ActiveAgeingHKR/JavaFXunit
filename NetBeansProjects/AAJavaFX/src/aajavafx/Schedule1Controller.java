@@ -9,6 +9,8 @@ import aajavafx.entities.Customers;
 import aajavafx.entities.Employees;
 import aajavafx.entities.EmployeeSchedule;
 import com.google.gson.Gson;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
 import entitiesproperty.CustomerProperty;
 import entitiesproperty.EmployeeProperty;
 import entitiesproperty.EmployeeScheduleProperty;
@@ -16,6 +18,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
@@ -34,6 +37,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -59,6 +63,8 @@ public class Schedule1Controller implements Initializable {
      * Initializes the controller class.
      *
      */
+    @FXML
+    private Label display;
     @FXML
     private TextField dateText;
     @FXML
@@ -94,6 +100,8 @@ public class Schedule1Controller implements Initializable {
     private TableColumn<EmployeeProperty, String> empFirstNameColumn;
     @FXML
     private TableColumn<EmployeeProperty, String> empLastColumn;
+    @FXML
+    private TableColumn<EmployeeProperty, String> empUserNameColumn;
 
     @FXML
     private TableView<CustomerProperty> tableCustomer;
@@ -112,6 +120,8 @@ public class Schedule1Controller implements Initializable {
     private String date;
     private int idEmployee;
     private int idCustomer;
+    Client client = Client.create();
+    Singleton singleton = null;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -126,7 +136,8 @@ public class Schedule1Controller implements Initializable {
         empIdColumn.setCellValueFactory(cellData -> cellData.getValue().idProperty().asObject());
         empFirstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNProperty());
         empLastColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
-
+        empUserNameColumn.setCellValueFactory(cellData -> cellData.getValue().empUserNameProperty());
+        
         cuIdColumn.setCellValueFactory(cellData -> cellData.getValue().customerIdProperty().asObject());
         cuFirstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNameProperty());
         cuLastNameColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
@@ -145,25 +156,50 @@ public class Schedule1Controller implements Initializable {
         });
 
         try {
-            //populate table
+
             tableEmployee.setItems(getEmployee());
             tableCustomer.setItems(getCustomer());
+            tableSchedule.setItems(getSchedule());
         } catch (IOException ex) {
-            Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex + "Bou");
+            Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (JSONException ex) {
-            Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex + "vaca");
+            Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
 
-    public void handleDatePickerCalenderAction(ActionEvent event) {
-        System.out.println("Bou");
+    @FXML
+    private void handleGetCustomersUnvisited(ActionEvent event) throws IOException {
+        try {
+            getUnsignedCustomers();
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("UnsignedCustomers.fxml"));
+            Parent root1 = (Parent) fxmlLoader.load();
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root1));
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+    @FXML
+    private void handleDeleteButton(ActionEvent event) {
+
+        int id = tableSchedule.getSelectionModel().getSelectedItem().getSchId();
+        this.deleteRow(id);
+        try {
+
+            tableSchedule.setItems(getSchedule());
+        } catch (IOException ex) {
+            Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (JSONException ex) {
+            Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @FXML
     private void handleGoBack(ActionEvent event) {
-        //labelError.setText(null);
+
         try {
             Node node = (Node) event.getSource();
             Stage stage = (Stage) node.getScene().getWindow();
@@ -190,7 +226,7 @@ public class Schedule1Controller implements Initializable {
 
         ObservableList<EmployeeScheduleProperty> employeeScheduleProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL("http://localhost:9090/MainServerREST/api/employeeschedule"), Charset.forName("UTF-8")));
+        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL("http://localhost:8080/MainServerRESTVechi/api/employeeschedule"), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
@@ -215,7 +251,7 @@ public class Schedule1Controller implements Initializable {
 
         ObservableList<CustomerProperty> customerProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL("http://localhost:9090/MainServerREST/api/customers"), Charset.forName("UTF-8")));
+        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL("http://localhost:8080/MainServerRESTVechi/api/customers"), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
@@ -224,7 +260,7 @@ public class Schedule1Controller implements Initializable {
                     );
 
             customerProperty.add(
-                    new CustomerProperty(customers.getCuId(),customers.getCuFirstname(), customers.getCuLastname(), customers.getCuPersonnummer()));
+                    new CustomerProperty(customers.getCuId(), customers.getCuFirstname(), customers.getCuLastname(), customers.getCuPersonnummer()));
 
         }
         return customerProperty;
@@ -238,36 +274,105 @@ public class Schedule1Controller implements Initializable {
 
         ObservableList<EmployeeProperty> employeeProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL("http://localhost:9090/MainServerREST/api/employees"), Charset.forName("UTF-8")));
+        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL("http://localhost:8080/MainServerRESTVechi/api/employees"), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
-            myEmployee
-                    = gson.fromJson(jo.toString(), Employees.class
-                    );
-
-            employeeProperty.add(
-                    new EmployeeProperty(myEmployee.getEmpId(), myEmployee.getEmpFirstname(),
-                            myEmployee.getEmpLastname()));
-
+            myEmployee = gson.fromJson(jo.toString(), Employees.class);
+            if (myEmployee.getEmpRegistered() == true) {
+                employeeProperty.add(new EmployeeProperty(myEmployee.getEmpId(), myEmployee.getEmpFirstname(), myEmployee.getEmpLastname(),myEmployee.getEmpUsername()));
+            }
         }
         return employeeProperty;
     }
 
+    public ObservableList<CustomerProperty> getUnsignedCustomers() throws IOException, JSONException {
+        //Customers customers = new Customers();
+        EmployeeSchedule mySchedule = new EmployeeSchedule();
+        singleton = Singleton.getInstance();
+        Gson gson = new Gson();
+
+        ObservableList<CustomerProperty> customerPropertyCustomersSigned = FXCollections.observableArrayList();
+        ObservableList<CustomerProperty> customerPropertyAllCustomers = this.getCustomer();
+        JSONObject jo = new JSONObject();
+        JSONArray jsonArray
+                = new JSONArray(IOUtils.toString(new URL("http://localhost:8080/MainServerRESTVechi/api/employeeschedule/date/" + getDate()),
+                                Charset.forName("UTF-8")));
+        System.out.println("1 " + jsonArray);
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            jo = (JSONObject) jsonArray.getJSONObject(i);
+
+            mySchedule
+                    = gson.fromJson(jo.toString(), EmployeeSchedule.class
+                    );
+
+            customerPropertyCustomersSigned.add(
+                    new CustomerProperty(mySchedule.getCustomersCuId().getCuId(),
+                            mySchedule.getCustomersCuId().getCuFirstname(), mySchedule.getCustomersCuId().getCuLastname(),
+                            mySchedule.getCustomersCuId().getCuPersonnummer()));
+
+        }
+
+        for (int i = 0; i < customerPropertyAllCustomers.size(); i++) {
+
+            for (int j = 0; j < customerPropertyCustomersSigned.size(); j++) {
+
+                if (customerPropertyAllCustomers.get(i).getPersonnumer().equals(customerPropertyCustomersSigned.get(j).getPersonnumer())) {
+
+                    customerPropertyAllCustomers.remove(i);
+                }
+            }
+        }
+
+        singleton.setList(customerPropertyAllCustomers);
+        return customerPropertyAllCustomers;
+    }
+
+    public double getNumbersOfHoursPerDay(int id) throws JSONException, IOException {
+        double numberHours = 0;
+        double numberStart = 0;
+        double numberFinish = 0;
+        //Customers customers = new Customers();
+        EmployeeSchedule mySchedule = new EmployeeSchedule();
+
+        Gson gson = new Gson();
+        JSONObject jo = new JSONObject();
+        JSONArray jsonArray
+                = new JSONArray(IOUtils.toString(new URL("http://localhost:8080/MainServerRESTVechi/api/employeeschedule/date/" + getDate()),
+                                Charset.forName("UTF-8")));
+        System.out.println("2 " + jsonArray);
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            jo = (JSONObject) jsonArray.getJSONObject(i);
+
+            mySchedule = gson.fromJson(jo.toString(), EmployeeSchedule.class);
+            if (mySchedule.getEmployeesEmpId().getEmpId().equals(id)) {
+                numberFinish = Double.valueOf(mySchedule.getSchUntilTime()) + numberFinish;
+                System.out.println("Finish: " + Double.valueOf(mySchedule.getSchUntilTime()));
+                numberStart = Double.valueOf(mySchedule.getSchFromTime()) + numberStart;
+            }
+        }
+        numberHours = numberFinish - numberStart;
+
+        return numberHours;
+    }
+
     @FXML
-    private void handleCreateNewSchedule(ActionEvent event) {
+    private void handleCreateNewSchedule(ActionEvent event) throws JSONException, IOException {
         String tempDate;
-        
-        
+        DecimalFormat df2 = new DecimalFormat(".##");
         idEmployee = tableEmployee.getSelectionModel().getSelectedItem().getId();
         idCustomer = tableCustomer.getSelectionModel().getSelectedItem().getCustomerId();
         tempDate = this.getDate();
         String tempId = idEmployee + "";
-        String tempIdCust=idCustomer+"";
+        String tempIdCust = idCustomer + "";
         textEmpId.setText(tempId);
         textCustId.setText(tempIdCust);
         dateText.setText(tempDate);
-
+        System.out.println(tempDate);
+        System.out.println("Hours : " + df2.format(this.getNumbersOfHoursPerDay(idEmployee)));
+        display.setText("Hours : " + df2.format(this.getNumbersOfHoursPerDay(idEmployee)));
     }
 
     public String getDate() {
@@ -281,8 +386,6 @@ public class Schedule1Controller implements Initializable {
         this.date = date;
     }
 
-   
-
     @FXML
     private void handleValidate(ActionEvent event) {
         String tempDate;
@@ -290,23 +393,22 @@ public class Schedule1Controller implements Initializable {
         String tempCustId;
         String tempFinish;
         String tempStart;
-        
-        
-        tempDate=dateText.getText();
-        tempEmpId=textEmpId.getText();
-        tempCustId=textCustId.getText();
-        tempFinish=textFinish.getText();
-        tempStart=textStart.getText();
-        int empId=Integer.valueOf(tempEmpId);
-        int cuId=Integer.valueOf(tempCustId);
+
+        tempDate = dateText.getText();
+        tempEmpId = textEmpId.getText();
+        tempCustId = textCustId.getText();
+        tempFinish = textFinish.getText();
+        tempStart = textStart.getText();
+        int empId = Integer.valueOf(tempEmpId);
+        int cuId = Integer.valueOf(tempCustId);
         try {
             Gson gson = new Gson();
-            Employees employee=new Employees(empId);
-            Customers customers=new Customers(cuId);
+            Employees employee = new Employees(empId);
+            Customers customers = new Customers(cuId);
             HttpClient httpClient = HttpClientBuilder.create().build();
-            HttpPost post = new HttpPost("http://localhost:9090/MainServerREST/api/employeeschedule");
+            HttpPost post = new HttpPost("http://localhost:8080/MainServerRESTVechi/api/employeeschedule");
 //EmployeeSchedule(Integer schId, String schDate, String schFromTime, String schUntilTime, boolean emplVisitedCust)
-            EmployeeSchedule schedule = new EmployeeSchedule(1,tempDate,tempStart,tempFinish,false,customers,employee);
+            EmployeeSchedule schedule = new EmployeeSchedule(1, tempDate, tempStart, tempFinish, false, customers, employee);
 
             String jsonString = gson.toJson(schedule);
             System.out.println("json string: " + jsonString);
@@ -315,7 +417,7 @@ public class Schedule1Controller implements Initializable {
             post.setEntity(postString);
             post.setHeader("Content-type", "application/json");
             HttpResponse response = httpClient.execute(post);
-            
+
         } catch (UnsupportedEncodingException ex) {
             System.out.println(ex);
         } catch (IOException e) {
@@ -329,7 +431,18 @@ public class Schedule1Controller implements Initializable {
         } catch (JSONException ex) {
             Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }
 
+    public void deleteRow(int id) {
+        try {
+
+            String idToDelete = id + "";
+            WebResource webResource = client.resource("http://localhost:8080/MainServerRESTVechi/api/employeeschedule");
+            Employees myReturnedObject = webResource.path(idToDelete).delete(Employees.class);
+            System.out.println("you want to delete: " + id);
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+    }
 }
