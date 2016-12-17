@@ -127,7 +127,7 @@ public class Schedule1Controller implements Initializable {
     private String date;
     private int idEmployee;
     private int idCustomer;
-    Client client = Client.create();
+   
     Singleton singleton = null;
 
     @Override

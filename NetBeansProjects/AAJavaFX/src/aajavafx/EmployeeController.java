@@ -14,7 +14,6 @@ import aajavafx.entities.Managers;
 import aajavafx.entities.Employees;
 import entitiesproperty.EmployeeProperty;
 import com.google.gson.Gson;
-import com.sun.jersey.api.client.Client;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -103,7 +102,7 @@ public class EmployeeController implements Initializable {
 
     @FXML
     private Label labelError;
-    Client client = Client.create();
+   
     Managers manager = new Managers(1);
 
     @Override
