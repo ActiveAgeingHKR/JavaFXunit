@@ -7,10 +7,7 @@ package aajavafx.entities;
 
 import java.io.Serializable;
 
-/**
- *
- * @author lokeshdhakal
- */
+
 public class UserCredentials implements Serializable {
     
     private String encUsername;

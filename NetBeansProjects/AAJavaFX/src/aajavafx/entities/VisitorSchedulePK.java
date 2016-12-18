@@ -5,10 +5,7 @@
  */
 package aajavafx.entities;
 
-/**
- *
- * @author Rolandas
- */
+
 public class VisitorSchedulePK {
     
     
