@@ -44,12 +44,17 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -178,6 +183,11 @@ public class CustomerMedicineController implements Initializable {
             //Customers customer = getCustomerByID(customerId);
             
             Gson gson = new Gson();
+            //......for ssl handshake....
+            CredentialsProvider provider = new BasicCredentialsProvider();
+            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+            provider.setCredentials(AuthScope.ANY, credentials);
+            //........
             HttpClient httpClient = HttpClientBuilder.create().build();
             HttpEntityEnclosingRequestBase HttpEntity = null; //this is the superclass for post, put, get, etc
             if(startDate.isEditable()) { //then we are posting a new record
@@ -275,6 +285,12 @@ public class CustomerMedicineController implements Initializable {
     private void handleRemoveButton(ActionEvent event) {
         //remove is annotated with @DELETE on server so we use a HttpDelete object
         try {
+            //.......SSL Update....
+            CredentialsProvider provider = new BasicCredentialsProvider();
+            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+            provider.setCredentials(AuthScope.ANY, credentials);
+            //......
+            
             HttpClient httpClient = HttpClientBuilder.create().build();
             String idToDelete = startDate.getText();
             //add the id to the end of the URL so this will call the method at MainServerREST/api/visitors/id
@@ -298,9 +314,23 @@ public class CustomerMedicineController implements Initializable {
 
         ObservableList<Customers> customers = FXCollections.observableArrayList();
         Customers myCustomer = new Customers();
-        Gson gson = new Gson();
+        Gson gson = new Gson();    
         JSONObject jo = new JSONObject();
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL(CustomersRootURL), Charset.forName("UTF-8")));
+        // SSL update..........
+        CredentialsProvider provider = new BasicCredentialsProvider();
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+        provider.setCredentials(AuthScope.ANY, credentials);
+        
+        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/customers");
+
+        HttpResponse response = client.execute(get);
+        System.out.println("RESPONSE IS: " + response);
+        //................
+        
+        //JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL(CustomersRootURL), Charset.forName("UTF-8")));
+        JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
+        
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
@@ -318,7 +348,20 @@ public class CustomerMedicineController implements Initializable {
         //Managers manager = new Managers();
         Gson gson = new Gson();
         JSONObject jo = new JSONObject();
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL(MedicineRootURL), Charset.forName("UTF-8")));
+        
+        //........SSL Update
+        CredentialsProvider provider = new BasicCredentialsProvider();
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+        provider.setCredentials(AuthScope.ANY, credentials);
+        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/medicines");
+
+        HttpResponse response = client.execute(get);
+        System.out.println("RESPONSE IS: " + response);
+        //...................
+       // JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL(MedicineRootURL), Charset.forName("UTF-8")));
+       JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
+        
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
@@ -337,7 +380,20 @@ public class CustomerMedicineController implements Initializable {
         //Managers manager = new Managers();
         Gson gson = new Gson();
         JSONObject jo = new JSONObject();
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL(MedicineCustomerRootURL), Charset.forName("UTF-8")));
+        //........SSL Update
+        CredentialsProvider provider = new BasicCredentialsProvider();
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+        provider.setCredentials(AuthScope.ANY, credentials);
+        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/customersmedicines/");
+
+        HttpResponse response = client.execute(get);
+        System.out.println("RESPONSE IS: " + response);
+        //...................
+       // JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL(MedicineRootURL), Charset.forName("UTF-8")));
+       JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
+        
+        //JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL(MedicineCustomerRootURL), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             //get the main json object, which contains customer object, pk object, dosage, start date, schedule and medicine object
