@@ -12,7 +12,7 @@ import javafx.beans.property.StringProperty;
 
 /**
  *
- * @author Chris
+ * @author lokeshdhakal
  */
 public class DevicesCustomerProperty {
     
