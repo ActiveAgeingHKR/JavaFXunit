@@ -145,7 +145,7 @@ public class EmployeeController implements Initializable {
         try {
             Node node = (Node) event.getSource();
             Stage stage = (Stage) node.getScene().getWindow();
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("MainPage.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("MainPageTab.fxml"));
             Parent root = loader.load();
             Scene scene = new Scene(root, 879, 599);
             stage.setScene(scene);

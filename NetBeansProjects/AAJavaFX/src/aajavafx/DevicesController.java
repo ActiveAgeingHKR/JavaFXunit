@@ -209,7 +209,7 @@ public class DevicesController implements Initializable {
             Node node = (Node) event.getSource();
             Stage stage = (Stage) node.getScene().getWindow();
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("MainPage.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("MainPageTab.fxml"));
             Parent root = loader.load();
 
             Scene scene = new Scene(root);
