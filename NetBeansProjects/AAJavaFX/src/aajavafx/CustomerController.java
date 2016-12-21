@@ -279,6 +279,7 @@
  * and open the template in the editor.
  */
 package aajavafx;
+
 import aajavafx.entities.Customers;
 import aajavafx.entities.Employees;
 import aajavafx.entities.Managers;
@@ -327,12 +328,14 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 /**
  * FXML Controller class
  *
  * @author lokeshdhakal
  */
 public class CustomerController implements Initializable {
+
     private static String postCustomerURL = "http://localhost:8080/MainServerREST/api/customers";
     // private static String postCustomerURL = "http://192.168.43.205:8080/MainServerREST/api/customers";
     @FXML
@@ -369,6 +372,7 @@ public class CustomerController implements Initializable {
     String address;
     String birthdate;
     String persunnumer;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         buttonRegister.setVisible(false);
@@ -394,6 +398,7 @@ public class CustomerController implements Initializable {
             Logger.getLogger(CustomerController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
     @FXML
     private void handleGoBack(ActionEvent event) {
         //labelError.setText(null);
@@ -410,6 +415,7 @@ public class CustomerController implements Initializable {
             Logger.getLogger(MainPageController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
     @FXML
     private void handleNewButton(ActionEvent event) {
         buttonRegister.setVisible(true);
@@ -420,6 +426,7 @@ public class CustomerController implements Initializable {
         birthdateID.setVisible(true);
         persunnumerID.setVisible(true);
     }
+
     @FXML
     private void handleRegisterButton(ActionEvent event) {
         //labelError.setText(null);
@@ -466,15 +473,18 @@ public class CustomerController implements Initializable {
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            // labelError.setText("Salary or phone field does not have a integer!");
-            try {
+            
+
+        }
+        try {
             //refresh table
             tableCustomer.setItems(getCustomer());
         } catch (Exception e) {
             Logger.getLogger(CustomerController.class.getName()).log(Level.SEVERE, null, e);
-        } 
         }
+
     }
+
     @FXML
     private void handlePrintButton(ActionEvent event) {
         //  labelError.setText(null);
@@ -486,6 +496,7 @@ public class CustomerController implements Initializable {
         birthdateID.setVisible(true);
         persunnumerID.setVisible(true);
     }
+
     @FXML
     private void handleChangeButton(ActionEvent event) { //I think we don't need this for customer
         //  labelError.setText(null);
@@ -502,8 +513,9 @@ public class CustomerController implements Initializable {
             System.out.println("Something went wrong");
         }
     }
+
     public ObservableList<CustomerProperty> getCustomer() throws IOException, JSONException {
-        
+
         ObservableList<CustomerProperty> customers = FXCollections.observableArrayList();
         //customers.add(new CustomerProperty(1, "Johny", "Walker", "London", "1972-07-01", "7207012222"));
         Customers myCustomer = new Customers();
@@ -531,4 +543,3 @@ public class CustomerController implements Initializable {
         return customersProperty;
     }
 }
- 
