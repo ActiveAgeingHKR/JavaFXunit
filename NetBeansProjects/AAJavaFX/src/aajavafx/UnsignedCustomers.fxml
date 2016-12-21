@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="aajavafx.UnsignedCustomersController">
+   <children>
+       <TableView fx:id="tableCustomer" layoutX="42.0" layoutY="57.0" prefHeight="312.0" prefWidth="522.0">
+           <columns>
+               <TableColumn fx:id="cuIdColumn" prefWidth="71.0" text="ID" />
+             <TableColumn fx:id="cuFirstNameColumn" prefWidth="76.0" text="First Name" />
+               <TableColumn fx:id="cuLastNameColumn" prefWidth="88.0" text="Last Name" />
+               <TableColumn fx:id="cuPersonnumerColumn" prefWidth="136.0" text="Personnumer" />
+           </columns>
+         </TableView>
+      <Label layoutX="43.0" layoutY="22.0" prefHeight="17.0" prefWidth="522.0" text="                                                                       Customers" textAlignment="CENTER" />
+   </children> 
+</AnchorPane>
