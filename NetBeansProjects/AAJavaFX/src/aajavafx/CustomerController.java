@@ -467,6 +467,12 @@ public class CustomerController implements Initializable {
         } catch (Exception ex) {
             ex.printStackTrace();
             // labelError.setText("Salary or phone field does not have a integer!");
+            try {
+            //refresh table
+            tableCustomer.setItems(getCustomer());
+        } catch (Exception e) {
+            Logger.getLogger(CustomerController.class.getName()).log(Level.SEVERE, null, e);
+        } 
         }
     }
     @FXML
