@@ -13,7 +13,7 @@
             <TextField id="firstNameID" fx:id="firstNameID" promptText="First name" />
             <TextField id="lastNameID" fx:id="lastNameID" promptText="Last name" />
             <TextField id="addressID" fx:id="addressID" promptText="Address" />
-            <TextField id="birthdateID" fx:id="birthdateID" promptText="Date of Birth" />
+            <TextField id="birthdateID" fx:id="birthdateID" promptText="YYYY-MM_DD" />
             <TextField id="persunnumerID" fx:id="persunnumerID" promptText="PersonNumer" />
          </children>
       </VBox>
