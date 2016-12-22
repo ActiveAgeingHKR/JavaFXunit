@@ -55,9 +55,9 @@ import org.json.JSONObject;
  * @author Suraj
  */
 public class MedicinesController implements Initializable {
-    
+
     private static String MedicineRootURL = "http://localhost:8080/MainServerREST/api/medicines/";
-    
+
     @FXML
     private TableView<Medicines> tableMedicines;
     @FXML
@@ -76,59 +76,117 @@ public class MedicinesController implements Initializable {
     private TextField volumeField;
     @FXML
     private TextField measurementField;
-    
 
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        idColumn.setCellValueFactory(cellData -> new SimpleStringProperty(""+cellData.getValue().getmedId()));
+        idColumn.setCellValueFactory(cellData -> new SimpleStringProperty("" + cellData.getValue().getmedId()));
         nameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getMedName()));
-        volumeColumn.setCellValueFactory(cellData -> new SimpleStringProperty(""+cellData.getValue().getVolume()));
+        volumeColumn.setCellValueFactory(cellData -> new SimpleStringProperty("" + cellData.getValue().getVolume()));
         measurementColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getMedMeasurementUnit()));
-        
+
         idField.setEditable(false);
         nameField.setEditable(false);
         volumeField.setEditable(false);
         measurementField.setEditable(false);
-        
-        try{
-        //Populate table 
-        tableMedicines.setItems(getMedicines());
-        
-    } catch (IOException ex) {
+
+        try {
+            //Populate table 
+            tableMedicines.setItems(getMedicines());
+
+        } catch (IOException ex) {
             Logger.getLogger(CustomerController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (JSONException ex) {
             Logger.getLogger(CustomerController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         tableMedicines.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
-                idField.setText(""+newSelection.getmedId());
+                idField.setText("" + newSelection.getmedId());
                 nameField.setText(newSelection.getMedName());
                 volumeField.setText(newSelection.getVolume().toString());
                 measurementField.setText(newSelection.getMedMeasurementUnit());
             }
         });
-    }    
-    
+    }
+
     @FXML
     private void handleSaveButton(ActionEvent event) {
-       
+        try {
 
-            
-        
+            String medName = nameField.getText();
+            nameField.clear();
+            String medID = idField.getText();
+            idField.clear();
+            String volume = volumeField.getText();
+            volumeField.clear();
+            String medMeasurementUnit = measurementField.getText();
+            measurementField.clear();
+            //// System.out.println(customerBox.getValue());
+            ////String string = (String)customerBox.getValue();
+            ////System.out.println("STRING VALUE: "+string);
+            ////int customerId = Integer.parseInt(""+string.charAt(0));
+            ////System.out.println("CUSTOMER ID VALUE:"+customerId);
+            ////Customers customer = getCustomerByID(customerId);
+
+            Gson gson = new Gson();
+
+            //......for ssl handshake....
+            CredentialsProvider provider = new BasicCredentialsProvider();
+            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+            provider.setCredentials(AuthScope.ANY, credentials);
+            //........
+            HttpClient httpClient = HttpClientBuilder.create().build();
+            HttpEntityEnclosingRequestBase HttpEntity = null; //this is the superclass for post, put, get, etc
+            if (idField.isEditable()) { //then we are posting a new record
+                HttpEntity = new HttpPost(MedicineRootURL); //so make a http post object
+            } else { //we are editing a record 
+                HttpEntity = new HttpPut(MedicineRootURL + medID); //so make a http put object
+            }
+            Medicines medicine = new Medicines(1, medName, volume, medMeasurementUnit);
+
+            String jsonString = new String(gson.toJson(medicine));
+            System.out.println("json string: " + jsonString);
+            StringEntity postString = new StringEntity(jsonString);
+
+            HttpEntity.setEntity(postString);
+            HttpEntity.setHeader("Content-type", "application/json");
+            HttpResponse response = httpClient.execute(HttpEntity);
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode == 204) {
+                System.out.println("Device posted successfully");
+            } else {
+                System.out.println("Server error: " + response.getStatusLine());
+            }
+            nameField.setEditable(false);
+            idField.setEditable(false);
+            volumeField.setEditable(false);
+            measurementField.setEditable(false);
+
+        } catch (Exception ex) {
+            System.out.println("Error: " + ex);
+        }
+        try {
+            //refresh table
+            tableMedicines.setItems(getMedicines());
+        } catch (IOException ex) {
+            Logger.getLogger(MedicinesController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            Logger.getLogger(MedicinesController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
-    
+
     @FXML
     private void handleBackButton(ActionEvent event) {
         try {
-            
+
             Node node = (Node) event.getSource();
             Stage stage = (Stage) node.getScene().getWindow();
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("MainPage.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("MainPageTab.fxml"));
             Parent root = loader.load();
 
             Scene scene = new Scene(root);
@@ -137,13 +195,12 @@ public class MedicinesController implements Initializable {
 
             System.out.println("You clicked Schedule!");
         } catch (Exception ex) {
-        
 
-        System.out.println("ERROR! "+ex);
+            System.out.println("ERROR! " + ex);
         }
-        
+
     }
-    
+
     @FXML
     private void handleNewButton(ActionEvent event) {
         idField.setEditable(true);
@@ -154,23 +211,23 @@ public class MedicinesController implements Initializable {
         nameField.clear();
         volumeField.clear();
         measurementField.clear();
-        
+
     }
-    
+
     @FXML
     private void handleEditButton(ActionEvent event) {
         nameField.setEditable(true);
         volumeField.setEditable(true);
         measurementField.setEditable(true);
     }
-    
-    public ObservableList<Medicines> getMedicines() throws IOException, JSONException{
+
+    public ObservableList<Medicines> getMedicines() throws IOException, JSONException {
 
         ObservableList<Medicines> medicines = FXCollections.observableArrayList();
         //Managers manager = new Managers();
         Gson gson = new Gson();
         JSONObject jo = new JSONObject();
-        
+
         // SSL update .......
         CredentialsProvider provider = new BasicCredentialsProvider();
         UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
@@ -180,18 +237,17 @@ public class MedicinesController implements Initializable {
         HttpResponse response = client.execute(get);
         System.out.println("RESPONSE IS: " + response);
         JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
-         // ...........
+        // ...........
         //JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL(MedicineRootURL), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
             Medicines medicine = gson.fromJson(jo.toString(), Medicines.class);
-            System.out.println("JSON OBJECT #"+i+" "+jo);
+            System.out.println("JSON OBJECT #" + i + " " + jo);
             medicines.add(medicine);
 
-        
-    }
+        }
         return medicines;
     }
-    
+
 }

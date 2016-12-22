@@ -17,9 +17,9 @@ public class Medicines implements Serializable {
     
     private Integer medId;
     private String medName;
-    private Integer volume;
+    private String volume;
     private String medMeasurementUnit;
-    private Customers customersCuId;
+   // private Customers customersCuId;
     
     public Medicines() {
     }
@@ -28,13 +28,15 @@ public class Medicines implements Serializable {
         this.medId = medId;
     }
 
-    public Medicines(Integer medId, String medName, Integer volume, String medMeasurementUnit, Customers customersCuID) {
+    public Medicines(Integer medId, String medName, String volume, String medMeasurementUnit) {
         this.medId = medId;
         this.medName = medName;
         this.volume = volume;
         this.medMeasurementUnit = medMeasurementUnit;
-        this.customersCuId = customersCuID;
+        //this.customersCuId = customersCuID;
     }
+    
+    
 
     public Integer getmedId() {
         return medId;
@@ -48,11 +50,11 @@ public class Medicines implements Serializable {
     public void setMedName(String medName) {
         this.medName = medName;
     }
-     public Integer getVolume() {
+     public String getVolume() {
         return volume;
     }
 
-    public void setVolume(Integer volume) {
+    public void setVolume(String volume) {
         this.volume = volume;
     }
 
@@ -64,13 +66,13 @@ public class Medicines implements Serializable {
         this.medMeasurementUnit = medMeasurementUnit;
     }
     
-    public Customers getCustomersCuID() {
-        return customersCuId;
-    }
-
-    public void setCustomersCuID(Customers cuID) {
-        this.customersCuId = cuID;
-    }
+//    public Customers getCustomersCuID() {
+//        return customersCuId;
+//    }
+//
+//    public void setCustomersCuID(Customers cuID) {
+//        this.customersCuId = cuID;
+//    }
     
     @Override
     public String toString() {
