@@ -37,6 +37,8 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -210,109 +212,124 @@ public class VisitorController implements Initializable {
     
     @FXML
     private void handleSave(ActionEvent event) {
-        if(imageFile != null) {          
-            String visitorId = visitorIDField.getText();
-            visitorIDField.clear();
-            String firstName = firstNameField.getText();
-            firstNameField.clear();
-            String lastName = lastNameField.getText();
-            lastNameField.clear();
-            String email = emailField.getText();
-            emailField.clear();
-            String phoneNumber = phoneNumberField.getText();
-            phoneNumberField.clear();
-            Integer companyId = getCompanyIDFromName(companyBox.getValue().toString());
-            
-            try {
-                Gson gson = new Gson();
-                CredentialsProvider provider = new BasicCredentialsProvider();
-                UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
-                provider.setCredentials(AuthScope.ANY, credentials);
-                HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-                HttpEntityEnclosingRequestBase HttpEntity = null; //this is the superclass for post, put, get, etc
-                if(visitorIDField.isEditable()) { //then we are posting a new record
-                    HttpEntity = new HttpPost(VisitorsRootURL); //so make a http post object
-                } else { //we are editing a record
-                    HttpEntity = new HttpPut(VisitorsRootURL); //so make a http put object
-                }
-                Company company = getCompany(companyId);
-                Visitors visitor = new Visitors(visitorId, firstName, lastName, email, phoneNumber, company);
-                
-                String jsonString = new String(gson.toJson(visitor));
-                System.out.println("json string: " + jsonString);
-                StringEntity postString = new StringEntity(jsonString);
-                
-                HttpEntity.setEntity(postString);
-                HttpEntity.setHeader("Content-type", "application/json");
-                HttpResponse response = httpClient.execute(HttpEntity);
-                int statusCode = response.getStatusLine().getStatusCode();
-                if(statusCode == 204) {
-                    System.out.println("New visitor posted successfully");
-                } else{
-                    System.out.println("Server error: "+response.getStatusLine());
-                }
-                visitorIDField.setEditable(false);
-                firstNameField.setEditable(false);
-                lastNameField.setEditable(false);
-                emailField.setEditable(false);
-                phoneNumberField.setEditable(false);
-                companyBox.setEditable(false);
+        boolean isValid = false;
+        // Check if email is in right format
+        try {
+            InternetAddress internetaddress = new InternetAddress(emailField.getText());
+            internetaddress.validate();
+            isValid = true;
+            System.out.println("Email is valid format");
+        } catch(AddressException e) {
+            System.out.println("Email is invalid - " + emailField.getText());
+        }
+        if (isValid == true) {
+            if(imageFile != null) {
+                String visitorId = visitorIDField.getText();
                 visitorIDField.clear();
+                String firstName = firstNameField.getText();
                 firstNameField.clear();
+                String lastName = lastNameField.getText();
                 lastNameField.clear();
+                String email = emailField.getText();
                 emailField.clear();
-                tableVisitors.setItems(getVisitors());
-            } catch (UnsupportedEncodingException ex) {
-                System.out.println(ex);
-            } catch (IOException e) {
-                System.out.println(e);
-            } catch (JSONException je) {
-                System.out.println("JSON error: "+je);
+                String phoneNumber = phoneNumberField.getText();
+                phoneNumberField.clear();
+                Integer companyId = getCompanyIDFromName(companyBox.getValue().toString());
+                
+                try {
+                    Gson gson = new Gson();
+                    CredentialsProvider provider = new BasicCredentialsProvider();
+                    UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+                    provider.setCredentials(AuthScope.ANY, credentials);
+                    HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+                    HttpEntityEnclosingRequestBase HttpEntity = null; //this is the superclass for post, put, get, etc
+                    if(visitorIDField.isEditable()) { //then we are posting a new record
+                        HttpEntity = new HttpPost(VisitorsRootURL); //so make a http post object
+                    } else { //we are editing a record
+                        HttpEntity = new HttpPut(VisitorsRootURL); //so make a http put object
+                    }
+                    Company company = getCompany(companyId);
+                    Visitors visitor = new Visitors(visitorId, firstName, lastName, email, phoneNumber, company);
+                    
+                    String jsonString = new String(gson.toJson(visitor));
+                    System.out.println("json string: " + jsonString);
+                    StringEntity postString = new StringEntity(jsonString);
+                    
+                    HttpEntity.setEntity(postString);
+                    HttpEntity.setHeader("Content-type", "application/json");
+                    HttpResponse response = httpClient.execute(HttpEntity);
+                    int statusCode = response.getStatusLine().getStatusCode();
+                    if(statusCode == 204) {
+                        System.out.println("New visitor posted successfully");
+                    } else{
+                        System.out.println("Server error: " + response.getStatusLine());
+                    }
+                    visitorIDField.setEditable(false);
+                    firstNameField.setEditable(false);
+                    lastNameField.setEditable(false);
+                    emailField.setEditable(false);
+                    phoneNumberField.setEditable(false);
+                    companyBox.setEditable(false);
+                    visitorIDField.clear();
+                    firstNameField.clear();
+                    lastNameField.clear();
+                    emailField.clear();
+                    tableVisitors.setItems(getVisitors());
+                } catch (UnsupportedEncodingException ex) {
+                    System.out.println(ex);
+                } catch (IOException e) {
+                    System.out.println(e);
+                } catch (JSONException je) {
+                    System.out.println("JSON error: "+je);
+                }
+                
+                FileInputStream fis = null;
+                try {
+                    
+                    fis = new FileInputStream(imageFile);
+                    CredentialsProvider provider = new BasicCredentialsProvider();
+                    UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+                    provider.setCredentials(AuthScope.ANY, credentials);
+                    HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+                    MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+                    FileBody fileBody = new FileBody(new File(imageFile.getName())); //image should be a String
+                    builder.addPart("file", new InputStreamBody(fis, imageFile.getName()));
+                    //builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+                    
+                    // server back-end URL
+                    HttpPost httppost = new HttpPost(postHTML);
+                    //MultipartEntity entity = new MultipartEntity();
+                    // set the file input stream and file name as arguments
+                    //entity.addPart("file", new InputStreamBody(fis, inFile.getName()));
+                    HttpEntity entity = builder.build();
+                    httppost.setEntity(entity);
+                    // execute the request
+                    HttpResponse response = httpClient.execute(httppost);
+                    
+                    int statusCode = response.getStatusLine().getStatusCode();
+                    HttpEntity responseEntity = response.getEntity();
+                    String responseString = EntityUtils.toString(responseEntity, "UTF-8");
+                    
+                    System.out.println("[" + statusCode + "] " + responseString);
+                    
+                } catch (ClientProtocolException e) {
+                    System.err.println("Unable to make connection");
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    System.err.println("Unable to read file");
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        if (fis != null) fis.close();
+                    } catch (IOException e) {}
+                }
+            } else {
+                eH.popUpMessage("Record not saved", "Please attach a photo for this visitor");
             }
             
-            FileInputStream fis = null;
-            try {
-                
-                fis = new FileInputStream(imageFile);
-                CredentialsProvider provider = new BasicCredentialsProvider();
-                UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
-                provider.setCredentials(AuthScope.ANY, credentials);
-                HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-                MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-                FileBody fileBody = new FileBody(new File(imageFile.getName())); //image should be a String
-                builder.addPart("file", new InputStreamBody(fis, imageFile.getName()));
-                //builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-                
-                // server back-end URL
-                HttpPost httppost = new HttpPost(postHTML);
-                //MultipartEntity entity = new MultipartEntity();
-                // set the file input stream and file name as arguments
-                //entity.addPart("file", new InputStreamBody(fis, inFile.getName()));
-                HttpEntity entity = builder.build();
-                httppost.setEntity(entity);
-                // execute the request
-                HttpResponse response = httpClient.execute(httppost);
-                
-                int statusCode = response.getStatusLine().getStatusCode();
-                HttpEntity responseEntity = response.getEntity();
-                String responseString = EntityUtils.toString(responseEntity, "UTF-8");
-                
-                System.out.println("[" + statusCode + "] " + responseString);
-                
-            } catch (ClientProtocolException e) {
-                System.err.println("Unable to make connection");
-                e.printStackTrace();
-            } catch (IOException e) {
-                System.err.println("Unable to read file");
-                e.printStackTrace();
-            } finally {
-                try {
-                    if (fis != null) fis.close();
-                } catch (IOException e) {}
-            }      
         } else {
-            eH.popUpMessage("Record not saved", "Please attach a photo for this visitor");
-        } 
+            eH.popUpMessage("Invalid email address", "Please enter valid email address");
+        }
     }
     
     @FXML
@@ -352,11 +369,11 @@ public class VisitorController implements Initializable {
             catch(IOException ie) {
                 System.out.println("IO Error: "+ie);
             }
-        }  
+        }
         /*if(file != null) {
         openFile(file);
         
-        }*/    
+        }*/
     }
     
     private void openFile(File file) {
