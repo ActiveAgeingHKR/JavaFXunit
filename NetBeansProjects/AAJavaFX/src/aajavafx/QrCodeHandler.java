@@ -111,6 +111,7 @@ public class QrCodeHandler {
         // enter your gmail account password
         final String fromEmailPassword = "hkrsoftwareengineering";
         
+        // Contents of the message
         String emailBody = "Use this qr code during your visit. " + "<br><br> Regards, <br>Adjutus team";
         
         System.out.println("\n 1st ===> setup Mail Server Properties..");

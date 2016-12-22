@@ -7,7 +7,6 @@ package aajavafx;
 
 import aajavafx.entities.Company;
 import entitiesproperty.VisitorsProperty;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -24,38 +23,39 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import aajavafx.entities.Visitors;
 import com.google.gson.Gson;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.InputStreamBody;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -69,12 +69,6 @@ import org.json.JSONObject;
 public class VisitorController implements Initializable {
     
     @FXML
-    private Button buttonRegister;
-    @FXML
-    private Button buttonSave;
-    @FXML
-    private Button editButton;
-    @FXML
     private TextField visitorIDField;
     @FXML
     private TextField firstNameField;
@@ -86,10 +80,8 @@ public class VisitorController implements Initializable {
     private TextField phoneNumberField;
     @FXML
     private ComboBox companyBox;
-    @FXML 
-    private ImageView imageView; 
     @FXML
-    private Label errorLabel;
+    private ImageView imageView;
     @FXML
     private TableView<VisitorsProperty> tableVisitors;
     @FXML
@@ -116,9 +108,7 @@ public class VisitorController implements Initializable {
     private static String postHTML = "http://localhost:8080/MainServerREST/api/visitorschedule/upload";
     
     File imageFile;
-    
-    //Company company = new Company();
-    //Client client = Client.create();
+    ErrorHandling eH = new ErrorHandling();
     
     /**
      * Initializes the controller class.
@@ -132,7 +122,6 @@ public class VisitorController implements Initializable {
         emailField.setEditable(false);
         phoneNumberField.setEditable(false);
         companyBox.setDisable(true);
-        errorLabel.setVisible(false);
         
         visitorIDColumn.setCellValueFactory(cellData -> cellData.getValue().visIdProperty());
         firstNameColumn.setCellValueFactory(cellData -> cellData.getValue().visFirstnameProperty());
@@ -167,8 +156,6 @@ public class VisitorController implements Initializable {
                 companyBox.setValue(getCompanyNameFromID(newSelection.getCompanyCompId()));
             }
         });
-        
-        
     }
     
     @FXML
@@ -190,10 +177,13 @@ public class VisitorController implements Initializable {
     private void handleRemoveVisitor(ActionEvent event) {
         //remove is annotated with @DELETE on server so we use a HttpDelete object
         try {
-            HttpClient httpClient = HttpClientBuilder.create().build();
             String idToDelete = visitorIDField.getText();
+            CredentialsProvider provider = new BasicCredentialsProvider();
+            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE","password");
+            provider.setCredentials(AuthScope.ANY, credentials);
+            HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
             //add the id to the end of the URL so this will call the method at MainServerREST/api/visitors/id
-            HttpDelete delete = new HttpDelete(VisitorsRootURL+idToDelete);
+            HttpDelete delete = new HttpDelete(VisitorsRootURL + idToDelete);
             HttpResponse response = httpClient.execute(delete);
             System.out.println("response from server " + response.getStatusLine());
         } catch (Exception ex) {
@@ -206,7 +196,7 @@ public class VisitorController implements Initializable {
             Logger.getLogger(VisitorController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
             Logger.getLogger(VisitorController.class.getName()).log(Level.SEVERE, null, ex);
-        }      
+        }
     }
     
     @FXML
@@ -216,113 +206,113 @@ public class VisitorController implements Initializable {
         emailField.setEditable(true);
         phoneNumberField.setEditable(true);
         companyBox.setDisable(false);
-        
     }
     
     @FXML
     private void handleSave(ActionEvent event) {
-        if(imageFile!=null) {
-            
-        
-        String visitorId = visitorIDField.getText();
-        visitorIDField.clear();
-        String firstName = firstNameField.getText();
-        firstNameField.clear();
-        String lastName = lastNameField.getText();
-        lastNameField.clear();
-        String email = emailField.getText();
-        emailField.clear();
-        String phoneNumber = phoneNumberField.getText();
-        phoneNumberField.clear();
-        Integer companyId = getCompanyIDFromName(companyBox.getValue().toString());
-        try {
-            Gson gson = new Gson();
-            HttpClient httpClient = HttpClientBuilder.create().build();
-            HttpEntityEnclosingRequestBase HttpEntity = null; //this is the superclass for post, put, get, etc
-            if(visitorIDField.isEditable()) { //then we are posting a new record
-                HttpEntity = new HttpPost(VisitorsRootURL); //so make a http post object
-            } else { //we are editing a record 
-                HttpEntity = new HttpPut(VisitorsRootURL); //so make a http put object
-            }
-            Company company = getCompany(companyId);
-            Visitors visitor = new Visitors(visitorId, firstName, lastName, email, phoneNumber, company);
-            
-            String jsonString = new String(gson.toJson(visitor));
-            System.out.println("json string: " + jsonString);
-            StringEntity postString = new StringEntity(jsonString);
-            
-            HttpEntity.setEntity(postString);
-            HttpEntity.setHeader("Content-type", "application/json");
-            HttpResponse response = httpClient.execute(HttpEntity);
-            int statusCode = response.getStatusLine().getStatusCode();
-            if(statusCode == 204) {
-                System.out.println("New visitor posted successfully");
-            } else{
-                System.out.println("Server error: "+response.getStatusLine());
-            }
-            visitorIDField.setEditable(false);
-            firstNameField.setEditable(false);
-            lastNameField.setEditable(false);
-            emailField.setEditable(false);
-            phoneNumberField.setEditable(false);
-            companyBox.setEditable(false);
+        if(imageFile != null) {          
+            String visitorId = visitorIDField.getText();
             visitorIDField.clear();
+            String firstName = firstNameField.getText();
             firstNameField.clear();
+            String lastName = lastNameField.getText();
             lastNameField.clear();
+            String email = emailField.getText();
             emailField.clear();
-            tableVisitors.setItems(getVisitors());
-        } catch (UnsupportedEncodingException ex) {
-            System.out.println(ex);
-        } catch (IOException e) {
-            System.out.println(e);
-        } catch (JSONException je) {
-            System.out.println("JSON error: "+je);
-        }
-        
-        
-	FileInputStream fis = null;
-	try {
+            String phoneNumber = phoneNumberField.getText();
+            phoneNumberField.clear();
+            Integer companyId = getCompanyIDFromName(companyBox.getValue().toString());
             
-            fis = new FileInputStream(imageFile);
-            HttpClient httpClient = HttpClientBuilder.create().build();
-            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            FileBody fileBody = new FileBody(new File(imageFile.getName())); //image should be a String
-            builder.addPart("file", new InputStreamBody(fis, imageFile.getName())); 
-            //builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-			
-            // server back-end URL
-            HttpPost httppost = new HttpPost(postHTML);
-            //MultipartEntity entity = new MultipartEntity();
-            // set the file input stream and file name as arguments
-            //entity.addPart("file", new InputStreamBody(fis, inFile.getName()));
-            HttpEntity entity = builder.build();
-            httppost.setEntity(entity);
-            // execute the request
-            HttpResponse response = httpClient.execute(httppost);
-			
-            int statusCode = response.getStatusLine().getStatusCode();
-            HttpEntity responseEntity = response.getEntity();
-            String responseString = EntityUtils.toString(responseEntity, "UTF-8");
-			
-            System.out.println("[" + statusCode + "] " + responseString);
-			
-            } catch (ClientProtocolException e) {
-		System.err.println("Unable to make connection");
-		e.printStackTrace();
+            try {
+                Gson gson = new Gson();
+                CredentialsProvider provider = new BasicCredentialsProvider();
+                UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+                provider.setCredentials(AuthScope.ANY, credentials);
+                HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+                HttpEntityEnclosingRequestBase HttpEntity = null; //this is the superclass for post, put, get, etc
+                if(visitorIDField.isEditable()) { //then we are posting a new record
+                    HttpEntity = new HttpPost(VisitorsRootURL); //so make a http post object
+                } else { //we are editing a record
+                    HttpEntity = new HttpPut(VisitorsRootURL); //so make a http put object
+                }
+                Company company = getCompany(companyId);
+                Visitors visitor = new Visitors(visitorId, firstName, lastName, email, phoneNumber, company);
+                
+                String jsonString = new String(gson.toJson(visitor));
+                System.out.println("json string: " + jsonString);
+                StringEntity postString = new StringEntity(jsonString);
+                
+                HttpEntity.setEntity(postString);
+                HttpEntity.setHeader("Content-type", "application/json");
+                HttpResponse response = httpClient.execute(HttpEntity);
+                int statusCode = response.getStatusLine().getStatusCode();
+                if(statusCode == 204) {
+                    System.out.println("New visitor posted successfully");
+                } else{
+                    System.out.println("Server error: "+response.getStatusLine());
+                }
+                visitorIDField.setEditable(false);
+                firstNameField.setEditable(false);
+                lastNameField.setEditable(false);
+                emailField.setEditable(false);
+                phoneNumberField.setEditable(false);
+                companyBox.setEditable(false);
+                visitorIDField.clear();
+                firstNameField.clear();
+                lastNameField.clear();
+                emailField.clear();
+                tableVisitors.setItems(getVisitors());
+            } catch (UnsupportedEncodingException ex) {
+                System.out.println(ex);
             } catch (IOException e) {
-		System.err.println("Unable to read file");
-		e.printStackTrace();
+                System.out.println(e);
+            } catch (JSONException je) {
+                System.out.println("JSON error: "+je);
+            }
+            
+            FileInputStream fis = null;
+            try {
+                
+                fis = new FileInputStream(imageFile);
+                CredentialsProvider provider = new BasicCredentialsProvider();
+                UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+                provider.setCredentials(AuthScope.ANY, credentials);
+                HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+                MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+                FileBody fileBody = new FileBody(new File(imageFile.getName())); //image should be a String
+                builder.addPart("file", new InputStreamBody(fis, imageFile.getName()));
+                //builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+                
+                // server back-end URL
+                HttpPost httppost = new HttpPost(postHTML);
+                //MultipartEntity entity = new MultipartEntity();
+                // set the file input stream and file name as arguments
+                //entity.addPart("file", new InputStreamBody(fis, inFile.getName()));
+                HttpEntity entity = builder.build();
+                httppost.setEntity(entity);
+                // execute the request
+                HttpResponse response = httpClient.execute(httppost);
+                
+                int statusCode = response.getStatusLine().getStatusCode();
+                HttpEntity responseEntity = response.getEntity();
+                String responseString = EntityUtils.toString(responseEntity, "UTF-8");
+                
+                System.out.println("[" + statusCode + "] " + responseString);
+                
+            } catch (ClientProtocolException e) {
+                System.err.println("Unable to make connection");
+                e.printStackTrace();
+            } catch (IOException e) {
+                System.err.println("Unable to read file");
+                e.printStackTrace();
             } finally {
                 try {
                     if (fis != null) fis.close();
-		} catch (IOException e) {}
-            }
-        
+                } catch (IOException e) {}
+            }      
         } else {
-            errorLabel.setText("Record Not Saved: Please attach a photo for this visitor");
-            errorLabel.setVisible(true);
-        }
-        
+            eH.popUpMessage("Record not saved", "Please attach a photo for this visitor");
+        } 
     }
     
     @FXML
@@ -351,42 +341,40 @@ public class VisitorController implements Initializable {
         configureFileChooser(fileChooser);
         fileChooser.setTitle("Open Resource File");
         imageFile = fileChooser.showOpenDialog(stage);
-        if(imageFile!=null) {
+        if(imageFile != null) {
             try {
-            System.out.println("abs path: "+imageFile.getAbsolutePath());
-            System.out.println("can oath: "+imageFile.getCanonicalPath());
-            FileInputStream fis = new FileInputStream(imageFile.getCanonicalPath());
-            Image image = new Image(fis);
-            imageView.setImage(image);
+                System.out.println("abs path: " + imageFile.getAbsolutePath());
+                System.out.println("can oath: " + imageFile.getCanonicalPath());
+                FileInputStream fis = new FileInputStream(imageFile.getCanonicalPath());
+                Image image = new Image(fis);
+                imageView.setImage(image);
             }
             catch(IOException ie) {
                 System.out.println("IO Error: "+ie);
             }
-        }
-        
+        }  
         /*if(file != null) {
-            openFile(file);
-            
-        }*/
+        openFile(file);
         
+        }*/    
     }
     
-     private void openFile(File file) {
+    private void openFile(File file) {
         try {
             desktop.open(file);
         } catch (IOException ex) {
             Logger.getLogger(
-                VisitorController.class.getName()).log(
-                    Level.SEVERE, null, ex
-                );
+                    VisitorController.class.getName()).log(
+                            Level.SEVERE, null, ex
+                    );
         }
     }
-     
-    private static void configureFileChooser(final FileChooser fileChooser){                           
+    
+    private static void configureFileChooser(final FileChooser fileChooser){
         fileChooser.setTitle("Select Visitor Photo");
         fileChooser.setInitialDirectory(
-            new File("src/resources")
-        ); 
+                new File("src/resources")
+        );
     }
     
     public ObservableList<VisitorsProperty> getVisitors() throws IOException, JSONException {
@@ -394,7 +382,17 @@ public class VisitorController implements Initializable {
         Gson gson = new Gson();
         ObservableList<VisitorsProperty> visitorsProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL(VisitorsRootURL), Charset.forName("UTF-8")));
+        
+        CredentialsProvider provider = new BasicCredentialsProvider();
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+        provider.setCredentials(AuthScope.ANY, credentials);
+        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+        HttpGet get = new HttpGet(VisitorsRootURL);
+        
+        HttpResponse response = client.execute(get);
+        System.out.println("RESPONSE IS: " + response);
+        
+        JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
@@ -411,7 +409,17 @@ public class VisitorController implements Initializable {
     public void getCompanyList() throws IOException, JSONException {
         Gson gson = new Gson();
         JSONObject jo = new JSONObject();
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL(CompanyRootURL), Charset.forName("UTF-8")));
+        
+        CredentialsProvider provider = new BasicCredentialsProvider();
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+        provider.setCredentials(AuthScope.ANY, credentials);
+        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+        HttpGet get = new HttpGet(CompanyRootURL);
+        
+        HttpResponse response = client.execute(get);
+        System.out.println("RESPONSE IS: " + response);
+        
+        JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);

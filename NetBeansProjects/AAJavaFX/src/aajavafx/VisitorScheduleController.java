@@ -5,22 +5,18 @@
 */
 package aajavafx;
 
-import aajavafx.entities.Company;
 import aajavafx.entities.Customers;
 import aajavafx.entities.VisitorSchedule;
 import aajavafx.entities.VisitorSchedulePK;
 import aajavafx.entities.Visitors;
 import com.google.gson.Gson;
-import entitiesproperty.CustomerProperty;
 import entitiesproperty.VisitorScheduleProperty;
-import entitiesproperty.VisitorsProperty;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,12 +37,17 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -84,7 +85,10 @@ public class VisitorScheduleController implements Initializable {
     @FXML
     private TableColumn<VisitorScheduleProperty, String> hashColumn;
     
-    private static String VisitorScheduleRootURL = "http://localhost:8080/MainServerREST/api/visitorschedule/";
+    private static String visitorScheduleRootURL = "http://localhost:8080/MainServerREST/api/visitorschedule/";
+    private static String customersRootURL = "http://localhost:8080/MainServerREST/api/customers";
+    private static String visitorsRootURL = "http://localhost:8080/MainServerREST/api/visitors";
+    
     
     //this will store the list of customers for use in the combo box
     ArrayList<Customers> customers = new ArrayList<>();
@@ -122,7 +126,6 @@ public class VisitorScheduleController implements Initializable {
         
         try{
             //Populate table
-            
             tableVisitorSchedule.setItems(getVisitorSchedules());
             ObservableList<String> repetition = FXCollections.observableArrayList();
             repetition.add("NONE");
@@ -139,13 +142,12 @@ public class VisitorScheduleController implements Initializable {
         } catch (Exception ex) {
             Logger.getLogger(VisitorController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
         tableVisitorSchedule.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
-                schIdField.setText(""+newSelection.getVisSchId());
-                String custId = newSelection.customersCuIdProperty().getValue()+".";
+                schIdField.setText("" + newSelection.getVisSchId());
+                String custId = newSelection.customersCuIdProperty().getValue() + ".";
                 customerBox.setValue(getCustomerStringFromID(custId));
-                String visId = newSelection.getVisitorsVisId()+".";
+                String visId = newSelection.getVisitorsVisId() + ".";
                 visitorBox.setValue(getVisitorStringFromID(visId));
                 String[] parts = newSelection.getVisitStartDate().split("-");
                 LocalDate ld = LocalDate.of(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
@@ -178,7 +180,7 @@ public class VisitorScheduleController implements Initializable {
             
         } catch (Exception ex) {
             Logger.getLogger(MainPageController.class.getName()).log(Level.SEVERE, null, ex);
-        }     
+        }
     }
     
     @FXML
@@ -193,7 +195,7 @@ public class VisitorScheduleController implements Initializable {
         customerBox.setDisable(false);
         visitorBox.setDisable(false);
         datePicker.setDisable(false);
-        repeatingBox.setDisable(false);  
+        repeatingBox.setDisable(false);
     }
     
     
@@ -208,7 +210,7 @@ public class VisitorScheduleController implements Initializable {
         customerBox.setDisable(false);
         visitorBox.setDisable(false);
         datePicker.setDisable(false);
-        repeatingBox.setDisable(false);     
+        repeatingBox.setDisable(false);
     }
     
     @FXML
@@ -216,14 +218,14 @@ public class VisitorScheduleController implements Initializable {
         QrCodeHandler qrCodeHandler = new QrCodeHandler();
         int schId = Integer.parseInt(schIdField.getText());
         String string = (String)customerBox.getValue();
-        System.out.println("STRING VALUE: "+string);
-        int custId = Integer.parseInt(""+string.charAt(0));
+        System.out.println("STRING VALUE: " + string);
+        int custId = Integer.parseInt("" + string.charAt(0));
         String string2 = (String)visitorBox.getValue();
-        System.out.println("STRING VALUE: "+string);
+        System.out.println("STRING VALUE: " + string);
         String visitorId  = string2.split("\\.")[0];
         String date = datePicker.getValue().toString();
-        String startTime = startHours.getText()+":"+startMins.getText()+":"+startSecs.getText();
-        String endTime = endHours.getText()+":"+endMins.getText()+":"+endSecs.getText();
+        String startTime = startHours.getText() + ":"+startMins.getText() + ":"+startSecs.getText();
+        String endTime = endHours.getText() + ":"+endMins.getText() + ":"+endSecs.getText();
         String repeating = (String)repeatingBox.getValue();
         
         String hash = qrCodeHandler.hashHandler(custId, visitorId, date, startTime, endTime);
@@ -234,12 +236,15 @@ public class VisitorScheduleController implements Initializable {
         
         try {
             Gson gson = new Gson();
-            HttpClient httpClient = HttpClientBuilder.create().build();
+            CredentialsProvider provider = new BasicCredentialsProvider();
+            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+            provider.setCredentials(AuthScope.ANY, credentials);
+            HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
             HttpEntityEnclosingRequestBase HttpEntity = null; //this is the superclass for post, put, get, etc
             if(schIdField.isEditable()) { //then we are posting a new record
-                HttpEntity = new HttpPost(VisitorScheduleRootURL); //so make a http post object
+                HttpEntity = new HttpPost(visitorScheduleRootURL); //so make a http post object
             } else { //we are editing a record
-                HttpEntity = new HttpPut(VisitorScheduleRootURL); //so make a http put object
+                HttpEntity = new HttpPut(visitorScheduleRootURL); //so make a http put object
             }
             
             String jsonString = new String(gson.toJson(vs));
@@ -256,10 +261,13 @@ public class VisitorScheduleController implements Initializable {
                 String url = "http://localhost:8080/MainServerREST/";
                 qrCodeHandler.qrCodeGenerator(url, hash, hash);
                 // send email
-                // specify to which email to send, for testing purposes you can use your own. 
-                // qrCodeHandler.sendMail(email to send to, qr code file name to send);
+                // specify to which email to send, for testing purposes you can use your own.
+                // in order for it to work email has to be legit
+                // qrCodeHandler.sendMail("email to send to", qr code file name to send);
+                //qrCodeHandler.sendMail("rolandasjanulis@yahoo.com", hash);
+                
                 qrCodeHandler.sendMail(getVisitorEmail(visitorId), hash);
- 
+                
             } else{
                 System.out.println("Server error: "+response.getStatusLine());
             }
@@ -295,14 +303,17 @@ public class VisitorScheduleController implements Initializable {
         }*/
     }
     
-    @FXML //TO DO: possibly delete qr code picture as well related to deleted entry
+    @FXML //TO DO: possibly delete qr code picture as well related stuff to deleted entry
     private void handleRemoveButton(ActionEvent event) {
         //remove is annotated with @DELETE on server so we use a HttpDelete object
         try {
-            HttpClient httpClient = HttpClientBuilder.create().build();
             String idToDelete = schIdField.getText();
+            CredentialsProvider provider = new BasicCredentialsProvider();
+            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE","password");
+            provider.setCredentials(AuthScope.ANY, credentials);
+            HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
             //add the id to the end of the URL so this will call the method at MainServerREST/api/visitorschedule/id
-            HttpDelete delete = new HttpDelete(VisitorScheduleRootURL+idToDelete);
+            HttpDelete delete = new HttpDelete(visitorScheduleRootURL + idToDelete);
             HttpResponse response = httpClient.execute(delete);
             System.out.println("response from server " + response.getStatusLine());
         } catch (Exception ex) {
@@ -321,11 +332,20 @@ public class VisitorScheduleController implements Initializable {
     
     public ObservableList<VisitorScheduleProperty> getVisitorSchedules() throws IOException, JSONException {
         VisitorSchedule vs = new VisitorSchedule();
-        VisitorSchedulePK VisitorSchedulePK = new VisitorSchedulePK();
         Gson gson = new Gson();
         ObservableList<VisitorScheduleProperty> vsProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL(VisitorScheduleRootURL), Charset.forName("UTF-8")));
+        
+        CredentialsProvider provider = new BasicCredentialsProvider();
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+        provider.setCredentials(AuthScope.ANY, credentials);
+        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+        HttpGet get = new HttpGet(visitorScheduleRootURL);
+        
+        HttpResponse response = client.execute(get);
+        System.out.println("RESPONSE IS: " + response);
+        
+        JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
@@ -341,12 +361,20 @@ public class VisitorScheduleController implements Initializable {
     public ObservableList<String> getCustomer() throws IOException, JSONException{
         
         ObservableList<String> customerStrings = FXCollections.observableArrayList();
-        //customers.add(new CustomerProperty(1, "Johny", "Walker", "London", "1972-07-01", "7207012222"));
         Customers myCustomer = new Customers();
-        //Managers manager = new Managers();
         Gson gson = new Gson();
         JSONObject jo = new JSONObject();
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL("http://localhost:8080/MainServerREST/api/customers"), Charset.forName("UTF-8")));
+        
+        CredentialsProvider provider = new BasicCredentialsProvider();
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+        provider.setCredentials(AuthScope.ANY, credentials);
+        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+        HttpGet get = new HttpGet(customersRootURL);
+        
+        HttpResponse response = client.execute(get);
+        System.out.println("RESPONSE IS: " + response);
+        
+        JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
@@ -363,19 +391,24 @@ public class VisitorScheduleController implements Initializable {
     public ObservableList<String> getVisitor() throws IOException, JSONException{
         
         ObservableList<String> visitorStrings = FXCollections.observableArrayList();
-        //customers.add(new CustomerProperty(1, "Johny", "Walker", "London", "1972-07-01", "7207012222"));
         Visitors visitor = new Visitors();
-        //Managers manager = new Managers();
         Gson gson = new Gson();
-        ObservableList<CustomerProperty> customersProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL("http://localhost:8080/MainServerREST/api/visitors"), Charset.forName("UTF-8")));
+        CredentialsProvider provider = new BasicCredentialsProvider();
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+        provider.setCredentials(AuthScope.ANY, credentials);
+        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+        HttpGet get = new HttpGet(visitorsRootURL);
+        
+        HttpResponse response = client.execute(get);
+        System.out.println("RESPONSE IS: " + response);
+        
+        JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
             visitor = gson.fromJson(jo.toString(), Visitors.class);
             visitors.add(visitor);
-            System.out.println(visitor.getVisId());
             String s = visitor.getVisId()+". "+visitor.getVisFirstname() + " " + visitor.getVisLastname();
             visitorStrings.add(s);
             
@@ -386,8 +419,8 @@ public class VisitorScheduleController implements Initializable {
     
     public String getCustomerStringFromID(String ID) {
         for(String s: custStrings) {
-            System.out.println("customer string: "+s);
-            System.out.println("id: "+ID);
+            System.out.println("customer string: " + s);
+            System.out.println("id: " + ID);
             if(s.startsWith(ID)) {
                 return s;
             }
@@ -404,22 +437,14 @@ public class VisitorScheduleController implements Initializable {
         return new String();
     }
     
-    public String getVisitorEmail(String id) throws IOException, JSONException {    
+    public String getVisitorEmail(String id) {
         String email = "";
-        Visitors visitor = new Visitors();
-        //Managers manager = new Managers();
-        Gson gson = new Gson();
-        JSONObject jo = new JSONObject();
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL("http://localhost:8080/MainServerREST/api/visitors"), Charset.forName("UTF-8")));
-        System.out.println(jsonArray);
-        for (int i = 0; i < jsonArray.length(); i++) {
-            jo = (JSONObject) jsonArray.getJSONObject(i);
-            visitor = gson.fromJson(jo.toString(), Visitors.class);
-            if (id.equals(visitor.getVisId())) {
-                email = visitor.getVisEmail();
-                break;
+        for(Visitors s : visitors) {
+            if(s.getVisId().equals(id)) {
+                email = s.getVisEmail();
             }
-        }     
+        }
         return email;
     }
+    
 }
