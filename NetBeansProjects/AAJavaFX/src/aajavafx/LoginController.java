@@ -134,7 +134,7 @@ public class LoginController extends ControllerClass {
         UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
         provider.setCredentials(AuthScope.ANY, credentials);
         HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/managers/username/" + userName);
+        HttpGet get = new HttpGet("https://localhost:8181/MainServerREST/api/managers/username/" + userName);
 
         HttpResponse response = client.execute(get);
         System.out.println("RESPONSE IS: " + response);

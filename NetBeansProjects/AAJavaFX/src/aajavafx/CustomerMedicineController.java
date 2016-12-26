@@ -67,11 +67,11 @@ import org.json.JSONObject;
  */
 public class CustomerMedicineController implements Initializable {
 
-   private static String MedicineRootURL = "http://localhost:8080/MainServerREST/api/medicines/";
+   private static String MedicineRootURL = "https://localhost:8181/MainServerREST/api/medicines/";
    
-   private static String CustomersRootURL = "http://localhost:8080/MainServerREST/api/customers/";
+   private static String CustomersRootURL = "https://localhost:8181/MainServerREST/api/customers/";
     
-    private static String MedicineCustomerRootURL = "http://localhost:8080/MainServerREST/api/customersmedicines/";
+    private static String MedicineCustomerRootURL = "https://localhost:8181/MainServerREST/api/customersmedicines/";
     
     @FXML
     private TableView<CustomersTakesMedicines> tableCustomer;
@@ -185,7 +185,7 @@ public class CustomerMedicineController implements Initializable {
             Gson gson = new Gson();
             //......for ssl handshake....
             CredentialsProvider provider = new BasicCredentialsProvider();
-            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
             provider.setCredentials(AuthScope.ANY, credentials);
             //........
             HttpClient httpClient = HttpClientBuilder.create().build();
@@ -287,7 +287,7 @@ public class CustomerMedicineController implements Initializable {
         try {
             //.......SSL Update....
             CredentialsProvider provider = new BasicCredentialsProvider();
-            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
             provider.setCredentials(AuthScope.ANY, credentials);
             //......
             
@@ -318,11 +318,11 @@ public class CustomerMedicineController implements Initializable {
         JSONObject jo = new JSONObject();
         // SSL update..........
         CredentialsProvider provider = new BasicCredentialsProvider();
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
         provider.setCredentials(AuthScope.ANY, credentials);
         
         HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/customers");
+        HttpGet get = new HttpGet("https://localhost:8181/MainServerREST/api/customers");
 
         HttpResponse response = client.execute(get);
         System.out.println("RESPONSE IS: " + response);
@@ -351,10 +351,10 @@ public class CustomerMedicineController implements Initializable {
         
         //........SSL Update
         CredentialsProvider provider = new BasicCredentialsProvider();
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
         provider.setCredentials(AuthScope.ANY, credentials);
         HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/medicines");
+        HttpGet get = new HttpGet("https://localhost:8181/MainServerREST/api/medicines");
 
         HttpResponse response = client.execute(get);
         System.out.println("RESPONSE IS: " + response);
@@ -382,10 +382,10 @@ public class CustomerMedicineController implements Initializable {
         JSONObject jo = new JSONObject();
         //........SSL Update
         CredentialsProvider provider = new BasicCredentialsProvider();
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
         provider.setCredentials(AuthScope.ANY, credentials);
         HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/customersmedicines/");
+        HttpGet get = new HttpGet("https://localhost:8181/MainServerREST/api/customersmedicines/");
 
         HttpResponse response = client.execute(get);
         System.out.println("RESPONSE IS: " + response);

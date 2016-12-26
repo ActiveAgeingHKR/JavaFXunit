@@ -60,7 +60,7 @@ public class DevicesController implements Initializable {
 
    
     
-    private static String DevicesCustomerRootURL = "http://localhost:8080/MainServerREST/api/devicescustomers/";
+    private static String DevicesCustomerRootURL = "https://localhost:8181/MainServerREST/api/devicescustomers/";
     
     @FXML
     private TableView<DevicesCustomerProperty> tableCustomer;
@@ -158,7 +158,7 @@ public class DevicesController implements Initializable {
             
             //......for ssl handshake....
             CredentialsProvider provider = new BasicCredentialsProvider();
-            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
             provider.setCredentials(AuthScope.ANY, credentials);
             //........
             HttpClient httpClient = HttpClientBuilder.create().build();
@@ -259,7 +259,7 @@ public class DevicesController implements Initializable {
         try {
             //......for ssl handshake....
             CredentialsProvider provider = new BasicCredentialsProvider();
-            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
             provider.setCredentials(AuthScope.ANY, credentials);
             //........
             HttpClient httpClient = HttpClientBuilder.create().build();
@@ -293,10 +293,10 @@ public class DevicesController implements Initializable {
         
         // SSL update .......
         CredentialsProvider provider = new BasicCredentialsProvider();
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
         provider.setCredentials(AuthScope.ANY, credentials);
         HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/customers");
+        HttpGet get = new HttpGet("https://localhost:8181/MainServerREST/api/customers");
         HttpResponse response = client.execute(get);
         System.out.println("RESPONSE IS: " + response);
         
@@ -328,10 +328,10 @@ public class DevicesController implements Initializable {
         JSONObject jo = new JSONObject();   
         // SSL update .......
         CredentialsProvider provider = new BasicCredentialsProvider();
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
         provider.setCredentials(AuthScope.ANY, credentials);
         HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/devicescustomers");
+        HttpGet get = new HttpGet("https://localhost:8181/MainServerREST/api/devicescustomers");
         HttpResponse response = client.execute(get);
         System.out.println("RESPONSE IS: " + response);
         
