@@ -56,7 +56,7 @@ import org.json.JSONObject;
  */
 public class MedicinesController implements Initializable {
 
-    private static String MedicineRootURL = "https://localhost:8181/MainServerREST/api/medicines/";
+    private static String MedicineRootURL = "http://localhost:8080/MainServerREST/api/medicines/";
 
     @FXML
     private TableView<Medicines> tableMedicines;
@@ -233,7 +233,7 @@ public class MedicinesController implements Initializable {
         UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
         provider.setCredentials(AuthScope.ANY, credentials);
         HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-        HttpGet get = new HttpGet("https://localhost:8181/MainServerREST/api/medicines");
+        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/medicines");
         HttpResponse response = client.execute(get);
         System.out.println("RESPONSE IS: " + response);
         JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));

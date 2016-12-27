@@ -333,7 +333,7 @@ import org.json.JSONObject;
  * @author lokeshdhakal
  */
 public class CustomerController implements Initializable {
-    private static String postCustomerURL = "https://localhost:8181/MainServerREST/api/customers";
+    private static String postCustomerURL = "http://localhost:8080/MainServerREST/api/customers";
     // private static String postCustomerURL = "http://192.168.43.205:8080/MainServerREST/api/customers";
     @FXML
     private TableView<CustomerProperty> tableCustomers = new TableView<CustomerProperty>();
@@ -517,7 +517,7 @@ public class CustomerController implements Initializable {
         UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
         provider.setCredentials(AuthScope.ANY, credentials);
         HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-        HttpGet get = new HttpGet("https://localhost:8181/MainServerREST/api/customers");
+        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/customers");
         HttpResponse response = client.execute(get);
         System.out.println("RESPONSE IS: " + response);
         JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
