@@ -187,12 +187,24 @@ public class DevicesController implements Initializable {
              * THESE LINES !!**********************************************************************************
              */
             //This is the root addres of the server
-            SSLConnection sSLConnection = new SSLConnection("https://localhost:8181/MainServerREST/api/");
+            String restFullServerAddress = "https://localhost:8181/MainServerREST/api/";
+            SSLConnection sSLConnection = new SSLConnection(restFullServerAddress);
             //This is the restful service that you are going to use
             String restfulService = "devicescustomers";
             String statusCode;
+            /**
+             * 1. call the method you want to use (doPost for POST doGet for GET etc)
+             * 2. param one: the restful service path name
+             * 3. param two: the parameter. In our case it is the json string.
+             * 4. What type of data we sent. in our case it is json
+             * 5. What type of data we receive. When you dont expect a json string just choose TEXT
+             * 6. Choose how you want to authenticate as ADMIN or EMPLOYEE.
+             * You dont have to create anything else than the string that defines the service path
+             * and the data that you will sent.
+             * All the rest you can chosse by doing something like SSLConnection.  and choosing the correct option
+             */
             statusCode = sSLConnection.doPost(restfulService, jsonString, 
-                    SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, 
+                    SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.TEXT, 
                     SSLConnection.USER_MODE.ADMIN);
 //*************************************************************************************************************
             if(Integer.parseInt(statusCode) == 204) {
