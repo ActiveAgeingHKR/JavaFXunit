@@ -78,7 +78,7 @@ public class LoginController extends ControllerClass {
 
         try {
 
-            username_var = userID.getText().toString();
+           username_var = userID.getText().toString();
             password_var = passwordID.getText().toString();
             Kripto myKripto = new Kripto();
             System.out.println(myKripto.encrypt(password_var));
@@ -97,9 +97,9 @@ public class LoginController extends ControllerClass {
             
             //////Check password disabled 
             
-           //  String passwordCypherFromDB = getPassword(username_var);
-          //  String passwordFromDB = myKripto.decrypt(passwordCypherFromDB);
-         //   if (passwordFromDB.equals(password_var)) {
+           String passwordCypherFromDB = getPassword(username_var);
+           String passwordFromDB = myKripto.decrypt(passwordCypherFromDB);
+           if (passwordFromDB.equals(password_var)) {
                 Node node = (Node) event.getSource();
                 Stage stage = (Stage) node.getScene().getWindow();
 
@@ -111,9 +111,9 @@ public class LoginController extends ControllerClass {
                 stage.show();
 
                 System.out.println("Taking you to next page!");
-          //  } else {
-           //     outputmessageID.setText("Login failed!!!!");
-           // }
+           } else {
+               outputmessageID.setText("Login failed!!!!");
+            }
         } catch (Exception ex) {
             System.out.println("LOAD PAGE EXCEPTION: " + ex);
         }

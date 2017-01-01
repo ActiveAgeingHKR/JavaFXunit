@@ -50,7 +50,6 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.panos.SSLConnection;
 
 /**
  * FXML Controller class
@@ -156,62 +155,33 @@ public class DevicesController implements Initializable {
             Customers customer = getCustomerByID(customerId);
             
             Gson gson = new Gson();
+            
+            //......for ssl handshake....
+            CredentialsProvider provider = new BasicCredentialsProvider();
+            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
+            provider.setCredentials(AuthScope.ANY, credentials);
+            //........
+            HttpClient httpClient = HttpClientBuilder.create().build();
+            HttpEntityEnclosingRequestBase HttpEntity = null; //this is the superclass for post, put, get, etc
+            if(deviceID.isEditable()) { //then we are posting a new record
+                HttpEntity = new HttpPost(DevicesCustomerRootURL); //so make a http post object
+            } else { //we are editing a record 
+                HttpEntity = new HttpPut(DevicesCustomerRootURL+devID); //so make a http put object
+            }
             DevicesCustomers devCust = new DevicesCustomers(devID, devName, customer);
             
             String jsonString = new String(gson.toJson(devCust));
             System.out.println("json string: " + jsonString);
-//            StringEntity postString = new StringEntity(jsonString);
+            StringEntity postString = new StringEntity(jsonString);
             
-            //......for ssl handshake.... From Panos: The following lines take care of the authentication
-            //NOT the SSL handshake
-            /**
-             * THESE LINES CAN BE REPLACED BY....
-             */
-//            CredentialsProvider provider = new BasicCredentialsProvider();
-//            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
-//            provider.setCredentials(AuthScope.ANY, credentials);
-//            //........
-//            HttpClient httpClient = HttpClientBuilder.create().build();
-//            HttpEntityEnclosingRequestBase HttpEntity = null; //this is the superclass for post, put, get, etc
-//            if(deviceID.isEditable()) { //then we are posting a new record
-//                HttpEntity = new HttpPost(DevicesCustomerRootURL); //so make a http post object
-//            } else { //we are editing a record 
-//                HttpEntity = new HttpPut(DevicesCustomerRootURL+devID); //so make a http put object
-//            }         
-//                        HttpEntity.setEntity(postString);
-//            HttpEntity.setHeader("Content-type", "application/json");
-//            HttpResponse response = httpClient.execute(HttpEntity);
-//            int statusCode = response.getStatusLine().getStatusCode();
-            
-            /**
-             * THESE LINES !!**********************************************************************************
-             */
-            //This is the root addres of the server
-            String restFullServerAddress = "https://localhost:8181/MainServerREST/api/";
-            SSLConnection sSLConnection = new SSLConnection(restFullServerAddress);
-            //This is the restful service that you are going to use
-            String restfulService = "devicescustomers";
-            String statusCode;
-            /**
-             * 1. call the method you want to use (doPost for POST doGet for GET etc)
-             * 2. param one: the restful service path name
-             * 3. param two: the parameter. In our case it is the json string.
-             * 4. What type of data we sent. in our case it is json
-             * 5. What type of data we receive. When you dont expect a json string just choose TEXT
-             * 6. Choose how you want to authenticate as ADMIN or EMPLOYEE.
-             * You dont have to create anything else than the string that defines the service path
-             * and the data that you will sent.
-             * All the rest you can chosse by doing something like SSLConnection.  and choosing the correct option
-             */
-            statusCode = sSLConnection.doPost(restfulService, jsonString, 
-                    SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.TEXT, 
-                    SSLConnection.USER_MODE.ADMIN);
-//*************************************************************************************************************
-            if(Integer.parseInt(statusCode) == 204) {
+            HttpEntity.setEntity(postString);
+            HttpEntity.setHeader("Content-type", "application/json");
+            HttpResponse response = httpClient.execute(HttpEntity);
+            int statusCode = response.getStatusLine().getStatusCode();
+            if(statusCode == 204) {
                 System.out.println("Device posted successfully");
             } else{
-                //System.out.println("Server error: "+response.getStatusLine());
-                System.out.println("Server error ");
+                System.out.println("Server error: "+response.getStatusLine());
             }
             DevName.setEditable(false);
             deviceID.setEditable(false);
