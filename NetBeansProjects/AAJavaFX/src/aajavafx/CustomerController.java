@@ -327,6 +327,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.panos.SSLConnection;
 /**
  * FXML Controller class
  *
@@ -392,6 +393,8 @@ public class CustomerController implements Initializable {
             Logger.getLogger(CustomerController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (JSONException ex) {
             Logger.getLogger(CustomerController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            Logger.getLogger(CustomerController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     @FXML
@@ -421,7 +424,7 @@ public class CustomerController implements Initializable {
         persunnumerID.setVisible(true);
     }
     @FXML
-    private void handleRegisterButton(ActionEvent event) {
+    private void handleRegisterButton(ActionEvent event) throws Exception {
         //labelError.setText(null);
         try {
             //String customerNumber = customerID.getText();
@@ -441,7 +444,7 @@ public class CustomerController implements Initializable {
                 Customers customer = new Customers(1, firstName, lastName, address, birthdate, persunnumer);
                 String jsonString = new String(gson.toJson(customer));
                 System.out.println("json string: " + jsonString);
-                StringEntity postString = new StringEntity(jsonString);
+                StringEntity postString = new StringEntity(jsonString);       
                 CredentialsProvider provider = new BasicCredentialsProvider();
                 UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
                 provider.setCredentials(AuthScope.ANY, credentials);
@@ -506,7 +509,7 @@ public class CustomerController implements Initializable {
             System.out.println("Something went wrong");
         }
     }
-    public ObservableList<CustomerProperty> getCustomer() throws IOException, JSONException {
+    public ObservableList<CustomerProperty> getCustomer() throws IOException, JSONException, Exception {
         
         ObservableList<CustomerProperty> customers = FXCollections.observableArrayList();
         //customers.add(new CustomerProperty(1, "Johny", "Walker", "London", "1972-07-01", "7207012222"));
@@ -515,14 +518,20 @@ public class CustomerController implements Initializable {
         Gson gson = new Gson();
         ObservableList<CustomerProperty> customersProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
-        CredentialsProvider provider = new BasicCredentialsProvider();
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
-        provider.setCredentials(AuthScope.ANY, credentials);
-        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/customers");
-        HttpResponse response = client.execute(get);
+        
+        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
+        String response = sslc.doGet("customers", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+        JSONArray jsonArray = new JSONArray(response);
+
+//        
+//        CredentialsProvider provider = new BasicCredentialsProvider();
+//        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
+//        provider.setCredentials(AuthScope.ANY, credentials);
+//        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+//        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/customers");
+//        HttpResponse response = client.execute(get);
         System.out.println("RESPONSE IS: " + response);
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
+       // JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);

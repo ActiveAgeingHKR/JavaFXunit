@@ -44,6 +44,7 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.panos.SSLConnection;
 
 /**
  *
@@ -122,7 +123,7 @@ public class LoginController extends ControllerClass {
 
     }
 
-    public static String getPassword(String userName) throws MalformedURLException, JSONException, IOException {
+    public static String getPassword(String userName) throws MalformedURLException, JSONException, IOException, Exception {
         String password = "";
 
         Managers manager = new Managers();
@@ -130,15 +131,12 @@ public class LoginController extends ControllerClass {
         Gson gson = new Gson();
 
         JSONObject jo = new JSONObject();
-        CredentialsProvider provider = new BasicCredentialsProvider();
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
-        provider.setCredentials(AuthScope.ANY, credentials);
-        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/managers/username/" + userName);
-
-        HttpResponse response = client.execute(get);
-        System.out.println("RESPONSE IS: " + response);
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
+        
+        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
+        String response = sslc.doGet("managers/username", userName, SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.ADMIN);
+        JSONArray jsonArray = new JSONArray(response);
+        
+        
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
