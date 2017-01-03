@@ -257,7 +257,7 @@ public class EmployeeController implements Initializable {
         ObservableList<EmployeeProperty> employeesProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
 
-        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerRESTLast/api/");
+        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
         String response = sslc.doGet("employees", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
         JSONArray jsonArray = new JSONArray(response);
 
@@ -279,7 +279,7 @@ public class EmployeeController implements Initializable {
             String jsonString = new String(gson.toJson(emp));
             System.out.println("json string: " + jsonString);
             StringEntity postString = new StringEntity(jsonString);
-            SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerRESTLast/api/");
+            SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
             String response = sslc.doPost("employees", jsonString, SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
             System.out.println(response);
         } catch (UnsupportedEncodingException ex) {
@@ -293,7 +293,7 @@ public class EmployeeController implements Initializable {
         try {
             String idToDelete = id + "";
 
-            SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerRESTLast/api/");
+            SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
             String response = sslc.doDelete("employees", idToDelete, SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
             System.out.println(response);
             System.out.println("you want to delete: " + id);
@@ -309,7 +309,7 @@ public class EmployeeController implements Initializable {
         Employees employeeNew = null;
         JSONObject jo = new JSONObject();
 
-        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerRESTLast/api/");
+        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
         String response = sslc.doGet("employees", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
         JSONArray jsonArray = new JSONArray(response);
         

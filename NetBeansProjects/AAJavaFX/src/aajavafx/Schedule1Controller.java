@@ -3,17 +3,13 @@ package aajavafx;
 import aajavafx.entities.Customers;
 import aajavafx.entities.Employees;
 import aajavafx.entities.EmployeeSchedule;
-import aajavafx.entities.Managers;
 import com.google.gson.Gson;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
 import entitiesproperty.CustomerProperty;
 import entitiesproperty.EmployeeProperty;
 import entitiesproperty.EmployeeScheduleProperty;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -38,18 +34,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -233,7 +217,7 @@ public class Schedule1Controller implements Initializable {
         ObservableList<EmployeeScheduleProperty> employeeScheduleProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
 
-        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerRESTLast/api/");
+        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
         String response = sslc.doGet("employeeschedule", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
         JSONArray jsonArray = new JSONArray(response);
 
@@ -260,7 +244,7 @@ public class Schedule1Controller implements Initializable {
         ObservableList<CustomerProperty> customerProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
 
-        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerRESTLast/api/");
+        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
         String response = sslc.doGet("customers", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
         JSONArray jsonArray = new JSONArray(response);
 
@@ -285,7 +269,7 @@ public class Schedule1Controller implements Initializable {
         ObservableList<EmployeeProperty> employeesProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
 
-        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerRESTLast/api/");
+        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
         String response = sslc.doGet("employees", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
         JSONArray jsonArray = new JSONArray(response);
 
@@ -310,7 +294,7 @@ public class Schedule1Controller implements Initializable {
         ObservableList<CustomerProperty> customerPropertyAllCustomers = this.getCustomer();
         JSONObject jo = new JSONObject();
 
-        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerRESTLast/api/");
+        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
         String response = sslc.doGet("employeeschedule/date", getDate(), SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
         JSONArray jsonArray = new JSONArray(response);
         System.out.println("1 " + jsonArray);
@@ -354,7 +338,7 @@ public class Schedule1Controller implements Initializable {
         Gson gson = new Gson();
         JSONObject jo = new JSONObject();
 
-        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerRESTLast/api/");
+        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
         String response = sslc.doGet("employeeschedule/date", getDate(), SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
         JSONArray jsonArray = new JSONArray(response);
 
@@ -423,20 +407,8 @@ public class Schedule1Controller implements Initializable {
             EmployeeSchedule schedule = new EmployeeSchedule(1, tempDate, tempStart, tempFinish, false, customers, employee);
             String jsonString = gson.toJson(schedule);
 
-            /*  CredentialsProvider provider = new BasicCredentialsProvider();
-             UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
-             provider.setCredentials(AuthScope.ANY, credentials);
-             HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-             HttpPost post = new HttpPost("http://localhost:8080/MainServerREST/api/employeeschedule");
-            
-             System.out.println("json string: " + jsonString);
-             StringEntity postString = new StringEntity(jsonString);
-             post.setEntity(postString);
-             post.setHeader("Content-type", "application/json");
-             HttpResponse response = httpClient.execute(post);
-             System.out.println("Post response: " + response);
-             */
-            SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerRESTLast/api/");
+           
+            SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
             String response = sslc.doPost("employeeschedule", jsonString, SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
             System.out.println(response);
 
@@ -459,7 +431,7 @@ public class Schedule1Controller implements Initializable {
 
         try {
             String idToDelete = id + "";
-            SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerRESTLast/api/");
+            SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
             String response = sslc.doDelete("employeeschedule", idToDelete, SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
             System.out.println(response);
             System.out.println("you want to delete: " + id);
