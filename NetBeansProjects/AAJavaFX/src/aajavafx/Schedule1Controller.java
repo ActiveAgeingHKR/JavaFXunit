@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package aajavafx;
 
 import aajavafx.entities.Customers;
@@ -58,6 +53,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.panos.SSLConnection;
 
 /**
  * FXML Controller class
@@ -127,7 +123,7 @@ public class Schedule1Controller implements Initializable {
     private String date;
     private int idEmployee;
     private int idCustomer;
-   
+
     Singleton singleton = null;
 
     @Override
@@ -171,6 +167,8 @@ public class Schedule1Controller implements Initializable {
             Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (JSONException ex) {
             Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            Logger.getLogger(Schedule1Controller.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
@@ -190,7 +188,7 @@ public class Schedule1Controller implements Initializable {
     }
 
     @FXML
-    private void handleDeleteButton(ActionEvent event) {
+    private void handleDeleteButton(ActionEvent event) throws Exception {
 
         int id = tableSchedule.getSelectionModel().getSelectedItem().getSchId();
         this.deleteRow(id);
@@ -225,7 +223,7 @@ public class Schedule1Controller implements Initializable {
         }
     }
 
-    public ObservableList<EmployeeScheduleProperty> getSchedule() throws IOException, JSONException {
+    public ObservableList<EmployeeScheduleProperty> getSchedule() throws IOException, JSONException, Exception {
         EmployeeSchedule mySchedule = new EmployeeSchedule();
 
         Customers customers = new Customers();
@@ -235,15 +233,10 @@ public class Schedule1Controller implements Initializable {
         ObservableList<EmployeeScheduleProperty> employeeScheduleProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
 
-        CredentialsProvider provider = new BasicCredentialsProvider();
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
-        provider.setCredentials(AuthScope.ANY, credentials);
-        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/employeeschedule");
-        HttpResponse response = client.execute(get);
-        System.out.println("RESPONSE IS: " + response);
+        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerRESTLast/api/");
+        String response = sslc.doGet("employeeschedule", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+        JSONArray jsonArray = new JSONArray(response);
 
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
@@ -261,21 +254,16 @@ public class Schedule1Controller implements Initializable {
         return employeeScheduleProperty;
     }
 
-    public ObservableList<CustomerProperty> getCustomer() throws IOException, JSONException {
+    public ObservableList<CustomerProperty> getCustomer() throws IOException, JSONException, Exception {
         Customers customers = new Customers();
         Gson gson = new Gson();
         ObservableList<CustomerProperty> customerProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
 
-        CredentialsProvider provider = new BasicCredentialsProvider();
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
-        provider.setCredentials(AuthScope.ANY, credentials);
-        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/customers");
-        HttpResponse response = client.execute(get);
-        System.out.println("RESPONSE IS: " + response);
+        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerRESTLast/api/");
+        String response = sslc.doGet("customers", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+        JSONArray jsonArray = new JSONArray(response);
 
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
@@ -290,22 +278,17 @@ public class Schedule1Controller implements Initializable {
 
     }
 
-    public ObservableList<EmployeeProperty> getEmployee() throws IOException, JSONException {
+    public ObservableList<EmployeeProperty> getEmployee() throws IOException, JSONException, Exception {
         Employees myEmployee = new Employees();
 
         Gson gson = new Gson();
         ObservableList<EmployeeProperty> employeesProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
 
-        CredentialsProvider provider = new BasicCredentialsProvider();
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
-        provider.setCredentials(AuthScope.ANY, credentials);
-        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/employees");
-        HttpResponse response = client.execute(get);
-        System.out.println("RESPONSE IS: " + response);
+        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerRESTLast/api/");
+        String response = sslc.doGet("employees", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+        JSONArray jsonArray = new JSONArray(response);
 
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
@@ -317,7 +300,7 @@ public class Schedule1Controller implements Initializable {
         return employeesProperty;
     }
 
-    public ObservableList<CustomerProperty> getUnsignedCustomers() throws IOException, JSONException {
+    public ObservableList<CustomerProperty> getUnsignedCustomers() throws IOException, JSONException, Exception {
         //Customers customers = new Customers();
         EmployeeSchedule mySchedule = new EmployeeSchedule();
         singleton = Singleton.getInstance();
@@ -327,15 +310,9 @@ public class Schedule1Controller implements Initializable {
         ObservableList<CustomerProperty> customerPropertyAllCustomers = this.getCustomer();
         JSONObject jo = new JSONObject();
 
-        CredentialsProvider provider = new BasicCredentialsProvider();
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
-        provider.setCredentials(AuthScope.ANY, credentials);
-        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/employeeschedule/date/" + getDate());
-        HttpResponse response = client.execute(get);
-        System.out.println("RESPONSE IS: " + response);
-
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
+        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerRESTLast/api/");
+        String response = sslc.doGet("employeeschedule/date", getDate(), SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+        JSONArray jsonArray = new JSONArray(response);
         System.out.println("1 " + jsonArray);
 
         for (int i = 0; i < jsonArray.length(); i++) {
@@ -367,7 +344,7 @@ public class Schedule1Controller implements Initializable {
         return customerPropertyAllCustomers;
     }
 
-    public double getNumbersOfHoursPerDay(int id) throws JSONException, IOException {
+    public double getNumbersOfHoursPerDay(int id) throws JSONException, IOException, Exception {
         double numberHours = 0;
         double numberStart = 0;
         double numberFinish = 0;
@@ -377,15 +354,9 @@ public class Schedule1Controller implements Initializable {
         Gson gson = new Gson();
         JSONObject jo = new JSONObject();
 
-        CredentialsProvider provider = new BasicCredentialsProvider();
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
-        provider.setCredentials(AuthScope.ANY, credentials);
-        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/employeeschedule/date/" + getDate());
-        HttpResponse response = client.execute(get);
-        System.out.println("RESPONSE IS: " + response);
-
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
+        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerRESTLast/api/");
+        String response = sslc.doGet("employeeschedule/date", getDate(), SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+        JSONArray jsonArray = new JSONArray(response);
 
         System.out.println("2 " + jsonArray);
 
@@ -405,7 +376,7 @@ public class Schedule1Controller implements Initializable {
     }
 
     @FXML
-    private void handleCreateNewSchedule(ActionEvent event) throws JSONException, IOException {
+    private void handleCreateNewSchedule(ActionEvent event) throws JSONException, IOException, Exception {
         String tempDate;
         DecimalFormat df2 = new DecimalFormat(".##");
         idEmployee = tableEmployee.getSelectionModel().getSelectedItem().getId();
@@ -425,15 +396,12 @@ public class Schedule1Controller implements Initializable {
         return date;
     }
 
-    /**
-     * @param date the date to set
-     */
     public void setDate(String date) {
         this.date = date;
     }
 
     @FXML
-    private void handleValidate(ActionEvent event) {
+    private void handleValidate(ActionEvent event) throws Exception {
         String tempDate;
         String tempEmpId;
         String tempCustId;
@@ -453,22 +421,25 @@ public class Schedule1Controller implements Initializable {
             Employees employee = new Employees(empId);
             Customers customers = new Customers(cuId);
             EmployeeSchedule schedule = new EmployeeSchedule(1, tempDate, tempStart, tempFinish, false, customers, employee);
-
-            CredentialsProvider provider = new BasicCredentialsProvider();
-            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
-            provider.setCredentials(AuthScope.ANY, credentials);
-
-            HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-            HttpPost post = new HttpPost("http://localhost:8080/MainServerREST/api/employeeschedule");
-
             String jsonString = gson.toJson(schedule);
-            System.out.println("json string: " + jsonString);
-            StringEntity postString = new StringEntity(jsonString);
 
-            post.setEntity(postString);
-            post.setHeader("Content-type", "application/json");
-            HttpResponse response = httpClient.execute(post);
-            System.out.println("Post response: "+response);
+            /*  CredentialsProvider provider = new BasicCredentialsProvider();
+             UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+             provider.setCredentials(AuthScope.ANY, credentials);
+             HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+             HttpPost post = new HttpPost("http://localhost:8080/MainServerREST/api/employeeschedule");
+            
+             System.out.println("json string: " + jsonString);
+             StringEntity postString = new StringEntity(jsonString);
+             post.setEntity(postString);
+             post.setHeader("Content-type", "application/json");
+             HttpResponse response = httpClient.execute(post);
+             System.out.println("Post response: " + response);
+             */
+            SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerRESTLast/api/");
+            String response = sslc.doPost("employeeschedule", jsonString, SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+            System.out.println(response);
+
         } catch (UnsupportedEncodingException ex) {
             System.out.println(ex);
         } catch (IOException e) {
@@ -488,12 +459,9 @@ public class Schedule1Controller implements Initializable {
 
         try {
             String idToDelete = id + "";
-            CredentialsProvider provider = new BasicCredentialsProvider();
-            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
-            provider.setCredentials(AuthScope.ANY, credentials);
-            HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-            HttpDelete delete = new HttpDelete("http://localhost:8080/MainServerREST/api/employeeschedule/" + id);
-            HttpResponse response = httpClient.execute(delete);
+            SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerRESTLast/api/");
+            String response = sslc.doDelete("employeeschedule", idToDelete, SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+            System.out.println(response);
             System.out.println("you want to delete: " + id);
         } catch (Exception ex) {
             System.out.println(ex);

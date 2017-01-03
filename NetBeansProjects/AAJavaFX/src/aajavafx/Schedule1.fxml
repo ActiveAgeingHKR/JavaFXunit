@@ -47,8 +47,8 @@
       <Button layoutX="504.0" layoutY="474.0" mnemonicParsing="false" onAction="#handleValidate" prefHeight="25.0" prefWidth="66.0" text="Validate " />
       <TextField fx:id="textEmpId" layoutX="88.0" layoutY="229.0" prefHeight="25.0" prefWidth="76.0" promptText="EmployeeId" />
       <TextField fx:id="textCustId" layoutX="164.0" layoutY="229.0" prefHeight="25.0" prefWidth="76.0" promptText="CustomerId" />
-      <TextField fx:id="textStart" layoutX="321.0" layoutY="229.0" prefHeight="25.0" prefWidth="93.0" promptText="Start" />
-      <TextField fx:id="textFinish" layoutX="414.0" layoutY="229.0" prefHeight="25.0" prefWidth="100.0" promptText="Finish" />
+      <TextField fx:id="textStart" layoutX="321.0" layoutY="229.0" prefHeight="25.0" prefWidth="93.0" promptText="Start/HH.MM" />
+      <TextField fx:id="textFinish" layoutX="414.0" layoutY="229.0" prefHeight="25.0" prefWidth="100.0" promptText="Finish/HH.MM" />
       <TextField fx:id="dateText" layoutX="239.0" layoutY="229.0" prefHeight="25.0" prefWidth="82.0" promptText="Date" />
     </children>
 </AnchorPane>

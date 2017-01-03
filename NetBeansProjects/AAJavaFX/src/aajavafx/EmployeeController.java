@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package aajavafx;
 
 /**
@@ -51,6 +46,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.panos.SSLConnection;
 
 /**
  * FXML Controller class
@@ -98,11 +94,9 @@ public class EmployeeController implements Initializable {
     @FXML
     private Button buttonRegister;
 
-    private static String postEmployeesURL = "http://localhost:8080/MainServerREST/api/employees/";
-
     @FXML
     private Label labelError;
-   
+
     Managers manager = new Managers(1);
 
     @Override
@@ -262,16 +256,11 @@ public class EmployeeController implements Initializable {
         Gson gson = new Gson();
         ObservableList<EmployeeProperty> employeesProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
-        CredentialsProvider provider = new BasicCredentialsProvider();
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
-        provider.setCredentials(AuthScope.ANY, credentials);
-        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/employees");
 
-        HttpResponse response = client.execute(get);
-        System.out.println("RESPONSE IS: " + response);
+        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerRESTLast/api/");
+        String response = sslc.doGet("employees", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+        JSONArray jsonArray = new JSONArray(response);
 
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
@@ -284,21 +273,15 @@ public class EmployeeController implements Initializable {
         return employeesProperty;
     }
 
-    public static void validate(Employees emp) {
+    public static void validate(Employees emp) throws Exception {
         try {
             Gson gson = new Gson();
             String jsonString = new String(gson.toJson(emp));
             System.out.println("json string: " + jsonString);
             StringEntity postString = new StringEntity(jsonString);
-            CredentialsProvider provider = new BasicCredentialsProvider();
-            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
-            provider.setCredentials(AuthScope.ANY, credentials);
-            HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-            HttpPost post = new HttpPost(postEmployeesURL);
-            post.setEntity(postString);
-            post.setHeader("Content-type", "application/json");
-            HttpResponse response = httpClient.execute(post);
-
+            SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerRESTLast/api/");
+            String response = sslc.doPost("employees", jsonString, SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+            System.out.println(response);
         } catch (UnsupportedEncodingException ex) {
             System.out.println(ex);
         } catch (IOException e) {
@@ -309,34 +292,28 @@ public class EmployeeController implements Initializable {
     public void deleteRow(int id) {
         try {
             String idToDelete = id + "";
-            CredentialsProvider provider = new BasicCredentialsProvider();
-            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE","password");
-            provider.setCredentials(AuthScope.ANY, credentials);
-            HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-            HttpDelete delete = new HttpDelete(postEmployeesURL + idToDelete);
-            HttpResponse response = httpClient.execute(delete);
+
+            SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerRESTLast/api/");
+            String response = sslc.doDelete("employees", idToDelete, SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+            System.out.println(response);
             System.out.println("you want to delete: " + id);
         } catch (Exception ex) {
             System.out.println(ex);
         }
     }
 
-    public void change(int id) throws IOException, JSONException {
+    public void change(int id) throws IOException, JSONException, Exception {
         Employees myEmployee = new Employees();
 
         Gson gson = new Gson();
         Employees employeeNew = null;
         JSONObject jo = new JSONObject();
-        CredentialsProvider provider = new BasicCredentialsProvider();
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
-        provider.setCredentials(AuthScope.ANY, credentials);
-        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/employees");
 
-        HttpResponse response = client.execute(get);
-        System.out.println("RESPONSE IS: " + response);
+        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerRESTLast/api/");
+        String response = sslc.doGet("employees", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+        JSONArray jsonArray = new JSONArray(response);
+        
         boolean register = true;
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
