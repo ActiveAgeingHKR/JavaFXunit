@@ -181,7 +181,7 @@ public class VisitorController implements Initializable {
         try {
             String idToDelete = visitorIDField.getText();
             CredentialsProvider provider = new BasicCredentialsProvider();
-            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE","password");
+            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN","password");
             provider.setCredentials(AuthScope.ANY, credentials);
             HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
             //add the id to the end of the URL so this will call the method at MainServerREST/api/visitors/id
@@ -239,7 +239,7 @@ public class VisitorController implements Initializable {
                 try {
                     Gson gson = new Gson();
                     CredentialsProvider provider = new BasicCredentialsProvider();
-                    UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+                    UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
                     provider.setCredentials(AuthScope.ANY, credentials);
                     HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
                     HttpEntityEnclosingRequestBase HttpEntity = null; //this is the superclass for post, put, get, etc
@@ -288,7 +288,7 @@ public class VisitorController implements Initializable {
                     
                     fis = new FileInputStream(imageFile);
                     CredentialsProvider provider = new BasicCredentialsProvider();
-                    UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+                    UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
                     provider.setCredentials(AuthScope.ANY, credentials);
                     HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
                     MultipartEntityBuilder builder = MultipartEntityBuilder.create();
@@ -401,7 +401,7 @@ public class VisitorController implements Initializable {
         JSONObject jo = new JSONObject();
         
         CredentialsProvider provider = new BasicCredentialsProvider();
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
         provider.setCredentials(AuthScope.ANY, credentials);
         HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
         HttpGet get = new HttpGet(VisitorsRootURL);
@@ -428,7 +428,7 @@ public class VisitorController implements Initializable {
         JSONObject jo = new JSONObject();
         
         CredentialsProvider provider = new BasicCredentialsProvider();
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
         provider.setCredentials(AuthScope.ANY, credentials);
         HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
         HttpGet get = new HttpGet(CompanyRootURL);

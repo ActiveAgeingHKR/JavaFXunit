@@ -237,7 +237,7 @@ public class VisitorScheduleController implements Initializable {
         try {
             Gson gson = new Gson();
             CredentialsProvider provider = new BasicCredentialsProvider();
-            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
             provider.setCredentials(AuthScope.ANY, credentials);
             HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
             HttpEntityEnclosingRequestBase HttpEntity = null; //this is the superclass for post, put, get, etc
@@ -264,9 +264,9 @@ public class VisitorScheduleController implements Initializable {
                 // specify to which email to send, for testing purposes you can use your own.
                 // in order for it to work email has to be legit
                 // qrCodeHandler.sendMail("email to send to", qr code file name to send);
-                //qrCodeHandler.sendMail("rolandasjanulis@yahoo.com", hash);
+                // qrCodeHandler.sendMail("rolandasjanulis@yahoo.com", hash);
                 
-                qrCodeHandler.sendMail(getVisitorEmail(visitorId), hash);
+                qrCodeHandler.sendMail(getVisitorEmailFromID(visitorId), hash);
                 
             } else{
                 System.out.println("Server error: "+response.getStatusLine());
@@ -309,7 +309,7 @@ public class VisitorScheduleController implements Initializable {
         try {
             String idToDelete = schIdField.getText();
             CredentialsProvider provider = new BasicCredentialsProvider();
-            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE","password");
+            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN","password");
             provider.setCredentials(AuthScope.ANY, credentials);
             HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
             //add the id to the end of the URL so this will call the method at MainServerREST/api/visitorschedule/id
@@ -337,7 +337,7 @@ public class VisitorScheduleController implements Initializable {
         JSONObject jo = new JSONObject();
         
         CredentialsProvider provider = new BasicCredentialsProvider();
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
         provider.setCredentials(AuthScope.ANY, credentials);
         HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
         HttpGet get = new HttpGet(visitorScheduleRootURL);
@@ -366,7 +366,7 @@ public class VisitorScheduleController implements Initializable {
         JSONObject jo = new JSONObject();
         
         CredentialsProvider provider = new BasicCredentialsProvider();
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
         provider.setCredentials(AuthScope.ANY, credentials);
         HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
         HttpGet get = new HttpGet(customersRootURL);
@@ -395,7 +395,7 @@ public class VisitorScheduleController implements Initializable {
         Gson gson = new Gson();
         JSONObject jo = new JSONObject();
         CredentialsProvider provider = new BasicCredentialsProvider();
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("EMPLOYEE", "password");
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
         provider.setCredentials(AuthScope.ANY, credentials);
         HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
         HttpGet get = new HttpGet(visitorsRootURL);
@@ -437,10 +437,10 @@ public class VisitorScheduleController implements Initializable {
         return new String();
     }
     
-    public String getVisitorEmail(String id) {
+    public String getVisitorEmailFromID(String ID) {
         String email = "";
         for(Visitors s : visitors) {
-            if(s.getVisId().equals(id)) {
+            if(s.getVisId().equals(ID)) {
                 email = s.getVisEmail();
             }
         }
