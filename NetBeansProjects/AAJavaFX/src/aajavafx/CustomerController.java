@@ -470,11 +470,13 @@ public class CustomerController implements Initializable {
             
         }
             try {
-            //refresh table
+            //Populate table 
             tableCustomer.setItems(getCustomer());
-        } catch (Exception e) {
-            Logger.getLogger(CustomerController.class.getName()).log(Level.SEVERE, null, e);
-        } 
+        } catch (IOException ex) {
+            Logger.getLogger(CustomerController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (JSONException ex) {
+            Logger.getLogger(CustomerController.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
     }
     @FXML
