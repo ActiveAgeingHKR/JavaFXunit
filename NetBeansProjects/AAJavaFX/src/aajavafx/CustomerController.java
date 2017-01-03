@@ -279,6 +279,7 @@
  * and open the template in the editor.
  */
 package aajavafx;
+
 import aajavafx.entities.Customers;
 import aajavafx.entities.Employees;
 import aajavafx.entities.Managers;
@@ -328,12 +329,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.panos.SSLConnection;
+
 /**
  * FXML Controller class
  *
  * @author lokeshdhakal
  */
 public class CustomerController implements Initializable {
+
     private static String postCustomerURL = "http://localhost:8080/MainServerREST/api/customers";
     // private static String postCustomerURL = "http://192.168.43.205:8080/MainServerREST/api/customers";
     @FXML
@@ -370,6 +373,7 @@ public class CustomerController implements Initializable {
     String address;
     String birthdate;
     String persunnumer;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         buttonRegister.setVisible(false);
@@ -397,6 +401,7 @@ public class CustomerController implements Initializable {
             Logger.getLogger(CustomerController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
     @FXML
     private void handleGoBack(ActionEvent event) {
         //labelError.setText(null);
@@ -413,6 +418,7 @@ public class CustomerController implements Initializable {
             Logger.getLogger(MainPageController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
     @FXML
     private void handleNewButton(ActionEvent event) {
         buttonRegister.setVisible(true);
@@ -423,6 +429,7 @@ public class CustomerController implements Initializable {
         birthdateID.setVisible(true);
         persunnumerID.setVisible(true);
     }
+
     @FXML
     private void handleRegisterButton(ActionEvent event) throws Exception {
         //labelError.setText(null);
@@ -444,24 +451,42 @@ public class CustomerController implements Initializable {
                 Customers customer = new Customers(1, firstName, lastName, address, birthdate, persunnumer);
                 String jsonString = new String(gson.toJson(customer));
                 System.out.println("json string: " + jsonString);
-                StringEntity postString = new StringEntity(jsonString);       
-                CredentialsProvider provider = new BasicCredentialsProvider();
-                UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
-                provider.setCredentials(AuthScope.ANY, credentials);
-                HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-                HttpPost post = new HttpPost(postCustomerURL);
-                post.setEntity(postString);
-                post.setHeader("Content-type", "application/json");
-                HttpResponse response = httpClient.execute(post);
-                ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-                if (response != null) {
-                    response.getEntity().writeTo(outstream);
-                    byte[] responseBody = outstream.toByteArray();
-                    String str = new String(responseBody, "UTF-8");
-                    System.out.print(str);
+                StringEntity postString = new StringEntity(jsonString);
+                //CredentialsProvider provider = new BasicCredentialsProvider();
+                //UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
+                //provider.setCredentials(AuthScope.ANY, credentials);
+                //HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+                //HttpPost post = new HttpPost(postCustomerURL);
+                //post.setEntity(postString);
+                //post.setHeader("Content-type", "application/json");
+                //HttpResponse response = httpClient.execute(post);
+                // SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
+                //String response = sslc.doGet("customers", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+                //JSONArray jsonArray = new JSONArray(response);
+                String restFullServerAddress = "https://localhost:8181/MainServerREST/api/";
+                SSLConnection sSLConnection = new SSLConnection(restFullServerAddress);
+                String restfulService = "customers";
+                String statusCode;
+                statusCode = sSLConnection.doPost(restfulService, jsonString,
+                        SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.TEXT,
+                        SSLConnection.USER_MODE.ADMIN);
+//*************************************************************************************************************
+                if (Integer.parseInt(statusCode) == 204) {
+                    System.out.println("Customer added successfully");
                 } else {
-                    System.out.println("Success");
+                    //System.out.println("Server error: "+response.getStatusLine());
+                    System.out.println("Server error ");
                 }
+
+                //ByteArrayOutputStream outstream = new ByteArrayOutputStream();
+//                if (response != null) {
+//                    response.getEntity().writeTo(outstream);
+//                    byte[] responseBody = outstream.toByteArray();
+//                    String str = new String(responseBody, "UTF-8");
+//                    System.out.print(str);
+//                } else {
+//                    System.out.println("Success");
+//                }
             } catch (UnsupportedEncodingException ex) {
                 System.out.println(ex);
             } catch (IOException e) {
@@ -469,10 +494,9 @@ public class CustomerController implements Initializable {
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            
-            
+
         }
-            try {
+        try {
             //Populate table 
             tableCustomer.setItems(getCustomer());
         } catch (IOException ex) {
@@ -480,8 +504,9 @@ public class CustomerController implements Initializable {
         } catch (JSONException ex) {
             Logger.getLogger(CustomerController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }
+
     @FXML
     private void handlePrintButton(ActionEvent event) {
         //  labelError.setText(null);
@@ -493,6 +518,7 @@ public class CustomerController implements Initializable {
         birthdateID.setVisible(true);
         persunnumerID.setVisible(true);
     }
+
     @FXML
     private void handleChangeButton(ActionEvent event) { //I think we don't need this for customer
         //  labelError.setText(null);
@@ -509,8 +535,9 @@ public class CustomerController implements Initializable {
             System.out.println("Something went wrong");
         }
     }
+
     public ObservableList<CustomerProperty> getCustomer() throws IOException, JSONException, Exception {
-        
+
         ObservableList<CustomerProperty> customers = FXCollections.observableArrayList();
         //customers.add(new CustomerProperty(1, "Johny", "Walker", "London", "1972-07-01", "7207012222"));
         Customers myCustomer = new Customers();
@@ -518,7 +545,7 @@ public class CustomerController implements Initializable {
         Gson gson = new Gson();
         ObservableList<CustomerProperty> customersProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
-        
+
         SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
         String response = sslc.doGet("customers", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
         JSONArray jsonArray = new JSONArray(response);
@@ -531,7 +558,7 @@ public class CustomerController implements Initializable {
 //        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/customers");
 //        HttpResponse response = client.execute(get);
         System.out.println("RESPONSE IS: " + response);
-       // JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
+        // JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
@@ -544,4 +571,3 @@ public class CustomerController implements Initializable {
         return customersProperty;
     }
 }
- 
