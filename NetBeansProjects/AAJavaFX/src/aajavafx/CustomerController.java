@@ -457,7 +457,7 @@ public class CustomerController implements Initializable {
                 String restfulService = "customers";
                 String statusCode;
                 statusCode = sSLConnection.doPost(restfulService, jsonString,
-                        SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.TEXT,
+                        SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON,
                         SSLConnection.USER_MODE.EMPLOYEE);
                 System.out.println("json string: " + jsonString);
                 StringEntity postString = new StringEntity(jsonString);
