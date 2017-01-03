@@ -446,23 +446,12 @@ public class CustomerController implements Initializable {
             birthdateID.clear();
             String persunnumer = persunnumerID.getText();
             persunnumerID.clear();
-            try {
+            
                 Gson gson = new Gson();
                 Customers customer = new Customers(1, firstName, lastName, address, birthdate, persunnumer);
                 String jsonString = new String(gson.toJson(customer));
-                System.out.println("json string: " + jsonString);
-                StringEntity postString = new StringEntity(jsonString);
-                //CredentialsProvider provider = new BasicCredentialsProvider();
-                //UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
-                //provider.setCredentials(AuthScope.ANY, credentials);
-                //HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-                //HttpPost post = new HttpPost(postCustomerURL);
-                //post.setEntity(postString);
-                //post.setHeader("Content-type", "application/json");
-                //HttpResponse response = httpClient.execute(post);
-                // SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
-                //String response = sslc.doGet("customers", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
-                //JSONArray jsonArray = new JSONArray(response);
+                
+                
                 String restFullServerAddress = "https://localhost:8181/MainServerREST/api/";
                 SSLConnection sSLConnection = new SSLConnection(restFullServerAddress);
                 String restfulService = "customers";
@@ -470,6 +459,8 @@ public class CustomerController implements Initializable {
                 statusCode = sSLConnection.doPost(restfulService, jsonString,
                         SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.TEXT,
                         SSLConnection.USER_MODE.ADMIN);
+                System.out.println("json string: " + jsonString);
+                StringEntity postString = new StringEntity(jsonString);
 //*************************************************************************************************************
                 if (Integer.parseInt(statusCode) == 204) {
                     System.out.println("Customer added successfully");
@@ -487,11 +478,11 @@ public class CustomerController implements Initializable {
 //                } else {
 //                    System.out.println("Success");
 //                }
-            } catch (UnsupportedEncodingException ex) {
-                System.out.println(ex);
-            } catch (IOException e) {
-                System.out.println(e);
-            }
+            //} catch (UnsupportedEncodingException ex) {
+                //System.out.println(ex);
+           // } catch (IOException e) {
+              //  System.out.println(e);
+           // }
         } catch (Exception ex) {
             ex.printStackTrace();
 

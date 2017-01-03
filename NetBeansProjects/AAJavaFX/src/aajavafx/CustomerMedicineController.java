@@ -59,6 +59,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.panos.SSLConnection;
 
 /**
  * FXML Controller class
@@ -145,7 +146,9 @@ public class CustomerMedicineController implements Initializable {
             Logger.getLogger(CustomerController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (JSONException ex) {
             Logger.getLogger(CustomerController.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        } catch (Exception ex) {
+           Logger.getLogger(CustomerMedicineController.class.getName()).log(Level.SEVERE, null, ex);
+       }
         
         tableCustomer.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
@@ -159,7 +162,7 @@ public class CustomerMedicineController implements Initializable {
     }
     
     @FXML
-    private void handleSaveButton(ActionEvent event) {
+    private void handleSaveButton(ActionEvent event) throws Exception {
         //labelError.setText(null);
         try {
 
@@ -184,36 +187,62 @@ public class CustomerMedicineController implements Initializable {
             
             Gson gson = new Gson();
             //......for ssl handshake....
-            CredentialsProvider provider = new BasicCredentialsProvider();
-            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
-            provider.setCredentials(AuthScope.ANY, credentials);
+            //CredentialsProvider provider = new BasicCredentialsProvider();
+            //UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
+            //provider.setCredentials(AuthScope.ANY, credentials);
             //........
-            HttpClient httpClient = HttpClientBuilder.create().build();
-            HttpEntityEnclosingRequestBase HttpEntity = null; //this is the superclass for post, put, get, etc
+            //HttpClient httpClient = HttpClientBuilder.create().build();
+            //HttpEntityEnclosingRequestBase HttpEntity = null; //this is the superclass for post, put, get, etc
+            String jsonString = new String(gson.toJson(ctm));
+            //StringEntity postString = new StringEntity(jsonString);
+            String restFullServerAddress = "https://localhost:8181/MainServerREST/api/";
+                SSLConnection sSLConnection = new SSLConnection(restFullServerAddress);
+                String restfulService = "customers";
+                String statusCode;
             if(startDate.isEditable()) { //then we are posting a new record
-                HttpEntity = new HttpPost(MedicineCustomerRootURL); //so make a http post object
+               statusCode = sSLConnection.doPost(restfulService, jsonString,
+                        SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.TEXT,
+                        SSLConnection.USER_MODE.ADMIN);
+//*************************************************************************************************************
+                if (Integer.parseInt(statusCode) == 204) {
+                    System.out.println("Customer added successfully");
+                } else {
+                    //System.out.println("Server error: "+response.getStatusLine());
+                    System.out.println("Server error ");
+                }
+                //HttpEntity = new HttpPost(MedicineCustomerRootURL); //so make a http post object
             } else { //we are editing a record 
-                HttpEntity = new HttpPut(MedicineCustomerRootURL+startDate); //so make a http put object
+              statusCode = sSLConnection.doPut(restfulService, jsonString,
+                        SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.TEXT,
+                        SSLConnection.USER_MODE.ADMIN);
+//*************************************************************************************************************
+                if (Integer.parseInt(statusCode) == 204) {
+                    System.out.println("Customer added successfully");
+                } else {
+                    //System.out.println("Server error: "+response.getStatusLine());
+                    System.out.println("Server error ");
+                }                
+//HttpEntity = new HttpPut(MedicineCustomerRootURL+startDate); //so make a http put object
             }
             
-            String jsonString = new String(gson.toJson(ctm));
+       //     String jsonString = new String(gson.toJson(ctm));
             System.out.println("json string: " + jsonString);
             StringEntity postString = new StringEntity(jsonString);
             
-            HttpEntity.setEntity(postString);
-            HttpEntity.setHeader("Content-type", "application/json");
-            HttpResponse response = httpClient.execute(HttpEntity);
-            int statusCode = response.getStatusLine().getStatusCode();
-            if(statusCode == 204) {
+            //HttpEntity.setEntity(postString);
+           // HttpEntity.setHeader("Content-type", "application/json");
+            //HttpResponse response = httpClient.execute(HttpEntity);
+            //int statusCode = response.getStatusLine().getStatusCode();
+            //if(statusCode == 204) {
                 System.out.println("Customer binded to medicine successfully");
-            } else{
-                System.out.println("Server error: "+response.getStatusLine());
-            }
+           // } else{
+               // System.out.println("Server error: "+response.getStatusLine());
+            
             dose.setEditable(false);
             startDate.setEditable(false);
             schedule.setEditable(false);
             customerBox.setDisable(true);
-            
+      
 
         } catch (Exception ex) {
             System.out.println("Error: "+ex);
@@ -310,26 +339,30 @@ public class CustomerMedicineController implements Initializable {
         }
     }
     
-    public ObservableList<Customers> getCustomer() throws IOException, JSONException{
+    public ObservableList<Customers> getCustomer() throws IOException, JSONException, Exception{
 
         ObservableList<Customers> customers = FXCollections.observableArrayList();
         Customers myCustomer = new Customers();
         Gson gson = new Gson();    
         JSONObject jo = new JSONObject();
-        // SSL update..........
-        CredentialsProvider provider = new BasicCredentialsProvider();
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
-        provider.setCredentials(AuthScope.ANY, credentials);
         
-        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/customers");
+        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
+        String response = sslc.doGet("customers", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+        JSONArray jsonArray = new JSONArray(response);
+        // SSL update..........
+        //CredentialsProvider provider = new BasicCredentialsProvider();
+        //UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
+        //provider.setCredentials(AuthScope.ANY, credentials);
+        
+        //HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+        //HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/customers");
 
-        HttpResponse response = client.execute(get);
+        //HttpResponse response = client.execute(get);
         System.out.println("RESPONSE IS: " + response);
         //................
         
         //JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL(CustomersRootURL), Charset.forName("UTF-8")));
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
+        //JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
         
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
@@ -342,25 +375,29 @@ public class CustomerMedicineController implements Initializable {
         return customers;
     }
     
-    public ObservableList<Medicines> getMedicines() throws IOException, JSONException{
+    public ObservableList<Medicines> getMedicines() throws IOException, JSONException, Exception{
 
         ObservableList<Medicines> medicines = FXCollections.observableArrayList();
         //Managers manager = new Managers();
         Gson gson = new Gson();
         JSONObject jo = new JSONObject();
         
+        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
+        String response = sslc.doGet("medicines", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+        JSONArray jsonArray = new JSONArray(response);
+        
         //........SSL Update
-        CredentialsProvider provider = new BasicCredentialsProvider();
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
-        provider.setCredentials(AuthScope.ANY, credentials);
-        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/medicines");
+       // CredentialsProvider provider = new BasicCredentialsProvider();
+        //UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
+        //provider.setCredentials(AuthScope.ANY, credentials);
+        //HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+        //HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/medicines");
 
-        HttpResponse response = client.execute(get);
+        //HttpResponse response = client.execute(get);
         System.out.println("RESPONSE IS: " + response);
         //...................
        // JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL(MedicineRootURL), Charset.forName("UTF-8")));
-       JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
+       //JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
         
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
@@ -374,24 +411,28 @@ public class CustomerMedicineController implements Initializable {
         return medicines;
     }
     
-    public ObservableList<CustomersTakesMedicines> getCustomersTakesMedicines() throws IOException, JSONException{
+    public ObservableList<CustomersTakesMedicines> getCustomersTakesMedicines() throws IOException, JSONException, Exception{
 
         ObservableList<CustomersTakesMedicines> ctMeds = FXCollections.observableArrayList();
         //Managers manager = new Managers();
         Gson gson = new Gson();
         JSONObject jo = new JSONObject();
+        
+        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
+        String response = sslc.doGet("customersmedicines", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+        JSONArray jsonArray = new JSONArray(response);
         //........SSL Update
-        CredentialsProvider provider = new BasicCredentialsProvider();
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
-        provider.setCredentials(AuthScope.ANY, credentials);
-        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-        HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/customersmedicines/");
+        //CredentialsProvider provider = new BasicCredentialsProvider();
+        //UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
+        //provider.setCredentials(AuthScope.ANY, credentials);
+        //HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+        //HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/customersmedicines/");
 
-        HttpResponse response = client.execute(get);
+        //HttpResponse response = client.execute(get);
         System.out.println("RESPONSE IS: " + response);
         //...................
        // JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL(MedicineRootURL), Charset.forName("UTF-8")));
-       JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
+       //JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
         
         //JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL(MedicineCustomerRootURL), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
