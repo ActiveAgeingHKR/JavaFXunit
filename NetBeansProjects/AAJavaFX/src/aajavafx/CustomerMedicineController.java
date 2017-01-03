@@ -214,7 +214,7 @@ public class CustomerMedicineController implements Initializable {
             } else { //we are editing a record 
               statusCode = sSLConnection.doPut(restfulService, jsonString,
                         SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.TEXT,
-                        SSLConnection.USER_MODE.ADMIN);
+                        SSLConnection.USER_MODE.EMPLOYEE);
 //*************************************************************************************************************
                 if (Integer.parseInt(statusCode) == 204) {
                     System.out.println("Customer added successfully");
@@ -383,7 +383,7 @@ public class CustomerMedicineController implements Initializable {
         JSONObject jo = new JSONObject();
         
         SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
-        String response = sslc.doGet("medicines", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+        String response = sslc.doGet("medicines", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.ADMIN);
         JSONArray jsonArray = new JSONArray(response);
         
         //........SSL Update

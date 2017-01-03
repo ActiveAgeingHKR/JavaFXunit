@@ -744,7 +744,7 @@ public class DevicesController implements Initializable {
         JSONObject jo = new JSONObject();   
         
         SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
-        String response = sslc.doGet("devicescustomers", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+        String response = sslc.doGet("devicescustomers", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.ADMIN);
         JSONArray jsonArray = new JSONArray(response);
         // SSL update .......
         //CredentialsProvider provider = new BasicCredentialsProvider();

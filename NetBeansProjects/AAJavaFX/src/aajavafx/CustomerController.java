@@ -448,7 +448,7 @@ public class CustomerController implements Initializable {
             persunnumerID.clear();
             
                 Gson gson = new Gson();
-                Customers customer = new Customers(1, firstName, lastName, address, birthdate, persunnumer);
+                Customers customer = new Customers(null, firstName, lastName, address, birthdate, persunnumer);
                 String jsonString = new String(gson.toJson(customer));
                 
                 
@@ -458,7 +458,7 @@ public class CustomerController implements Initializable {
                 String statusCode;
                 statusCode = sSLConnection.doPost(restfulService, jsonString,
                         SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.TEXT,
-                        SSLConnection.USER_MODE.ADMIN);
+                        SSLConnection.USER_MODE.EMPLOYEE);
                 System.out.println("json string: " + jsonString);
                 StringEntity postString = new StringEntity(jsonString);
 //*************************************************************************************************************

@@ -88,7 +88,8 @@ public class MedicinesController implements Initializable {
         nameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getMedName()));
         volumeColumn.setCellValueFactory(cellData -> new SimpleStringProperty("" + cellData.getValue().getVolume()));
         measurementColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getMedMeasurementUnit()));
-
+         
+       
         idField.setEditable(false);
         nameField.setEditable(false);
         volumeField.setEditable(false);
@@ -255,7 +256,7 @@ public class MedicinesController implements Initializable {
         JSONObject jo = new JSONObject();
         
          SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
-        String response = sslc.doGet("medicines", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+        String response = sslc.doGet("medicines", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.ADMIN);
         JSONArray jsonArray = new JSONArray(response);
 
         // SSL update .......
