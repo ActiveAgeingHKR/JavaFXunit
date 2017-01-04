@@ -79,7 +79,7 @@ public class VisitorsProperty {
     }
     
     public final void setVisPhone(String visitorPhone) {
-        visEmailProperty().set(visitorPhone);
+        visPhoneProperty().set(visitorPhone);
     }
     
     public IntegerProperty companyCompIdProperty() {
