@@ -13,6 +13,7 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -103,6 +104,8 @@ public class Schedule1Controller implements Initializable {
 
     @FXML
     private DatePicker pickADate;
+    @FXML
+    private Button validation;
     Button calendar;
     private String date;
     private int idEmployee;
@@ -137,7 +140,7 @@ public class Schedule1Controller implements Initializable {
                 System.err.println("Selected date: " + date);
                 setDate(pickADate.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
                 System.out.println("Date now: " + getDate());
-                display.setText("You choose: "+ getDate());
+                display.setText("You choose: " + getDate());
 
             }
 
@@ -155,7 +158,7 @@ public class Schedule1Controller implements Initializable {
         } catch (Exception ex) {
             Logger.getLogger(Schedule1Controller.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        validation.setVisible(false);
     }
 
     @FXML
@@ -288,14 +291,13 @@ public class Schedule1Controller implements Initializable {
         singleton = Singleton.getInstance();
         Gson gson = new Gson();
 
-        ObservableList<CustomerProperty> customerPropertyCustomersSigned = FXCollections.observableArrayList();
+        ArrayList<CustomerProperty> customerPropertyCustomersSigned = new ArrayList<CustomerProperty>();
         ObservableList<CustomerProperty> customerPropertyAllCustomers = this.getCustomer();
         JSONObject jo = new JSONObject();
 
         SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
         String response = sslc.doGet("employeeschedule/date", getDate(), SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
         JSONArray jsonArray = new JSONArray(response);
-        System.out.println("1 " + jsonArray);
 
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
@@ -309,15 +311,19 @@ public class Schedule1Controller implements Initializable {
 
         }
 
-        for (int i = 0; i < customerPropertyAllCustomers.size(); i++) {
+        try {
+            for (int i = 0; i < customerPropertyCustomersSigned.size(); i++) {
 
-            for (int j = 0; j < customerPropertyCustomersSigned.size(); j++) {
+                for (int j = 0; j < customerPropertyAllCustomers.size(); j++) {
 
-                if (customerPropertyAllCustomers.get(i).getPersonnumer().equals(customerPropertyCustomersSigned.get(j).getPersonnumer())) {
+                    if (customerPropertyCustomersSigned.get(i).getPersonnumer().equals(customerPropertyAllCustomers.get(j).getPersonnumer())) {
 
-                    customerPropertyAllCustomers.remove(i);
+                        customerPropertyAllCustomers.remove(j);
+                    }
                 }
             }
+        } catch (Exception e) {
+            System.out.println("Esti un bou " + e);
         }
 
         singleton.setList(customerPropertyAllCustomers);
@@ -378,6 +384,7 @@ public class Schedule1Controller implements Initializable {
         System.out.println("Hours : " + df2.format(this.getNumbersOfHoursPerDay(idEmployee)));
 
         display.setText("Hours : " + df2.format(this.getNumbersOfHoursPerDay(idEmployee)));
+        validation.setVisible(true);
     }
 
     public String getDate() {
@@ -427,7 +434,7 @@ public class Schedule1Controller implements Initializable {
         } catch (JSONException ex) {
             Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        validation.setVisible(false);
     }
 
     public void deleteRow(int id) {
