@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="513.0" prefWidth="600.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="aajavafx.Schedule1Controller">
+    <children>
+        <Button layoutX="14.0" layoutY="474.0" mnemonicParsing="false" onAction="#handleGoBack" prefHeight="25.0" prefWidth="66.0" text="Back" />
+        <DatePicker fx:id="pickADate" layoutX="14.0" layoutY="21.0" />
+      <TableView fx:id="tableEmployee" layoutX="14.0" layoutY="111.0" prefHeight="97.0" prefWidth="255.0">
+        <columns>
+          <TableColumn fx:id="empIdColumn" prefWidth="29.0" text="Id" />
+          <TableColumn fx:id="empFirstNameColumn" prefWidth="68.0" text="First Name" />
+            <TableColumn fx:id="empLastColumn" prefWidth="81.0" text="Last Name" />
+            <TableColumn fx:id="empUserNameColumn" prefWidth="76.0" text="User Name" />
+        </columns>
+      </TableView>
+      <TableView fx:id="tableCustomer" layoutX="307.0" layoutY="111.0" prefHeight="97.0" prefWidth="262.0">
+        <columns>
+            <TableColumn fx:id="cuIdColumn" prefWidth="28.0" text="Id" />
+          <TableColumn fx:id="cuFirstNameColumn" prefWidth="72.0" text="First Name" />
+            <TableColumn fx:id="cuLastNameColumn" prefWidth="66.0" text="Last Name" />
+            <TableColumn fx:id="cuPersonnumerColumn" prefWidth="95.0" text="Personnumer" />
+        </columns>
+      </TableView>
+      <Label layoutX="14.0" layoutY="79.0" prefHeight="17.0" prefWidth="174.0" text="Employees" />
+      <Label layoutX="360.0" layoutY="79.0" prefHeight="17.0" prefWidth="200.0" text="Customer" />
+      <TableView fx:id="tableSchedule" layoutX="14.0" layoutY="254.0" prefHeight="174.0" prefWidth="554.0">
+        <columns>
+          <TableColumn fx:id="schIdColumn" prefWidth="55.0" text="Id" />
+          <TableColumn fx:id="employeesEmpIdColumn" prefWidth="95.0" text="Emp.UserName" />
+            <TableColumn fx:id="customersCuIdColumn" prefWidth="119.0" text="Cust.Personummer" />
+            <TableColumn fx:id="schDateColumn" prefWidth="107.0" text="Date" />
+            <TableColumn fx:id="schFromTimeColumn" prefWidth="63.0" text="Start" />
+            <TableColumn fx:id="schUntilTimeColumn" prefWidth="60.0" text="Finish" />
+            <TableColumn fx:id="emplVisitedCustColumn" prefWidth="54.0" text="Visited" />
+        </columns>
+      </TableView>
+      <Label fx:id="display" layoutX="214.0" layoutY="25.0" prefHeight="17.0" prefWidth="356.0" text="You must choose a date first!!!" />
+      <Button layoutX="112.0" layoutY="474.0" mnemonicParsing="false" onAction="#handleGetCustomersUnvisited" prefHeight="25.0" prefWidth="180.0" text="View Unsigned Customer" />
+      <Button layoutX="342.0" layoutY="474.0" mnemonicParsing="false" onAction="#handleCreateNewSchedule" prefHeight="25.0" prefWidth="66.0" text="New" />
+      <Button layoutX="427.0" layoutY="474.0" mnemonicParsing="false" onAction="#handleDeleteButton" prefHeight="25.0" prefWidth="66.0" text="Remove" />
+      <Button fx:id="validation" layoutX="504.0" layoutY="474.0" mnemonicParsing="false" onAction="#handleValidate" prefHeight="25.0" prefWidth="66.0" text="Validate " />
+      <TextField fx:id="textEmpId" layoutX="88.0" layoutY="229.0" prefHeight="25.0" prefWidth="76.0" promptText="EmployeeId" />
+      <TextField fx:id="textCustId" layoutX="164.0" layoutY="229.0" prefHeight="25.0" prefWidth="76.0" promptText="CustomerId" />
+      <TextField fx:id="textStart" layoutX="321.0" layoutY="229.0" prefHeight="25.0" prefWidth="93.0" promptText="Start/HH.MM" />
+      <TextField fx:id="textFinish" layoutX="414.0" layoutY="229.0" prefHeight="25.0" prefWidth="100.0" promptText="Finish/HH.MM" />
+      <TextField fx:id="dateText" layoutX="239.0" layoutY="229.0" prefHeight="25.0" prefWidth="82.0" promptText="Date" />
+    </children>
+</AnchorPane>

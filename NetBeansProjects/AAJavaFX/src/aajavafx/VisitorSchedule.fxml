@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane id="AnchorPane" prefHeight="436.0" prefWidth="625.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="aajavafx.VisitorScheduleController">
+   <children>
+      <TableView fx:id="tableVisitorSchedule" layoutX="17.0" layoutY="197.0" prefHeight="199.0" prefWidth="595.0">
+        <columns>
+          <TableColumn fx:id="schIdColumn" prefWidth="51.0" text="Sch ID" />
+          <TableColumn fx:id="custIdColumn" prefWidth="79.0" text="Customer ID" />
+            <TableColumn fx:id="visitorIdColumn" prefWidth="72.0" text="Visitor ID" />
+            <TableColumn fx:id="dateColumn" prefWidth="63.0" text="Date" />
+            <TableColumn fx:id="startTimeColumn" prefWidth="68.0" text="Start " />
+            <TableColumn fx:id="endTimeColumn" prefWidth="75.0" text="End" />
+            <TableColumn fx:id="repeatingColumn" prefWidth="81.0" text="Repeating" />
+            <TableColumn fx:id="hashColumn" prefWidth="111.0" text="Hash" />
+        </columns>
+      </TableView>
+      <DatePicker fx:id="datePicker" layoutX="226.0" layoutY="31.0" promptText="Date" />
+      <Button fx:id="backButton" layoutX="36.0" layoutY="164.0" mnemonicParsing="false" onAction="#handleBackButton" text="Back" />
+      <TextField fx:id="schIdField" layoutX="36.0" layoutY="31.0" promptText="Schedule ID" />
+      <ComboBox fx:id="repeatingBox" layoutX="431.0" layoutY="31.0" prefWidth="150.0" promptText="Repeating" />
+      <Button layoutX="133.0" layoutY="164.0" mnemonicParsing="false" onAction="#handleNewButton" text="New" />
+      <Button layoutX="226.0" layoutY="164.0" mnemonicParsing="false" onAction="#handleEditButton" text="Edit" />
+      <Button layoutX="438.0" layoutY="164.0" mnemonicParsing="false" onAction="#handleSaveButton" text="Save" />
+      <ComboBox fx:id="customerBox" layoutX="36.0" layoutY="79.0" prefWidth="150.0" promptText="Customer ID" />
+      <ComboBox fx:id="visitorBox" layoutX="36.0" layoutY="130.0" prefWidth="150.0" promptText="Visitor ID" />
+      <TextField fx:id="startHours" layoutX="282.0" layoutY="79.0" prefHeight="25.0" prefWidth="31.0" promptText="hh" />
+      <TextField fx:id="startMins" layoutX="324.0" layoutY="79.0" prefHeight="25.0" prefWidth="31.0" promptText="mm" />
+      <TextField fx:id="startSecs" layoutX="369.0" layoutY="79.0" prefHeight="25.0" prefWidth="31.0" promptText="ss" />
+      <TextField fx:id="endHours" layoutX="282.0" layoutY="118.0" prefHeight="25.0" prefWidth="31.0" promptText="hh" />
+      <TextField fx:id="endMins" layoutX="324.0" layoutY="118.0" prefHeight="25.0" prefWidth="31.0" promptText="mm" />
+      <TextField fx:id="endSecs" layoutX="369.0" layoutY="118.0" prefHeight="25.0" prefWidth="31.0" promptText="ss" />
+      <Label layoutX="216.0" layoutY="83.0" text="Start Time:" />
+      <Label layoutX="219.0" layoutY="122.0" text="End Time:" />
+      <Button layoutX="335.0" layoutY="164.0" mnemonicParsing="false" onAction="#handleRemoveButton" text="Remove" />
+   </children>
+</AnchorPane>
