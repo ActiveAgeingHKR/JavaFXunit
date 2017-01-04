@@ -197,12 +197,13 @@ public class CustomerMedicineController implements Initializable {
             //StringEntity postString = new StringEntity(jsonString);
             String restFullServerAddress = "https://localhost:8181/MainServerREST/api/";
                 SSLConnection sSLConnection = new SSLConnection(restFullServerAddress);
-                String restfulService = "customers";
+                String restfulService = "customersmedicines/1";
                 String statusCode;
             if(startDate.isEditable()) { //then we are posting a new record
-               statusCode = sSLConnection.doPost(restfulService, jsonString,
+                System.out.println("test:" + jsonString);
+               statusCode = sSLConnection.doPut(restfulService, jsonString,
                         SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.TEXT,
-                        SSLConnection.USER_MODE.ADMIN);
+                        SSLConnection.USER_MODE.EMPLOYEE);
 //*************************************************************************************************************
                 if (Integer.parseInt(statusCode) == 204) {
                     System.out.println("Customer added successfully");
@@ -285,6 +286,9 @@ public class CustomerMedicineController implements Initializable {
         try {
             dose.setEditable(true);
         customerBox.setDisable(false);
+        startDate.setEditable(true);
+        schedule.setEditable(true);
+        
             
         } catch (Exception ex) {
         
