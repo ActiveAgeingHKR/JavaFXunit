@@ -108,7 +108,7 @@ public class Schedule1Controller implements Initializable {
     private int idEmployee;
     private int idCustomer;
 
-    Singleton singleton = null;
+    Singleton singleton, singletonSchedule = null;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -137,6 +137,7 @@ public class Schedule1Controller implements Initializable {
                 System.err.println("Selected date: " + date);
                 setDate(pickADate.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
                 System.out.println("Date now: " + getDate());
+                display.setText("You choose: "+ getDate());
 
             }
 
@@ -209,9 +210,6 @@ public class Schedule1Controller implements Initializable {
 
     public ObservableList<EmployeeScheduleProperty> getSchedule() throws IOException, JSONException, Exception {
         EmployeeSchedule mySchedule = new EmployeeSchedule();
-
-        Customers customers = new Customers();
-        Employees employee = new Employees();
         Gson gson = new Gson();
 
         ObservableList<EmployeeScheduleProperty> employeeScheduleProperty = FXCollections.observableArrayList();
@@ -285,7 +283,7 @@ public class Schedule1Controller implements Initializable {
     }
 
     public ObservableList<CustomerProperty> getUnsignedCustomers() throws IOException, JSONException, Exception {
-        //Customers customers = new Customers();
+
         EmployeeSchedule mySchedule = new EmployeeSchedule();
         singleton = Singleton.getInstance();
         Gson gson = new Gson();
@@ -302,9 +300,7 @@ public class Schedule1Controller implements Initializable {
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
 
-            mySchedule
-                    = gson.fromJson(jo.toString(), EmployeeSchedule.class
-                    );
+            mySchedule = gson.fromJson(jo.toString(), EmployeeSchedule.class);
 
             customerPropertyCustomersSigned.add(
                     new CustomerProperty(mySchedule.getCustomersCuId().getCuId(),
@@ -332,31 +328,38 @@ public class Schedule1Controller implements Initializable {
         double numberHours = 0;
         double numberStart = 0;
         double numberFinish = 0;
+        double total = 8.00;
         //Customers customers = new Customers();
         EmployeeSchedule mySchedule = new EmployeeSchedule();
 
         Gson gson = new Gson();
         JSONObject jo = new JSONObject();
+        String date = getDate();
+        if (date.equals(null)) {
+            display.setText("You must choose a date first!!!");
+        } else {
+            SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
+            String response = sslc.doGet("employeeschedule/date", date, SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+            JSONArray jsonArray = new JSONArray(response);
 
-        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
-        String response = sslc.doGet("employeeschedule/date", getDate(), SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
-        JSONArray jsonArray = new JSONArray(response);
+            System.out.println("2 " + jsonArray);
 
-        System.out.println("2 " + jsonArray);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                jo = (JSONObject) jsonArray.getJSONObject(i);
 
-        for (int i = 0; i < jsonArray.length(); i++) {
-            jo = (JSONObject) jsonArray.getJSONObject(i);
-
-            mySchedule = gson.fromJson(jo.toString(), EmployeeSchedule.class);
-            if (mySchedule.getEmployeesEmpId().getEmpId().equals(id)) {
-                numberFinish = Double.valueOf(mySchedule.getSchUntilTime()) + numberFinish;
-                System.out.println("Finish: " + Double.valueOf(mySchedule.getSchUntilTime()));
-                numberStart = Double.valueOf(mySchedule.getSchFromTime()) + numberStart;
+                mySchedule = gson.fromJson(jo.toString(), EmployeeSchedule.class);
+                if (mySchedule.getEmployeesEmpId().getEmpId().equals(id)) {
+                    numberFinish = Double.valueOf(mySchedule.getSchUntilTime()) + numberFinish;
+                    System.out.println("Finish: " + Double.valueOf(mySchedule.getSchUntilTime()));
+                    numberStart = Double.valueOf(mySchedule.getSchFromTime()) + numberStart;
+                }
             }
-        }
-        numberHours = numberFinish - numberStart;
+            numberHours = numberFinish - numberStart;
+            total = total - numberHours;
 
-        return numberHours;
+            return total;
+        }
+        return 0.0;
     }
 
     @FXML
@@ -373,6 +376,7 @@ public class Schedule1Controller implements Initializable {
         dateText.setText(tempDate);
         System.out.println(tempDate);
         System.out.println("Hours : " + df2.format(this.getNumbersOfHoursPerDay(idEmployee)));
+
         display.setText("Hours : " + df2.format(this.getNumbersOfHoursPerDay(idEmployee)));
     }
 
@@ -407,7 +411,6 @@ public class Schedule1Controller implements Initializable {
             EmployeeSchedule schedule = new EmployeeSchedule(1, tempDate, tempStart, tempFinish, false, customers, employee);
             String jsonString = gson.toJson(schedule);
 
-           
             SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
             String response = sslc.doPost("employeeschedule", jsonString, SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
             System.out.println(response);
