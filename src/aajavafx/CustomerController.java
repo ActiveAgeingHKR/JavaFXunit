@@ -446,30 +446,30 @@ public class CustomerController implements Initializable {
             birthdateID.clear();
             String persunnumer = persunnumerID.getText();
             persunnumerID.clear();
-            
-                Gson gson = new Gson();
-                Customers customer = new Customers(null, firstName, lastName, address, birthdate, persunnumer);
-                String jsonString = new String(gson.toJson(customer));
-                
-                
-                String restFullServerAddress = "https://localhost:8181/MainServerREST/api/";
-                SSLConnection sSLConnection = new SSLConnection(restFullServerAddress);
-                String restfulService = "customers";
-                String statusCode;
-                statusCode = sSLConnection.doPost(restfulService, jsonString,
-                        SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON,
-                        SSLConnection.USER_MODE.EMPLOYEE);
-                System.out.println("json string: " + jsonString);
-                StringEntity postString = new StringEntity(jsonString);
-//*************************************************************************************************************
-                if (Integer.parseInt(statusCode) == 204) {
-                    System.out.println("Customer added successfully");
-                } else {
-                    //System.out.println("Server error: "+response.getStatusLine());
-                    System.out.println("Server error ");
-                }
+            Customers customer = new Customers(null, firstName, lastName, address, birthdate, persunnumer);
+            validate(customer);
+            /*  Gson gson = new Gson();
+          
+             String jsonString = new String(gson.toJson(customer));
 
-                //ByteArrayOutputStream outstream = new ByteArrayOutputStream();
+             String restFullServerAddress = "https://localhost:8181/MainServerREST/api/";
+             SSLConnection sSLConnection = new SSLConnection(restFullServerAddress);
+             String restfulService = "customers";
+             String statusCode;
+             statusCode = sSLConnection.doPost(restfulService, jsonString,
+             SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON,
+             SSLConnection.USER_MODE.EMPLOYEE);
+             System.out.println("json string: " + jsonString);
+             StringEntity postString = new StringEntity(jsonString);
+             //*************************************************************************************************************
+             if (Integer.parseInt(statusCode) == 204) {
+             System.out.println("Customer added successfully");
+             } else {
+             //System.out.println("Server error: "+response.getStatusLine());
+             System.out.println("Server error ");
+             }*/
+
+            //ByteArrayOutputStream outstream = new ByteArrayOutputStream();
 //                if (response != null) {
 //                    response.getEntity().writeTo(outstream);
 //                    byte[] responseBody = outstream.toByteArray();
@@ -479,10 +479,10 @@ public class CustomerController implements Initializable {
 //                    System.out.println("Success");
 //                }
             //} catch (UnsupportedEncodingException ex) {
-                //System.out.println(ex);
-           // } catch (IOException e) {
-              //  System.out.println(e);
-           // }
+            //System.out.println(ex);
+            // } catch (IOException e) {
+            //  System.out.println(e);
+            // }
         } catch (Exception ex) {
             ex.printStackTrace();
 
@@ -560,5 +560,93 @@ public class CustomerController implements Initializable {
                     myCustomer.getCuPersonnummer()));
         }
         return customersProperty;
+    }
+
+    @FXML
+    private void handleRemoveCustomer(ActionEvent event) throws Exception {
+        Customers customer = new Customers();
+
+        buttonRegister.setVisible(false);
+        firstNameID.setVisible(false);
+        lastNameID.setVisible(false);
+        addressID.setVisible(false);
+        birthdateID.setVisible(false);
+        persunnumerID.setVisible(false);
+
+        int id = tableCustomer.getSelectionModel().getSelectedItem().getCustomerId(); //error in this line
+        this.deleteRow(id);
+        try {
+
+            tableCustomer.setItems(getCustomer());
+        } catch (IOException ex) {
+            Logger.getLogger(CustomerController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (JSONException ex) {
+            Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void deleteRow(int id) {
+        try {
+            String idToDelete = id + "";
+
+            SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
+            String response = sslc.doDelete("customers", idToDelete, SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+            System.out.println(response);
+            System.out.println("you want to delete: " + id);
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+    }
+    
+    //The method is annulated because the customer does not need !!!!!!!
+/*
+    public void change(int id) throws IOException, JSONException, Exception {
+        Customers myCustomer = new Customers();
+
+        Gson gson = new Gson();
+        Customers customerNew = null;
+        JSONObject jo = new JSONObject();
+
+        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
+        String response = sslc.doGet("customers", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+        JSONArray jsonArray = new JSONArray(response);
+
+        boolean register = true;
+        System.out.println(jsonArray);
+        for (int i = 0; i < jsonArray.length(); i++) {
+            jo = (JSONObject) jsonArray.getJSONObject(i);
+            myCustomer = gson.fromJson(jo.toString(), Customers.class);
+            if (myCustomer.getCuId().equals(id)) {
+                customerNew = new Customers(1, myCustomer.getCuFirstname(), myCustomer.getCuLastname(),
+                        myCustomer.getCuBirthdate(), myCustomer.getCuAddress(),
+                        myCustomer.getCuPersonnummer());  //error in this line, may something wrong with id.
+            }
+
+        }
+        deleteRow(id);
+        validate(customerNew);
+    }
+*/
+    public static void validate(Customers cust) throws Exception {
+        Gson gson = new Gson();
+
+        String jsonString = new String(gson.toJson(cust));
+
+        String restFullServerAddress = "https://localhost:8181/MainServerREST/api/";
+        SSLConnection sSLConnection = new SSLConnection(restFullServerAddress);
+        String restfulService = "customers";
+        String statusCode;
+        statusCode = sSLConnection.doPost(restfulService, jsonString,
+                SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON,
+                SSLConnection.USER_MODE.EMPLOYEE);
+        System.out.println("json string: " + jsonString);
+        StringEntity postString = new StringEntity(jsonString);
+//*************************************************************************************************************
+        if (Integer.parseInt(statusCode) == 204) {
+            System.out.println("Customer added successfully");
+        } else {
+            //System.out.println("Server error: "+response.getStatusLine());
+            System.out.println("Server error ");
+        }
     }
 }

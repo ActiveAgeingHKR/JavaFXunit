@@ -43,7 +43,7 @@ public Customers(Integer cuId) {
         this.cuPersonnummer = cuPersonnummer;
     }
 
-    public int getCuId() {
+    public Integer getCuId() {
         return cuId;
     }
 

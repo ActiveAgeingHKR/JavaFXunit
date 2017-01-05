@@ -7,7 +7,7 @@
 <AnchorPane id="AnchorPane" prefHeight="599.0" prefWidth="879.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="aajavafx.CustomerController">
    <children>
       <Button layoutX="129.0" layoutY="43.0" mnemonicParsing="false" onAction="#handleNewButton" prefHeight="27.0" prefWidth="131.0" text="Add Customer" />
-      <Button layoutX="129.0" layoutY="86.0" mnemonicParsing="false" text="Remove Customer" />
+      <Button layoutX="129.0" layoutY="86.0" mnemonicParsing="false" onAction="#handleRemoveCustomer" prefHeight="25.0" prefWidth="131.0" text="Remove Customer" />
       <VBox layoutX="404.0" layoutY="14.0" prefHeight="164.0" prefWidth="100.0">
          <children>
             <TextField id="firstNameID" fx:id="firstNameID" promptText="First name" />
