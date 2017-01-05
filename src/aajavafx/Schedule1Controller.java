@@ -64,6 +64,11 @@ public class Schedule1Controller implements Initializable {
     @FXML
     private TextField textStart;
     @FXML
+    private Button viewEmployee;
+    @FXML
+    private Button viewSchedule;
+
+    @FXML
     private TableView<EmployeeScheduleProperty> tableSchedule;
     @FXML
     private TableColumn<EmployeeScheduleProperty, Integer> schIdColumn;
@@ -110,7 +115,8 @@ public class Schedule1Controller implements Initializable {
     private String date;
     private int idEmployee;
     private int idCustomer;
-
+    boolean allEmployee;
+    boolean allSchedule;
     Singleton singleton, singletonSchedule = null;
 
     @Override
@@ -141,6 +147,8 @@ public class Schedule1Controller implements Initializable {
                 setDate(pickADate.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
                 System.out.println("Date now: " + getDate());
                 display.setText("You choose: " + getDate());
+                viewEmployee.setVisible(true);
+                viewSchedule.setVisible(true);
 
             }
 
@@ -159,6 +167,10 @@ public class Schedule1Controller implements Initializable {
             Logger.getLogger(Schedule1Controller.class.getName()).log(Level.SEVERE, null, ex);
         }
         validation.setVisible(false);
+        allEmployee = false;
+        allSchedule = false;
+        viewEmployee.setVisible(false);
+        viewSchedule.setVisible(false);
     }
 
     @FXML
@@ -323,7 +335,7 @@ public class Schedule1Controller implements Initializable {
                 }
             }
         } catch (Exception e) {
-            System.out.println( e);
+            System.out.println(e);
         }
 
         singleton.setList(customerPropertyAllCustomers);
@@ -383,7 +395,7 @@ public class Schedule1Controller implements Initializable {
         System.out.println(tempDate);
         System.out.println("Hours : " + df2.format(this.getNumbersOfHoursPerDay(idEmployee)));
 
-        display.setText("There are " + df2.format(this.getNumbersOfHoursPerDay(idEmployee))+" hours remain to work for this employee");
+        display.setText("There are " + df2.format(this.getNumbersOfHoursPerDay(idEmployee)) + " hours remain to work for this employee");
         validation.setVisible(true);
     }
 
@@ -448,5 +460,84 @@ public class Schedule1Controller implements Initializable {
         } catch (Exception ex) {
             System.out.println(ex);
         }
+    }
+
+    @FXML
+    private void handleViewEmployee(ActionEvent event) throws JSONException, Exception {
+
+        if (allEmployee == true) {
+            viewEmployee.setText("Select available employees");
+            allEmployee = false;
+            tableEmployee.setItems(getEmployee());
+
+        } else {
+            viewEmployee.setText("Select all employees");
+            allEmployee = true;
+            tableEmployee.setItems(getAvailableEmployee());
+        }
+    }
+
+    @FXML
+    private void handleViewSchedule(ActionEvent event) throws JSONException, Exception {
+        if (allSchedule == true) {
+            viewSchedule.setText("View schedule by date");
+            allSchedule = false;
+            tableSchedule.setItems(getSchedule());
+        } else {
+            String date = getDate();
+            viewSchedule.setText("View all schedule");
+            allSchedule = true;
+            tableSchedule.setItems(getScheduleByDate(date));
+
+        }
+
+    }
+
+    public ObservableList<EmployeeProperty> getAvailableEmployee() throws JSONException, Exception {
+        double tempHours = 0.0;
+        double maxHours = 8.0;
+
+        ObservableList<EmployeeProperty> allEmployees = this.getEmployee();
+        System.out.println("Size: " + allEmployees.size());
+        for (int i = 0; i < allEmployees.size(); i++) {
+            tempHours = this.getNumbersOfHoursPerDay(allEmployees.get(i).getId());
+            if (tempHours > 0) {
+                tempHours = 8 - tempHours;
+            } else {
+                tempHours = tempHours - 8;
+                tempHours = (-1) * tempHours;
+            }
+            if (tempHours >= maxHours) {
+                allEmployees.remove(i);
+
+            } else {
+                System.out.println("You have hours to work!!");
+            }
+        }
+        return allEmployees;
+    }
+
+    public ObservableList<EmployeeScheduleProperty> getScheduleByDate(String date) throws IOException, JSONException, Exception {
+        EmployeeSchedule mySchedule = new EmployeeSchedule();
+        Gson gson = new Gson();
+        ObservableList<EmployeeScheduleProperty> schedulePropertyByDate = FXCollections.observableArrayList();
+        JSONObject jo = new JSONObject();
+
+        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
+        String response = sslc.doGet("employeeschedule/date", date, SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+        JSONArray jsonArray = new JSONArray(response);
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            jo = (JSONObject) jsonArray.getJSONObject(i);
+
+            mySchedule = gson.fromJson(jo.toString(), EmployeeSchedule.class);
+
+            schedulePropertyByDate.add(
+                    new EmployeeScheduleProperty(mySchedule.getSchId(), mySchedule.getSchDate(),
+                            mySchedule.getSchFromTime(), mySchedule.getSchUntilTime(), mySchedule.getEmplVisitedCust(),
+                            mySchedule.getCustomersCuId().getCuPersonnummer(), mySchedule.getEmployeesEmpId().getEmpUsername()));
+        }
+
+        return schedulePropertyByDate;
     }
 }

@@ -203,7 +203,7 @@ public class EmployeeController implements Initializable {
         }
         Employees employee = new Employees(1, firstName, lastName, userName, password, email, phone, manager, register);
 
-        this.validate(employee);
+        validate(employee);
         try {
             tableEmployees.setItems(getEmployee());
         } catch (IOException ex) {

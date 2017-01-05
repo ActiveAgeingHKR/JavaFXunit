@@ -41,14 +41,16 @@
         </columns>
       </TableView>
       <Label fx:id="display" layoutX="214.0" layoutY="25.0" prefHeight="17.0" prefWidth="356.0" text="You must choose a date first!!!" />
-      <Button layoutX="112.0" layoutY="474.0" mnemonicParsing="false" onAction="#handleGetCustomersUnvisited" prefHeight="25.0" prefWidth="180.0" text="View Unsigned Customer" />
+      <Button layoutX="307.0" layoutY="54.0" mnemonicParsing="false" onAction="#handleGetCustomersUnvisited" prefHeight="25.0" prefWidth="180.0" text="View Unsigned Customer" />
       <Button layoutX="342.0" layoutY="474.0" mnemonicParsing="false" onAction="#handleCreateNewSchedule" prefHeight="25.0" prefWidth="66.0" text="New" />
       <Button layoutX="427.0" layoutY="474.0" mnemonicParsing="false" onAction="#handleDeleteButton" prefHeight="25.0" prefWidth="66.0" text="Remove" />
-      <Button layoutX="504.0" layoutY="474.0" mnemonicParsing="false" onAction="#handleValidate" prefHeight="25.0" prefWidth="66.0" text="Validate " />
+      <Button fx:id="validation" layoutX="504.0" layoutY="474.0" mnemonicParsing="false" onAction="#handleValidate" prefHeight="25.0" prefWidth="66.0" text="Validate " />
       <TextField fx:id="textEmpId" layoutX="88.0" layoutY="229.0" prefHeight="25.0" prefWidth="76.0" promptText="EmployeeId" />
       <TextField fx:id="textCustId" layoutX="164.0" layoutY="229.0" prefHeight="25.0" prefWidth="76.0" promptText="CustomerId" />
       <TextField fx:id="textStart" layoutX="321.0" layoutY="229.0" prefHeight="25.0" prefWidth="93.0" promptText="Start/HH.MM" />
       <TextField fx:id="textFinish" layoutX="414.0" layoutY="229.0" prefHeight="25.0" prefWidth="100.0" promptText="Finish/HH.MM" />
       <TextField fx:id="dateText" layoutX="239.0" layoutY="229.0" prefHeight="25.0" prefWidth="82.0" promptText="Date" />
+      <Button fx:id="viewEmployee" layoutX="14.0" layoutY="54.0" mnemonicParsing="false" onAction="#handleViewEmployee" prefHeight="25.0" prefWidth="174.0" text="Select available employees" />
+      <Button fx:id="viewSchedule" layoutX="104.0" layoutY="474.0" mnemonicParsing="false" onAction="#handleViewSchedule" prefHeight="25.0" prefWidth="168.0" text="Select schedule by date" />
     </children>
 </AnchorPane>
