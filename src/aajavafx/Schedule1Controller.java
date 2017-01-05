@@ -323,7 +323,7 @@ public class Schedule1Controller implements Initializable {
                 }
             }
         } catch (Exception e) {
-            System.out.println("Esti un bou " + e);
+            System.out.println( e);
         }
 
         singleton.setList(customerPropertyAllCustomers);
@@ -383,7 +383,7 @@ public class Schedule1Controller implements Initializable {
         System.out.println(tempDate);
         System.out.println("Hours : " + df2.format(this.getNumbersOfHoursPerDay(idEmployee)));
 
-        display.setText("Hours : " + df2.format(this.getNumbersOfHoursPerDay(idEmployee)));
+        display.setText("There are " + df2.format(this.getNumbersOfHoursPerDay(idEmployee))+" hours remain to work for this employee");
         validation.setVisible(true);
     }
 
