@@ -160,7 +160,7 @@ public class MedicinesController implements Initializable {
                     SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.TEXT, 
                     SSLConnection.USER_MODE.ADMIN);
             } else { //we are editing a record 
-                statusCode = sSLConnection.doPut(restfulService, jsonString, 
+                statusCode = sSLConnection.doPut(restfulService+"/"+medicine.getmedId(), jsonString, 
                     SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.TEXT, 
                     SSLConnection.USER_MODE.ADMIN);
                 //HttpEntity = new HttpPut(MedicineRootURL + medID); //so make a http put object

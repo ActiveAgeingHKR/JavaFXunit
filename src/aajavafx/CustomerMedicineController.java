@@ -74,6 +74,8 @@ public class CustomerMedicineController implements Initializable {
     
     private static String MedicineCustomerRootURL = "http://localhost:8080/MainServerREST/api/customersmedicines/";
     
+    private boolean edit = false;
+    
     @FXML
     private TableView<CustomersTakesMedicines> tableCustomer;
     @FXML
@@ -137,7 +139,7 @@ public class CustomerMedicineController implements Initializable {
         try{
         //Populate table 
         custTakeMedicines = getCustomersTakesMedicines();
-        tableCustomer.setItems(custTakeMedicines);
+        tableCustomer.setItems(getCustomersTakesMedicines());
         customerBox.setItems(getCustomer());
         customerBox.getItems().add("Add Customer");
         medicinesBox.setItems(getMedicines());
@@ -197,11 +199,11 @@ public class CustomerMedicineController implements Initializable {
             //StringEntity postString = new StringEntity(jsonString);
             String restFullServerAddress = "https://localhost:8181/MainServerREST/api/";
                 SSLConnection sSLConnection = new SSLConnection(restFullServerAddress);
-                String restfulService = "customersmedicines/1";
+                String restfulService = "customersmedicines";
                 String statusCode;
-            if(startDate.isEditable()) { //then we are posting a new record
+            if(!edit) { //then we are posting a new record
                 System.out.println("test:" + jsonString);
-               statusCode = sSLConnection.doPut(restfulService, jsonString,
+               statusCode = sSLConnection.doPost(restfulService, jsonString,
                         SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.TEXT,
                         SSLConnection.USER_MODE.EMPLOYEE);
 //*************************************************************************************************************
@@ -211,8 +213,10 @@ public class CustomerMedicineController implements Initializable {
                     //System.out.println("Server error: "+response.getStatusLine());
                     System.out.println("Server error ");
                 }
+                
                 //HttpEntity = new HttpPost(MedicineCustomerRootURL); //so make a http post object
             } else { //we are editing a record 
+                String putPath = restfulService+"/"+ctm.getCustomersTakesMedicinesPK().getCustomersId() +"/"+ctm.getCustomersTakesMedicinesPK().getMedicinsId();
               statusCode = sSLConnection.doPut(restfulService, jsonString,
                         SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.TEXT,
                         SSLConnection.USER_MODE.EMPLOYEE);
@@ -222,7 +226,8 @@ public class CustomerMedicineController implements Initializable {
                 } else {
                     //System.out.println("Server error: "+response.getStatusLine());
                     System.out.println("Server error ");
-                }                
+                }  
+                edit = false;
 //HttpEntity = new HttpPut(MedicineCustomerRootURL+startDate); //so make a http put object
             }
             
@@ -249,8 +254,13 @@ public class CustomerMedicineController implements Initializable {
             System.out.println("Error: "+ex);
         }
         try {
+            
             //refresh table
-            tableCustomer.setItems(getCustomersTakesMedicines());
+            custTakeMedicines = getCustomersTakesMedicines();
+        tableCustomer.getItems().clear();
+        tableCustomer.getItems().setAll(custTakeMedicines);
+            //tableCustomer.setItems(getCustomersTakesMedicines());
+            
         } catch (IOException ex) {
             Logger.getLogger(DevicesController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
@@ -284,6 +294,7 @@ public class CustomerMedicineController implements Initializable {
     @FXML
     private void handleEditButton(ActionEvent event) {
         try {
+            edit = true;
             dose.setEditable(true);
         customerBox.setDisable(false);
         startDate.setEditable(true);
@@ -300,6 +311,7 @@ public class CustomerMedicineController implements Initializable {
      @FXML
     private void handleNewButton(ActionEvent event) {
         try {
+            edit = false;
             dose.setEditable(true);
         startDate.setEditable(true);
         schedule.setEditable(true);
@@ -454,10 +466,10 @@ public class CustomerMedicineController implements Initializable {
             JSONObject medObj = (JSONObject) jo.get("medicines");
             Medicines medicine = gson.fromJson(medObj.toString(), Medicines.class);
             //get the individual strings
-            String dose = jo.getString("medDosage");
-            String startDate = jo.getString("medStartDate"); 
-            double schedule = jo.getDouble("medicationintakeschedule");
-            CustomersTakesMedicines cuTaMe = new CustomersTakesMedicines(ctmPK, dose, startDate, schedule);
+            String ddose = jo.getString("medDosage");
+            String sstartDate = jo.getString("medStartDate"); 
+            double sschedule = jo.getDouble("medicationintakeschedule");
+            CustomersTakesMedicines cuTaMe = new CustomersTakesMedicines(ctmPK, ddose, sstartDate, sschedule);
             cuTaMe.setCustomers(customer);
             cuTaMe.setMedicines(medicine);
             ctMeds.add(cuTaMe);
