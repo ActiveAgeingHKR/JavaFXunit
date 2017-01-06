@@ -10,10 +10,13 @@ import entitiesproperty.EmployeeScheduleProperty;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -118,6 +121,7 @@ public class Schedule1Controller implements Initializable {
     boolean allEmployee;
     boolean allSchedule;
     Singleton singleton, singletonSchedule = null;
+    private String myDate = "";
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -138,6 +142,12 @@ public class Schedule1Controller implements Initializable {
         cuFirstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNameProperty());
         cuLastNameColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
         cuPersonnumerColumn.setCellValueFactory(cellData -> cellData.getValue().personnumerProperty());
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd ");
+
+        Date dateTemp = new Date();
+        myDate = dateFormat.format(dateTemp);
+
+        display.setText("Current date: " + myDate);
 
         pickADate.setValue(LocalDate.now());
         pickADate.setOnAction(new EventHandler() {
@@ -146,9 +156,10 @@ public class Schedule1Controller implements Initializable {
                 System.err.println("Selected date: " + date);
                 setDate(pickADate.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
                 System.out.println("Date now: " + getDate());
-                display.setText("You choose: " + getDate());
-                viewEmployee.setVisible(true);
-                viewSchedule.setVisible(true);
+                myDate = getDate();
+                display.setText("You choose: " + myDate);
+              //  viewEmployee.setVisible(true);
+              //  viewSchedule.setVisible(true);
 
             }
 
@@ -169,8 +180,8 @@ public class Schedule1Controller implements Initializable {
         validation.setVisible(false);
         allEmployee = false;
         allSchedule = false;
-        viewEmployee.setVisible(false);
-        viewSchedule.setVisible(false);
+       // viewEmployee.setVisible(false);
+       // viewSchedule.setVisible(false);
     }
 
     @FXML
@@ -308,7 +319,7 @@ public class Schedule1Controller implements Initializable {
         JSONObject jo = new JSONObject();
 
         SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
-        String response = sslc.doGet("employeeschedule/date", getDate(), SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+        String response = sslc.doGet("employeeschedule/date", myDate, SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
         JSONArray jsonArray = new JSONArray(response);
 
         for (int i = 0; i < jsonArray.length(); i++) {
@@ -352,12 +363,10 @@ public class Schedule1Controller implements Initializable {
 
         Gson gson = new Gson();
         JSONObject jo = new JSONObject();
-        String date = getDate();
-        if (date.equals(null)) {
-            display.setText("You must choose a date first!!!");
-        } else {
+        //String date = getDate();
+        
             SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
-            String response = sslc.doGet("employeeschedule/date", date, SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+            String response = sslc.doGet("employeeschedule/date", myDate, SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
             JSONArray jsonArray = new JSONArray(response);
 
             System.out.println("2 " + jsonArray);
@@ -376,8 +385,8 @@ public class Schedule1Controller implements Initializable {
             total = total - numberHours;
 
             return total;
-        }
-        return 0.0;
+        
+       
     }
 
     @FXML
@@ -386,13 +395,13 @@ public class Schedule1Controller implements Initializable {
         DecimalFormat df2 = new DecimalFormat(".##");
         idEmployee = tableEmployee.getSelectionModel().getSelectedItem().getId();
         idCustomer = tableCustomer.getSelectionModel().getSelectedItem().getCustomerId();
-        tempDate = this.getDate();
+       
         String tempId = idEmployee + "";
         String tempIdCust = idCustomer + "";
         textEmpId.setText(tempId);
         textCustId.setText(tempIdCust);
-        dateText.setText(tempDate);
-        System.out.println(tempDate);
+        dateText.setText(myDate);
+        System.out.println(myDate);
         System.out.println("Hours : " + df2.format(this.getNumbersOfHoursPerDay(idEmployee)));
 
         display.setText("There are " + df2.format(this.getNumbersOfHoursPerDay(idEmployee)) + " hours remain to work for this employee");
@@ -484,10 +493,10 @@ public class Schedule1Controller implements Initializable {
             allSchedule = false;
             tableSchedule.setItems(getSchedule());
         } else {
-            String date = getDate();
+           
             viewSchedule.setText("View all schedule");
             allSchedule = true;
-            tableSchedule.setItems(getScheduleByDate(date));
+            tableSchedule.setItems(getScheduleByDate(myDate));
 
         }
 
