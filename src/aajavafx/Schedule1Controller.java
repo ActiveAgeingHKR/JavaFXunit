@@ -41,7 +41,7 @@ import javafx.stage.Stage;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.panos.SSLConnection;
+//import org.panos.SSLConnection;
 
 /**
  * FXML Controller class
@@ -158,8 +158,8 @@ public class Schedule1Controller implements Initializable {
                 System.out.println("Date now: " + getDate());
                 myDate = getDate();
                 display.setText("You choose: " + myDate);
-              //  viewEmployee.setVisible(true);
-              //  viewSchedule.setVisible(true);
+                //  viewEmployee.setVisible(true);
+                //  viewSchedule.setVisible(true);
 
             }
 
@@ -180,8 +180,8 @@ public class Schedule1Controller implements Initializable {
         validation.setVisible(false);
         allEmployee = false;
         allSchedule = false;
-       // viewEmployee.setVisible(false);
-       // viewSchedule.setVisible(false);
+        // viewEmployee.setVisible(false);
+        // viewSchedule.setVisible(false);
     }
 
     @FXML
@@ -364,29 +364,30 @@ public class Schedule1Controller implements Initializable {
         Gson gson = new Gson();
         JSONObject jo = new JSONObject();
         //String date = getDate();
-        
-            SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
-            String response = sslc.doGet("employeeschedule/date", myDate, SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
-            JSONArray jsonArray = new JSONArray(response);
 
-            System.out.println("2 " + jsonArray);
+        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
+        String response = sslc.doGet("employeeschedule/date", myDate, SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+        JSONArray jsonArray = new JSONArray(response);
 
-            for (int i = 0; i < jsonArray.length(); i++) {
-                jo = (JSONObject) jsonArray.getJSONObject(i);
+        System.out.println("2 " + jsonArray);
 
-                mySchedule = gson.fromJson(jo.toString(), EmployeeSchedule.class);
-                if (mySchedule.getEmployeesEmpId().getEmpId().equals(id)) {
-                    numberFinish = Double.valueOf(mySchedule.getSchUntilTime()) + numberFinish;
-                    System.out.println("Finish: " + Double.valueOf(mySchedule.getSchUntilTime()));
-                    numberStart = Double.valueOf(mySchedule.getSchFromTime()) + numberStart;
-                }
+        for (int i = 0; i < jsonArray.length(); i++) {
+            jo = (JSONObject) jsonArray.getJSONObject(i);
+
+            mySchedule = gson.fromJson(jo.toString(), EmployeeSchedule.class);
+            if (mySchedule.getEmployeesEmpId().getEmpId().equals(id)) {
+                numberFinish = Double.valueOf(mySchedule.getSchUntilTime()) + numberFinish;
+                numberFinish = this.splitDouble(numberFinish);
+                System.out.println("Finish: " + Double.valueOf(mySchedule.getSchUntilTime()));
+                numberStart = Double.valueOf(mySchedule.getSchFromTime()) + numberStart;
+                numberStart = this.splitDouble(numberStart);
             }
-            numberHours = numberFinish - numberStart;
-            total = total - numberHours;
+        }
+        numberHours = this.calculateTime(numberFinish, numberStart);
+        total = this.calculateTime(total, numberHours);
 
-            return total;
-        
-       
+        return total;
+
     }
 
     @FXML
@@ -395,7 +396,7 @@ public class Schedule1Controller implements Initializable {
         DecimalFormat df2 = new DecimalFormat(".##");
         idEmployee = tableEmployee.getSelectionModel().getSelectedItem().getId();
         idCustomer = tableCustomer.getSelectionModel().getSelectedItem().getCustomerId();
-       
+
         String tempId = idEmployee + "";
         String tempIdCust = idCustomer + "";
         textEmpId.setText(tempId);
@@ -493,7 +494,7 @@ public class Schedule1Controller implements Initializable {
             allSchedule = false;
             tableSchedule.setItems(getSchedule());
         } else {
-           
+
             viewSchedule.setText("View all schedule");
             allSchedule = true;
             tableSchedule.setItems(getScheduleByDate(myDate));
@@ -549,4 +550,40 @@ public class Schedule1Controller implements Initializable {
 
         return schedulePropertyByDate;
     }
+
+    public double splitDouble(double d) {
+        double value = 0.0;
+        int whole = (int) d;
+        int fract = (int) ((d - whole) * 100);
+
+        if ( fract < 60) {
+            value = d;
+        } else {
+            whole = whole + 1;
+            fract = fract - 60;
+            value = (double) whole + ((double) fract / 100);
+        }
+        System.out.println("Number from "+ d+" to "+ value);
+        return value;
+    }
+
+    public double calculateTime(double d1, double d2) {
+        double value = 0.0;
+        int whole1 = (int) d1;
+        int fract1 = (int) ((d1 - whole1) * 100);
+        int whole2 = (int) d2;
+        int fract2 = (int) ((d2 - whole2) * 100);
+
+        if (fract1 >= fract2) {
+            value = d1 - d2;
+        } else {
+            whole1 = whole1 - 1;
+            fract1 = fract1 + 60;
+            d1 = (double) whole1 + ((double) fract1 / 100);
+            value = d1 - d2;
+        }
+        System.out.println("Scadere " + value);
+        return value;
+    }
+
 }

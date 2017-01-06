@@ -40,7 +40,7 @@
             <TableColumn fx:id="emplVisitedCustColumn" prefWidth="54.0" text="Visited" />
         </columns>
       </TableView>
-      <Label fx:id="display" layoutX="214.0" layoutY="25.0" prefHeight="17.0" prefWidth="356.0" text="You must choose a date first!!!" />
+      <Label fx:id="display" layoutX="214.0" layoutY="25.0" prefHeight="17.0" prefWidth="356.0" text="You must choose a date first!" />
       <Button layoutX="307.0" layoutY="54.0" mnemonicParsing="false" onAction="#handleGetCustomersUnvisited" prefHeight="25.0" prefWidth="180.0" text="View Unsigned Customer" />
       <Button layoutX="342.0" layoutY="474.0" mnemonicParsing="false" onAction="#handleCreateNewSchedule" prefHeight="25.0" prefWidth="66.0" text="New" />
       <Button layoutX="427.0" layoutY="474.0" mnemonicParsing="false" onAction="#handleDeleteButton" prefHeight="25.0" prefWidth="66.0" text="Remove" />
