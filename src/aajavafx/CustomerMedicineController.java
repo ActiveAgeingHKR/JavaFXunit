@@ -68,14 +68,14 @@ import org.panos.SSLConnection;
  */
 public class CustomerMedicineController implements Initializable {
 
-   private static String MedicineRootURL = "http://localhost:8080/MainServerREST/api/medicines/";
-   
-   private static String CustomersRootURL = "http://localhost:8080/MainServerREST/api/customers/";
-    
+    private static String MedicineRootURL = "http://localhost:8080/MainServerREST/api/medicines/";
+
+    private static String CustomersRootURL = "http://localhost:8080/MainServerREST/api/customers/";
+
     private static String MedicineCustomerRootURL = "http://localhost:8080/MainServerREST/api/customersmedicines/";
-    
+
     private boolean edit = false;
-    
+
     @FXML
     private TableView<CustomersTakesMedicines> tableCustomer;
     @FXML
@@ -108,61 +108,60 @@ public class CustomerMedicineController implements Initializable {
     private TextField startDate;
     @FXML
     private TextField schedule;
-    
-    
-    
+
+    private static ErrorHandling eH = new ErrorHandling();
+
     Customers boundCustomer = new Customers();
     ArrayList<Customers> customers = new ArrayList<>();
     ObservableList<CustomersTakesMedicines> custTakeMedicines;
-    
-    
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         //initialize columns
-        idCustomer.setCellValueFactory(cellData -> new SimpleStringProperty(""+cellData.getValue().getCustomers().getCuId()));
+        idCustomer.setCellValueFactory(cellData -> new SimpleStringProperty("" + cellData.getValue().getCustomers().getCuId()));
         firstNameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getCustomers().getCuFirstname()));
         lastNameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getCustomers().getCuLastname()));
-        doseColumn.setCellValueFactory(cellData ->new SimpleStringProperty(cellData.getValue().getMedDosage()));
+        doseColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getMedDosage()));
         startColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getMedStartDate()));
-        schedColumn.setCellValueFactory(cellData -> new SimpleStringProperty(""+cellData.getValue().getMedicationintakeschedule()));
-        medIdColumn.setCellValueFactory(cellData -> new SimpleStringProperty(""+cellData.getValue().getMedicines().getmedId()));
-        medNameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(""+cellData.getValue().getMedicines().getMedName()));
-        volumeColumn.setCellValueFactory(cellData -> new SimpleStringProperty(""+cellData.getValue().getMedicines().getVolume()));
-        medMeasurementUnitColumn.setCellValueFactory(cellData -> new SimpleStringProperty(""+cellData.getValue().getMedicines().getMedMeasurementUnit()));
-        
+        schedColumn.setCellValueFactory(cellData -> new SimpleStringProperty("" + cellData.getValue().getMedicationintakeschedule()));
+        medIdColumn.setCellValueFactory(cellData -> new SimpleStringProperty("" + cellData.getValue().getMedicines().getmedId()));
+        medNameColumn.setCellValueFactory(cellData -> new SimpleStringProperty("" + cellData.getValue().getMedicines().getMedName()));
+        volumeColumn.setCellValueFactory(cellData -> new SimpleStringProperty("" + cellData.getValue().getMedicines().getVolume()));
+        medMeasurementUnitColumn.setCellValueFactory(cellData -> new SimpleStringProperty("" + cellData.getValue().getMedicines().getMedMeasurementUnit()));
+
         dose.setEditable(false);
         startDate.setEditable(false);
         customerBox.setEditable(false);
         customerBox.setDisable(true);
         schedule.setEditable(false);
-        
-        try{
-        //Populate table 
-        custTakeMedicines = getCustomersTakesMedicines();
-        tableCustomer.setItems(getCustomersTakesMedicines());
-        customerBox.setItems(getCustomer());
-        customerBox.getItems().add("Add Customer");
-        medicinesBox.setItems(getMedicines());
-        medicinesBox.getItems().add("Add Medicine");
-    } catch (IOException ex) {
+
+        try {
+            //Populate table 
+            custTakeMedicines = getCustomersTakesMedicines();
+            tableCustomer.setItems(getCustomersTakesMedicines());
+            customerBox.setItems(getCustomer());
+            customerBox.getItems().add("Add Customer");
+            medicinesBox.setItems(getMedicines());
+            medicinesBox.getItems().add("Add Medicine");
+        } catch (IOException ex) {
             Logger.getLogger(CustomerController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (JSONException ex) {
             Logger.getLogger(CustomerController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
-           Logger.getLogger(CustomerMedicineController.class.getName()).log(Level.SEVERE, null, ex);
-       }
-        
+            Logger.getLogger(CustomerMedicineController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
         tableCustomer.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 dose.setText(newSelection.getMedDosage());
                 startDate.setText(newSelection.getMedStartDate());
-                schedule.setText(""+newSelection.getMedicationintakeschedule());
+                schedule.setText("" + newSelection.getMedicationintakeschedule());
                 customerBox.setValue(newSelection.getCustomers());
                 medicinesBox.setValue(newSelection.getMedicines());
             }
         });
     }
-    
+
     @FXML
     private void handleSaveButton(ActionEvent event) throws Exception {
         //labelError.setText(null);
@@ -186,7 +185,7 @@ public class CustomerMedicineController implements Initializable {
             //int customerId = Integer.parseInt(""+string.charAt(0));
             //System.out.println("CUSTOMER ID VALUE:"+customerId);
             //Customers customer = getCustomerByID(customerId);
-            
+
             Gson gson = new Gson();
             //......for ssl handshake....
             //CredentialsProvider provider = new BasicCredentialsProvider();
@@ -198,12 +197,12 @@ public class CustomerMedicineController implements Initializable {
             String jsonString = new String(gson.toJson(ctm));
             //StringEntity postString = new StringEntity(jsonString);
             String restFullServerAddress = "https://localhost:8181/MainServerREST/api/";
-                SSLConnection sSLConnection = new SSLConnection(restFullServerAddress);
-                String restfulService = "customersmedicines";
-                String statusCode;
-            if(!edit) { //then we are posting a new record
+            SSLConnection sSLConnection = new SSLConnection(restFullServerAddress);
+            String restfulService = "customersmedicines";
+            String statusCode;
+            if (!edit) { //then we are posting a new record
                 System.out.println("test:" + jsonString);
-               statusCode = sSLConnection.doPost(restfulService, jsonString,
+                statusCode = sSLConnection.doPost(restfulService, jsonString,
                         SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.TEXT,
                         SSLConnection.USER_MODE.EMPLOYEE);
 //*************************************************************************************************************
@@ -211,13 +210,15 @@ public class CustomerMedicineController implements Initializable {
                     System.out.println("Customer added successfully");
                 } else {
                     //System.out.println("Server error: "+response.getStatusLine());
+                    eH.popUpMessage("Server error", "Please write the correct input format.");
+
                     System.out.println("Server error ");
                 }
-                
+
                 //HttpEntity = new HttpPost(MedicineCustomerRootURL); //so make a http post object
             } else { //we are editing a record 
-                String putPath = restfulService+"/"+ctm.getCustomersTakesMedicinesPK().getCustomersId() +"/"+ctm.getCustomersTakesMedicinesPK().getMedicinsId();
-              statusCode = sSLConnection.doPut(restfulService, jsonString,
+                String putPath = restfulService + "/" + ctm.getCustomersTakesMedicinesPK().getCustomersId() + "/" + ctm.getCustomersTakesMedicinesPK().getMedicinsId();
+                statusCode = sSLConnection.doPut(restfulService, jsonString,
                         SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.TEXT,
                         SSLConnection.USER_MODE.EMPLOYEE);
 //*************************************************************************************************************
@@ -225,42 +226,45 @@ public class CustomerMedicineController implements Initializable {
                     System.out.println("Customer added successfully");
                 } else {
                     //System.out.println("Server error: "+response.getStatusLine());
+                    eH.popUpMessage("Server error", "Please write the correct input format.");
+
                     System.out.println("Server error ");
-                }  
+                }
                 edit = false;
 //HttpEntity = new HttpPut(MedicineCustomerRootURL+startDate); //so make a http put object
             }
-            
-       //     String jsonString = new String(gson.toJson(ctm));
+
+            //     String jsonString = new String(gson.toJson(ctm));
             System.out.println("json string: " + jsonString);
             StringEntity postString = new StringEntity(jsonString);
-            
+
             //HttpEntity.setEntity(postString);
-           // HttpEntity.setHeader("Content-type", "application/json");
+            // HttpEntity.setHeader("Content-type", "application/json");
             //HttpResponse response = httpClient.execute(HttpEntity);
             //int statusCode = response.getStatusLine().getStatusCode();
             //if(statusCode == 204) {
-                System.out.println("Customer binded to medicine successfully");
-           // } else{
-               // System.out.println("Server error: "+response.getStatusLine());
-            
+            System.out.println("Customer binded to medicine successfully");
+            // } else{
+            // System.out.println("Server error: "+response.getStatusLine());
+
             dose.setEditable(false);
             startDate.setEditable(false);
             schedule.setEditable(false);
             customerBox.setDisable(true);
-      
 
         } catch (Exception ex) {
-            System.out.println("Error: "+ex);
+            eH.popUpMessage("Server error", "Please make sure all necessary fields have the correct input.");
+
+            System.out.println("Error: " + ex);
         }
         try {
-            
+
             //refresh table
             custTakeMedicines = getCustomersTakesMedicines();
-        tableCustomer.getItems().clear();
-        tableCustomer.getItems().setAll(custTakeMedicines);
+            tableCustomer.getItems().clear();
+            tableCustomer.getItems().setAll(custTakeMedicines);
             //tableCustomer.setItems(getCustomersTakesMedicines());
-            
+
         } catch (IOException ex) {
             Logger.getLogger(DevicesController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
@@ -268,11 +272,11 @@ public class CustomerMedicineController implements Initializable {
         }
 
     }
-    
+
     @FXML
     private void handleBackButton(ActionEvent event) {
- try {
-            
+        try {
+
             Node node = (Node) event.getSource();
             Stage stage = (Stage) node.getScene().getWindow();
 
@@ -285,9 +289,8 @@ public class CustomerMedicineController implements Initializable {
 
             System.out.println("You clicked Schedule!");
         } catch (Exception ex) {
-        
 
-        System.out.println("ERROR! "+ex);
+            System.out.println("ERROR! " + ex);
         }
     }
 
@@ -296,37 +299,34 @@ public class CustomerMedicineController implements Initializable {
         try {
             edit = true;
             dose.setEditable(true);
-        customerBox.setDisable(false);
-        startDate.setEditable(true);
-        schedule.setEditable(true);
-        
-            
-        } catch (Exception ex) {
-        
+            customerBox.setDisable(false);
+            startDate.setEditable(true);
+            schedule.setEditable(true);
 
-            System.out.println("ERROR! "+ex);
+        } catch (Exception ex) {
+
+            System.out.println("ERROR! " + ex);
         }
     }
-    
-     @FXML
+
+    @FXML
     private void handleNewButton(ActionEvent event) {
         try {
             edit = false;
             dose.setEditable(true);
-        startDate.setEditable(true);
-        schedule.setEditable(true);
-        customerBox.setDisable(false);
-        dose.clear();
+            startDate.setEditable(true);
+            schedule.setEditable(true);
+            customerBox.setDisable(false);
+            dose.clear();
             startDate.clear();
-            
-        } catch (Exception ex) {
-        
 
-            System.out.println("ERROR! "+ex);
+        } catch (Exception ex) {
+
+            System.out.println("ERROR! " + ex);
         }
     }
-    
-     @FXML
+
+    @FXML
     private void handleRemoveButton(ActionEvent event) {
         //remove is annotated with @DELETE on server so we use a HttpDelete object
         try {
@@ -335,11 +335,11 @@ public class CustomerMedicineController implements Initializable {
             UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
             provider.setCredentials(AuthScope.ANY, credentials);
             //......
-            
+
             HttpClient httpClient = HttpClientBuilder.create().build();
             String idToDelete = startDate.getText();
             //add the id to the end of the URL so this will call the method at MainServerREST/api/visitors/id
-            HttpDelete delete = new HttpDelete(MedicineCustomerRootURL+idToDelete);
+            HttpDelete delete = new HttpDelete(MedicineCustomerRootURL + idToDelete);
             HttpResponse response = httpClient.execute(delete);
             System.out.println("response from server " + response.getStatusLine());
         } catch (Exception ex) {
@@ -354,14 +354,14 @@ public class CustomerMedicineController implements Initializable {
             Logger.getLogger(VisitorController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public ObservableList<Customers> getCustomer() throws IOException, JSONException, Exception{
+
+    public ObservableList<Customers> getCustomer() throws IOException, JSONException, Exception {
 
         ObservableList<Customers> customers = FXCollections.observableArrayList();
         Customers myCustomer = new Customers();
-        Gson gson = new Gson();    
+        Gson gson = new Gson();
         JSONObject jo = new JSONObject();
-        
+
         SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
         String response = sslc.doGet("customers", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
         JSONArray jsonArray = new JSONArray(response);
@@ -369,71 +369,66 @@ public class CustomerMedicineController implements Initializable {
         //CredentialsProvider provider = new BasicCredentialsProvider();
         //UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
         //provider.setCredentials(AuthScope.ANY, credentials);
-        
+
         //HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
         //HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/customers");
-
         //HttpResponse response = client.execute(get);
         System.out.println("RESPONSE IS: " + response);
         //................
-        
+
         //JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL(CustomersRootURL), Charset.forName("UTF-8")));
         //JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
-        
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
             myCustomer = gson.fromJson(jo.toString(), Customers.class);
             customers.add(myCustomer);
-            
-            
-    }
+
+        }
         return customers;
     }
-    
-    public ObservableList<Medicines> getMedicines() throws IOException, JSONException, Exception{
+
+    public ObservableList<Medicines> getMedicines() throws IOException, JSONException, Exception {
 
         ObservableList<Medicines> medicines = FXCollections.observableArrayList();
         //Managers manager = new Managers();
         Gson gson = new Gson();
         JSONObject jo = new JSONObject();
-        
+
         SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
         String response = sslc.doGet("medicines", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.ADMIN);
         JSONArray jsonArray = new JSONArray(response);
-        
+
         //........SSL Update
-       // CredentialsProvider provider = new BasicCredentialsProvider();
+        // CredentialsProvider provider = new BasicCredentialsProvider();
         //UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
         //provider.setCredentials(AuthScope.ANY, credentials);
         //HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
         //HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/medicines");
-
         //HttpResponse response = client.execute(get);
         System.out.println("RESPONSE IS: " + response);
         //...................
-       // JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL(MedicineRootURL), Charset.forName("UTF-8")));
-       //JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
-        
+        // JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL(MedicineRootURL), Charset.forName("UTF-8")));
+        //JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
+
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
             Medicines medicine = gson.fromJson(jo.toString(), Medicines.class);
-            System.out.println("JSON OBJECT #"+i+" "+jo);
+            System.out.println("JSON OBJECT #" + i + " " + jo);
             medicines.add(medicine);
 
-        
-    }
+        }
         return medicines;
     }
-    
-    public ObservableList<CustomersTakesMedicines> getCustomersTakesMedicines() throws IOException, JSONException, Exception{
+
+    public ObservableList<CustomersTakesMedicines> getCustomersTakesMedicines() throws IOException, JSONException, Exception {
 
         ObservableList<CustomersTakesMedicines> ctMeds = FXCollections.observableArrayList();
         //Managers manager = new Managers();
         Gson gson = new Gson();
         JSONObject jo = new JSONObject();
-        
+
         SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
         String response = sslc.doGet("customersmedicines", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
         JSONArray jsonArray = new JSONArray(response);
@@ -447,15 +442,15 @@ public class CustomerMedicineController implements Initializable {
         //HttpResponse response = client.execute(get);
         System.out.println("RESPONSE IS: " + response);
         //...................
-       // JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL(MedicineRootURL), Charset.forName("UTF-8")));
-       //JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
-        
+        // JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL(MedicineRootURL), Charset.forName("UTF-8")));
+        //JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
+
         //JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL(MedicineCustomerRootURL), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             //get the main json object, which contains customer object, pk object, dosage, start date, schedule and medicine object
             jo = (JSONObject) jsonArray.getJSONObject(i);
-            System.out.println("JSON OBJECT #"+i+" "+jo);
+            System.out.println("JSON OBJECT #" + i + " " + jo);
             //get the customer json sub-string
             JSONObject custObj = (JSONObject) jo.get("customers");
             Customers customer = gson.fromJson(custObj.toString(), Customers.class);
@@ -467,32 +462,32 @@ public class CustomerMedicineController implements Initializable {
             Medicines medicine = gson.fromJson(medObj.toString(), Medicines.class);
             //get the individual strings
             String ddose = jo.getString("medDosage");
-            String sstartDate = jo.getString("medStartDate"); 
+            String sstartDate = jo.getString("medStartDate");
             double sschedule = jo.getDouble("medicationintakeschedule");
             CustomersTakesMedicines cuTaMe = new CustomersTakesMedicines(ctmPK, ddose, sstartDate, sschedule);
             cuTaMe.setCustomers(customer);
             cuTaMe.setMedicines(medicine);
             ctMeds.add(cuTaMe);
-    }
+        }
         return ctMeds;
     }
-    
+
     public Customers getCustomerByID(int CustomerID) {
-        for(Customers c : customers) {
-            System.out.println("customer id: "+c.getCuId());
-            if(c.getCuId() == CustomerID) {
+        for (Customers c : customers) {
+            System.out.println("customer id: " + c.getCuId());
+            if (c.getCuId() == CustomerID) {
                 return c;
             }
         }
         return new Customers();
     }
-    
+
     public ObservableList<String> objectToStrings(ObservableList list) {
         ObservableList<String> strings = FXCollections.observableArrayList();
-        for(Object obj : list) {
+        for (Object obj : list) {
             strings.add(obj.toString());
         }
         return strings;
     }
-    
+
 }

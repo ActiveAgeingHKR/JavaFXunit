@@ -428,10 +428,8 @@ import org.panos.SSLConnection;
  */
 public class DevicesController implements Initializable {
 
-   
-    
     private static String DevicesCustomerRootURL = "http://localhost:8080/MainServerREST/api/devicescustomers/";
-    
+
     @FXML
     private TableView<DevicesCustomerProperty> tableCustomer;
     @FXML
@@ -454,17 +452,18 @@ public class DevicesController implements Initializable {
     private ComboBox customerBox;
     @FXML
     private Button saveButton;
-    @FXML 
+    @FXML
     private Button removeButton;
     @FXML
     private TextField DevName;
     @FXML
     private TextField deviceID;
-    
+
+    ErrorHandling eH = new ErrorHandling();
+
     Customers boundCustomer = new Customers();
     ArrayList<Customers> customers = new ArrayList<>();
-    
-    
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         //initialize columns
@@ -476,30 +475,30 @@ public class DevicesController implements Initializable {
         persunnumerColumn.setCellValueFactory(cellData -> cellData.getValue().personnumerProperty());
         devIdColumn.setCellValueFactory(cellData -> cellData.getValue().cuDevIdProperty());
         devNameColumn.setCellValueFactory(cellData -> cellData.getValue().cuDevNameProperty());
-        
+
         DevName.setEditable(false);
         deviceID.setEditable(false);
         customerBox.setEditable(false);
         customerBox.setDisable(true);
-        
-        try{
-        //Populate table 
-        tableCustomer.setItems(getDevicesCustomer());
-        customerBox.setItems(getCustomer());
-        customerBox.getItems().add("Add Customer");
-    } catch (IOException ex) {
+
+        try {
+            //Populate table 
+            tableCustomer.setItems(getDevicesCustomer());
+            customerBox.setItems(getCustomer());
+            customerBox.getItems().add("Add Customer");
+        } catch (IOException ex) {
             Logger.getLogger(CustomerController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (JSONException ex) {
             Logger.getLogger(CustomerController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
             Logger.getLogger(DevicesController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         tableCustomer.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 DevName.setText(newSelection.getCuDevName());
                 deviceID.setText(newSelection.getCuDevId());
-                customerBox.setValue(newSelection.getCustomerId()+". "+newSelection.getFirstName() + " " + newSelection.lastNameProperty().getValue() + " " + newSelection.getPersonnumer());
+                customerBox.setValue(newSelection.getCustomerId() + ". " + newSelection.getFirstName() + " " + newSelection.lastNameProperty().getValue() + " " + newSelection.getPersonnumer());
                 boundCustomer.setCuID(newSelection.customerIdProperty().getValue());
                 boundCustomer.setCuFirstname(newSelection.getFirstName());
                 boundCustomer.setCuLastname(newSelection.lastNameProperty().getValue());
@@ -509,7 +508,7 @@ public class DevicesController implements Initializable {
             }
         });
     }
-    
+
     @FXML
     private void handleSaveButton(ActionEvent event) {
         //labelError.setText(null);
@@ -520,19 +519,23 @@ public class DevicesController implements Initializable {
             String devID = deviceID.getText();
             deviceID.clear();
             System.out.println(customerBox.getValue());
-            String string = (String)customerBox.getValue();
-            System.out.println("STRING VALUE: "+string);
-            int customerId = Integer.parseInt(""+string.charAt(0));
-            System.out.println("CUSTOMER ID VALUE:"+customerId);
+            String string = (String) customerBox.getValue();
+            System.out.println("STRING VALUE: " + string);
+            int customerId = Integer.parseInt("" + string.charAt(0));
+            System.out.println("CUSTOMER ID VALUE:" + customerId);
             Customers customer = getCustomerByID(customerId);
-            
+
+            if (devName.length() == 0 || devID.length() == 0) {
+                eH.popUpMessage("Invalid input", "Please make sure all necessary fields have the correct input.");
+
+            }
+
             Gson gson = new Gson();
             DevicesCustomers devCust = new DevicesCustomers(devID, devName, customer);
-            
+
             String jsonString = new String(gson.toJson(devCust));
-           
+
 //            StringEntity postString = new StringEntity(jsonString);
-            
             //......for ssl handshake.... From Panos: The following lines take care of the authentication
             //NOT the SSL handshake
             /**
@@ -553,9 +556,9 @@ public class DevicesController implements Initializable {
 //            HttpEntity.setHeader("Content-type", "application/json");
 //            HttpResponse response = httpClient.execute(HttpEntity);
 //            int statusCode = response.getStatusLine().getStatusCode();
-            
             /**
-             * THESE LINES !!**********************************************************************************
+             * THESE LINES
+             * !!**********************************************************************************
              */
             //This is the root addres of the server
             String restFullServerAddress = "https://localhost:8181/MainServerREST/api/";
@@ -564,44 +567,47 @@ public class DevicesController implements Initializable {
             String restfulService = "devicescustomers";
             String statusCode;
             /**
-             * 1. call the method you want to use (doPost for POST doGet for GET etc)
-             * 2. param one: the restful service path name
-             * 3. param two: the parameter. In our case it is the json string.
-             * 4. What type of data we sent. in our case it is json
-             * 5. What type of data we receive. When you dont expect a json string just choose TEXT
-             * 6. Choose how you want to authenticate as ADMIN or EMPLOYEE.
-             * You dont have to create anything else than the string that defines the service path
-             * and the data that you will sent.
-             * All the rest you can chosse by doing something like SSLConnection.  and choosing the correct option
+             * 1. call the method you want to use (doPost for POST doGet for GET
+             * etc) 2. param one: the restful service path name 3. param two:
+             * the parameter. In our case it is the json string. 4. What type of
+             * data we sent. in our case it is json 5. What type of data we
+             * receive. When you dont expect a json string just choose TEXT 6.
+             * Choose how you want to authenticate as ADMIN or EMPLOYEE. You
+             * dont have to create anything else than the string that defines
+             * the service path and the data that you will sent. All the rest
+             * you can chosse by doing something like SSLConnection. and
+             * choosing the correct option
              */
-            if(deviceID.isEditable()) {
-            statusCode = sSLConnection.doPost(restfulService, jsonString, 
-                    SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.TEXT, 
-                    SSLConnection.USER_MODE.ADMIN);
+            if (deviceID.isEditable()) {
+                statusCode = sSLConnection.doPost(restfulService, jsonString,
+                        SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.TEXT,
+                        SSLConnection.USER_MODE.ADMIN);
             } else {
-                    statusCode = sSLConnection.doPut(restfulService, jsonString, 
-                    SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.TEXT, 
-                    SSLConnection.USER_MODE.ADMIN);
-                    }
-                    
-             System.out.println("json string: " + jsonString);
-             StringEntity postString = new StringEntity(jsonString);
-                    
-            
+                statusCode = sSLConnection.doPut(restfulService, jsonString,
+                        SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.TEXT,
+                        SSLConnection.USER_MODE.ADMIN);
+            }
+
+            System.out.println("json string: " + jsonString);
+            StringEntity postString = new StringEntity(jsonString);
+
 //*************************************************************************************************************
-            if(Integer.parseInt(statusCode) == 204) {
+            if (Integer.parseInt(statusCode) == 204) {
                 System.out.println("Device posted successfully");
-            } else{
+            } else {
                 //System.out.println("Server error: "+response.getStatusLine());
+                eH.popUpMessage("Server error", "Please make sure all necessary fields have the correct input.");
+
                 System.out.println("Server error ");
             }
             DevName.setEditable(false);
             deviceID.setEditable(false);
             customerBox.setDisable(true);
-            
 
         } catch (Exception ex) {
-            System.out.println("Error: "+ex);
+            eH.popUpMessage("Server error", "Please make sure all necessary fields have the correct input.");
+
+            System.out.println("Error: " + ex);
         }
         try {
             //refresh table
@@ -613,11 +619,11 @@ public class DevicesController implements Initializable {
         }
 
     }
-    
+
     @FXML
     private void handleBackButton(ActionEvent event) {
- try {
-            
+        try {
+
             Node node = (Node) event.getSource();
             Stage stage = (Stage) node.getScene().getWindow();
 
@@ -630,9 +636,8 @@ public class DevicesController implements Initializable {
 
             System.out.println("You clicked Schedule!");
         } catch (Exception ex) {
-        
 
-        System.out.println("ERROR! "+ex);
+            System.out.println("ERROR! " + ex);
         }
     }
 
@@ -640,32 +645,30 @@ public class DevicesController implements Initializable {
     private void handleEditButton(ActionEvent event) {
         try {
             DevName.setEditable(true);
-        customerBox.setDisable(false);
-            
-        } catch (Exception ex) {
-        
+            customerBox.setDisable(false);
 
-            System.out.println("ERROR! "+ex);
+        } catch (Exception ex) {
+
+            System.out.println("ERROR! " + ex);
         }
     }
-    
-     @FXML
+
+    @FXML
     private void handleNewButton(ActionEvent event) {
         try {
             DevName.setEditable(true);
-        deviceID.setEditable(true);
-        customerBox.setDisable(false);
-        DevName.clear();
+            deviceID.setEditable(true);
+            customerBox.setDisable(false);
+            DevName.clear();
             deviceID.clear();
-            
-        } catch (Exception ex) {
-        
 
-            System.out.println("ERROR! "+ex);
+        } catch (Exception ex) {
+
+            System.out.println("ERROR! " + ex);
         }
     }
-    
-     @FXML
+
+    @FXML
     private void handleRemoveButton(ActionEvent event) {
         //remove is annotated with @DELETE on server so we use a HttpDelete object
         try {
@@ -677,7 +680,7 @@ public class DevicesController implements Initializable {
             HttpClient httpClient = HttpClientBuilder.create().build();
             String idToDelete = deviceID.getText();
             //add the id to the end of the URL so this will call the method at MainServerREST/api/visitors/id
-            HttpDelete delete = new HttpDelete(DevicesCustomerRootURL+idToDelete);
+            HttpDelete delete = new HttpDelete(DevicesCustomerRootURL + idToDelete);
             HttpResponse response = httpClient.execute(delete);
             System.out.println("response from server " + response.getStatusLine());
         } catch (Exception ex) {
@@ -692,8 +695,8 @@ public class DevicesController implements Initializable {
             Logger.getLogger(VisitorController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public ObservableList<String> getCustomer() throws IOException, JSONException, Exception{
+
+    public ObservableList<String> getCustomer() throws IOException, JSONException, Exception {
 
         ObservableList<String> customerStrings = FXCollections.observableArrayList();
         //customers.add(new CustomerProperty(1, "Johny", "Walker", "London", "1972-07-01", "7207012222"));
@@ -702,22 +705,22 @@ public class DevicesController implements Initializable {
         Gson gson = new Gson();
         ObservableList<CustomerProperty> customersProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
-        
+
         SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
         String response = sslc.doGet("customers", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
         JSONArray jsonArray = new JSONArray(response);
-        
+
         // SSL update .......
-       // CredentialsProvider provider = new BasicCredentialsProvider();
+        // CredentialsProvider provider = new BasicCredentialsProvider();
         //UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
         //provider.setCredentials(AuthScope.ANY, credentials);
         //HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
         //HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/customers");
         //HttpResponse response = client.execute(get);
         System.out.println("RESPONSE IS: " + response);
-        
+
         //JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL("http://localhost:8080/MainServerREST/api/customers"), Charset.forName("UTF-8")));
-       // JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
+        // JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
         // ...........
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
@@ -725,24 +728,23 @@ public class DevicesController implements Initializable {
             myCustomer = gson.fromJson(jo.toString(), Customers.class);
             customers.add(myCustomer);
             System.out.println(myCustomer.getCuId());
-            String s = myCustomer.getCuId()+". "+myCustomer.getCuFirstname() + " " + myCustomer.getCuLastname() + " " + myCustomer.getCuPersonnummer();
+            String s = myCustomer.getCuId() + ". " + myCustomer.getCuFirstname() + " " + myCustomer.getCuLastname() + " " + myCustomer.getCuPersonnummer();
             customerStrings.add(s);
             customersProperty.add(new CustomerProperty(myCustomer.getCuId(), myCustomer.getCuFirstname(),
                     myCustomer.getCuLastname(), myCustomer.getCuBirthdate(), myCustomer.getCuAddress(),
                     myCustomer.getCuPersonnummer()));
 
-        
-    }
+        }
         return customerStrings;
     }
-    
-    public ObservableList<DevicesCustomerProperty> getDevicesCustomer() throws IOException, JSONException, Exception{
+
+    public ObservableList<DevicesCustomerProperty> getDevicesCustomer() throws IOException, JSONException, Exception {
 
         ObservableList<DevicesCustomerProperty> devicesCustomers = FXCollections.observableArrayList();
-        
+
         Gson gson = new Gson();
-        JSONObject jo = new JSONObject();   
-        
+        JSONObject jo = new JSONObject();
+
         SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
         String response = sslc.doGet("devicescustomers", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.ADMIN);
         JSONArray jsonArray = new JSONArray(response);
@@ -754,35 +756,34 @@ public class DevicesController implements Initializable {
         //HttpGet get = new HttpGet("http://localhost:8080/MainServerREST/api/devicescustomers");
         //HttpResponse response = client.execute(get);
         System.out.println("RESPONSE IS: " + response);
-        
+
         //JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
-         // ...........
+        // ...........
         //JSONArray jsonArray = new JSONArray(IOUtils.toString(new URL(DevicesCustomerRootURL), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
             JSONObject jObj = (JSONObject) jo.get("customersCuId");
             Customers customer = gson.fromJson(jObj.toString(), Customers.class);
-            System.out.println("JSON OBJECT #"+i+" "+jo);
+            System.out.println("JSON OBJECT #" + i + " " + jo);
             String cuDevId = jo.getString("devId");
-            String cuDevName = jo.getString("devName");        
+            String cuDevName = jo.getString("devName");
             devicesCustomers.add(new DevicesCustomerProperty(customer.getCuId(),
                     customer.getCuFirstname(), customer.getCuLastname(), customer.getCuBirthdate(), customer.getCuAddress(),
                     customer.getCuPersonnummer(), cuDevId, cuDevName));
 
-        
-    }
+        }
         return devicesCustomers;
     }
-    
+
     public Customers getCustomerByID(int CustomerID) {
-        for(Customers c : customers) {
-            System.out.println("customer id: "+c.getCuId());
-            if(c.getCuId() == CustomerID) {
+        for (Customers c : customers) {
+            System.out.println("customer id: " + c.getCuId());
+            if (c.getCuId() == CustomerID) {
                 return c;
             }
         }
         return new Customers();
     }
-    
+
 }

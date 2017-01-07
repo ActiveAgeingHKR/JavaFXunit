@@ -6,14 +6,20 @@
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="300.0" prefWidth="402.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="aajavafx.LoginController">
+<AnchorPane id="AnchorPane" prefHeight="300.0" prefWidth="402.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="aajavafx.LoginController">
     <children>
         <Button id="login" fx:id="button" layoutX="164.0" layoutY="237.0" onAction="#handleButtonLoginAction" text="Login" />
-        <Label id="outputmessageID" fx:id="outputmessageID" layoutX="156.0" layoutY="209.0" minHeight="16" minWidth="69" />
+        <Label id="outputmessageID" fx:id="outputmessageID" layoutX="103.0" layoutY="208.0" minHeight="16" minWidth="69" prefHeight="17.0" prefWidth="212.0" />
       <TextField id="userID" fx:id="userID" layoutX="107.0" layoutY="99.0" onAction="#handleButtonLoginAction" promptText="Username" />
       <PasswordField id="passwordID" fx:id="passwordID" layoutX="107.0" layoutY="137.0" onAction="#handleButtonLoginAction" promptText="Password" />
       <CheckBox id="saveCredentials" fx:id="saveCredentials" layoutX="106.0" layoutY="176.0" mnemonicParsing="false" text="Save Credentials" />
+      <Label id="outputmessageID" fx:id="outputmessageID1" layoutX="74.0" layoutY="24.0" minHeight="16" minWidth="69" prefHeight="75.0" prefWidth="294.0" text="Adjutus Administration" textAlignment="CENTER">
+         <font>
+            <Font name="Arial Narrow Bold Italic" size="27.0" />
+         </font>
+      </Label>
 
     </children>
 </AnchorPane>

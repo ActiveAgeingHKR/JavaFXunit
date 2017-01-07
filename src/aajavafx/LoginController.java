@@ -113,7 +113,7 @@ public class LoginController extends ControllerClass {
 
                 System.out.println("Taking you to next page!");
            } else {
-               outputmessageID.setText("Login failed!!!!");
+               outputmessageID.setText("Incorrect username or password.");
             }
         } catch (Exception ex) {
             ex.printStackTrace();

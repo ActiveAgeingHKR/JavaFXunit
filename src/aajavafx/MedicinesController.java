@@ -78,6 +78,7 @@ public class MedicinesController implements Initializable {
     private TextField volumeField;
     @FXML
     private TextField measurementField;
+    ErrorHandling eH = new ErrorHandling();
 
     /**
      * Initializes the controller class.
@@ -88,8 +89,7 @@ public class MedicinesController implements Initializable {
         nameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getMedName()));
         volumeColumn.setCellValueFactory(cellData -> new SimpleStringProperty("" + cellData.getValue().getVolume()));
         measurementColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getMedMeasurementUnit()));
-         
-       
+
         idField.setEditable(false);
         nameField.setEditable(false);
         volumeField.setEditable(false);
@@ -135,17 +135,22 @@ public class MedicinesController implements Initializable {
             ////int customerId = Integer.parseInt(""+string.charAt(0));
             ////System.out.println("CUSTOMER ID VALUE:"+customerId);
             ////Customers customer = getCustomerByID(customerId);
+            if (medName.length() == 0 || medID == 0 || volume.length() == 0
+                    || medMeasurementUnit.length() == 0) {
+                eH.popUpMessage("Invalid input", "Please make sure all necessary fields have the correct input.");
+
+            }
 
             Gson gson = new Gson();
-            
+
             Medicines medicine = new Medicines(medID, medName, volume, medMeasurementUnit);
 
             String jsonString = new String(gson.toJson(medicine));
             //StringEntity postString = new StringEntity(jsonString);
             String restFullServerAddress = "https://localhost:8181/MainServerREST/api/";
-                SSLConnection sSLConnection = new SSLConnection(restFullServerAddress);
-                String restfulService = "medicines";
-                String statusCode;
+            SSLConnection sSLConnection = new SSLConnection(restFullServerAddress);
+            String restfulService = "medicines";
+            String statusCode;
 
             //......for ssl handshake....
             //CredentialsProvider provider = new BasicCredentialsProvider();
@@ -156,13 +161,13 @@ public class MedicinesController implements Initializable {
             //HttpEntityEnclosingRequestBase HttpEntity = null; //this is the superclass for post, put, get, etc
             if (idField.isEditable()) { //then we are posting a new record
                 //HttpEntity = new HttpPost(MedicineRootURL); //so make a http post object
-                statusCode = sSLConnection.doPost(restfulService, jsonString, 
-                    SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.TEXT, 
-                    SSLConnection.USER_MODE.ADMIN);
+                statusCode = sSLConnection.doPost(restfulService, jsonString,
+                        SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.TEXT,
+                        SSLConnection.USER_MODE.ADMIN);
             } else { //we are editing a record 
-                statusCode = sSLConnection.doPut(restfulService, jsonString, 
-                    SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.TEXT, 
-                    SSLConnection.USER_MODE.ADMIN);
+                statusCode = sSLConnection.doPut(restfulService, jsonString,
+                        SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.TEXT,
+                        SSLConnection.USER_MODE.ADMIN);
                 //HttpEntity = new HttpPut(MedicineRootURL + medID); //so make a http put object
             }
             //Medicines medicine = new Medicines(1, medName, volume, medMeasurementUnit);
@@ -170,28 +175,31 @@ public class MedicinesController implements Initializable {
             //String jsonString = new String(gson.toJson(medicine));
             System.out.println("json string: " + jsonString);
             StringEntity postString = new StringEntity(jsonString);
-            
+
             if (Integer.parseInt(statusCode) == 204) {
-                    System.out.println("Medicine added successfully");
-                } else {
-                    //System.out.println("Server error: "+response.getStatusLine());
-                    System.out.println("Server error ");
-                }
+                System.out.println("Medicine added successfully");
+            } else {
+                //System.out.println("Server error: "+response.getStatusLine());
+                eH.popUpMessage("Server error", "Please make sure all necessary fields have the correct input.");
+                System.out.println("Server error ");
+            }
             //HttpEntity.setEntity(postString);
             //HttpEntity.setHeader("Content-type", "application/json");
             //HttpResponse response = httpClient.execute(HttpEntity);
             //int statusCode = response.getStatusLine().getStatusCode();
             //if (statusCode == 204) {
-               //// System.out.println("Device posted successfully");
-           // } else {
-              //  System.out.println("Server error: " + response.getStatusLine());
-            
+            //// System.out.println("Device posted successfully");
+            // } else {
+            //  System.out.println("Server error: " + response.getStatusLine());
+
             nameField.setEditable(false);
             idField.setEditable(false);
             volumeField.setEditable(false);
             measurementField.setEditable(false);
 
         } catch (Exception ex) {
+            eH.popUpMessage("Server error", "Please make sure all necessary fields have the correct input.");
+
             System.out.println("Error: " + ex);
         }
         try {
@@ -254,8 +262,8 @@ public class MedicinesController implements Initializable {
         Medicines medicine = new Medicines();
         Gson gson = new Gson();
         JSONObject jo = new JSONObject();
-        
-         SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
+
+        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
         String response = sslc.doGet("medicines", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.ADMIN);
         JSONArray jsonArray = new JSONArray(response);
 
@@ -277,7 +285,7 @@ public class MedicinesController implements Initializable {
             medicine = gson.fromJson(jo.toString(), Medicines.class);
             System.out.println("JSON OBJECT #" + i + " " + jo);
             medicines.add(medicine);
-           
+
         }
         return medicines;
     }

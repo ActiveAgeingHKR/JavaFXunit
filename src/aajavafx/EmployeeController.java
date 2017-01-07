@@ -30,6 +30,8 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import org.apache.http.entity.StringEntity;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -86,6 +88,8 @@ public class EmployeeController implements Initializable {
     private Label labelError;
 
     Managers manager = new Managers(1);
+
+    ErrorHandling eH = new ErrorHandling();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -179,38 +183,62 @@ public class EmployeeController implements Initializable {
 
     @FXML
     private void handleRegisterButton(ActionEvent event) throws Exception {
-        labelError.setText(null);
-
-        String lastName = textLastName.getText();
-        textLastName.clear();
-        String firstName = textFirstName.getText();
-        textFirstName.clear();
-        String userName = textUserName.getText();
-        textUserName.clear();
-        String email = textEmail.getText();
-        textEmail.clear();
-        String phone = textPhone.getText();
-        textPhone.clear();
-        String password = textPassword.getText();
-        textPassword.clear();
-        Boolean register = false;
-        String tempValidation = textActivate.getText();
-        textActivate.clear();
-        if (tempValidation.contentEquals("Y")) {
-            register = true;
-        } else {
-            register = false;
-        }
-        Employees employee = new Employees(1, firstName, lastName, userName, password, email, phone, manager, register);
-
-        validate(employee);
+        boolean isValid = false;
+        // Check if email is in right format
         try {
-            tableEmployees.setItems(getEmployee());
-        } catch (IOException ex) {
-            Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (JSONException ex) {
-            Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
+            InternetAddress internetaddress = new InternetAddress(textEmail.getText());
+            internetaddress.validate();
+            isValid = true;
+            System.out.println("Email is valid format");
+        } catch (AddressException e) {
+            System.out.println("Email is invalid - " + textEmail.getText());
         }
+        if (isValid == true) {
+            labelError.setText(null);
+
+            String lastName = textLastName.getText();
+            textLastName.clear();
+            String firstName = textFirstName.getText();
+            textFirstName.clear();
+            String userName = textUserName.getText();
+            textUserName.clear();
+            String email = textEmail.getText();
+            textEmail.clear();
+            String phone = textPhone.getText();
+            textPhone.clear();
+            String password = textPassword.getText();
+            textPassword.clear();
+            Boolean register = false;
+            String tempValidation = textActivate.getText();
+            textActivate.clear();
+            if (tempValidation.contentEquals("Y")) {
+                register = true;
+            } else if (tempValidation.contentEquals("N")) {
+                register = false;
+            } else if (!tempValidation.contentEquals("Y") || tempValidation.contentEquals("N")) {
+                eH.popUpMessage("Invalid validation", "Please enter the correct input for validating an employee. (Y for true, N for false)");
+            }
+            Employees employee = new Employees(1, firstName, lastName, userName, password, email, phone, manager, register);
+
+            validate(employee);
+
+            if (lastName.length() == 0 || firstName.length() == 0 || userName.length() == 0
+                    || email.length() == 0 || phone.length() == 0 || password.length() == 0
+                    || tempValidation.length() == 0) {
+                eH.popUpMessage("Invalid input", "Please make sure all necessary fields have the correct input.");
+
+            }
+            try {
+                tableEmployees.setItems(getEmployee());
+            } catch (IOException ex) {
+                Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (JSONException ex) {
+                Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else if (isValid == false) {
+            eH.popUpMessage("Invalid email address", "Please enter a valid email address.");
+        }
+
     }
 
     @FXML
@@ -300,7 +328,7 @@ public class EmployeeController implements Initializable {
         SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
         String response = sslc.doGet("employees", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
         JSONArray jsonArray = new JSONArray(response);
-        
+
         boolean register = true;
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {

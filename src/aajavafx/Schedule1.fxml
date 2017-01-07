@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.net.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane id="AnchorPane" prefHeight="513.0" prefWidth="600.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="aajavafx.Schedule1Controller">
+<AnchorPane id="AnchorPane" prefHeight="513.0" prefWidth="600.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="aajavafx.Schedule1Controller">
     <children>
         <Button layoutX="14.0" layoutY="474.0" mnemonicParsing="false" onAction="#handleGoBack" prefHeight="25.0" prefWidth="66.0" text="Back" />
         <DatePicker fx:id="pickADate" layoutX="14.0" layoutY="21.0" />
@@ -27,8 +28,8 @@
             <TableColumn fx:id="cuPersonnumerColumn" prefWidth="95.0" text="Personnumer" />
         </columns>
       </TableView>
-      <Label layoutX="14.0" layoutY="79.0" prefHeight="17.0" prefWidth="174.0" text="Employees" />
-      <Label layoutX="360.0" layoutY="79.0" prefHeight="17.0" prefWidth="200.0" text="Customer" />
+      <Label layoutX="14.0" layoutY="88.0" prefHeight="17.0" prefWidth="174.0" text="Employees" />
+      <Label layoutX="308.0" layoutY="88.0" prefHeight="17.0" prefWidth="200.0" text="Customer" />
       <TableView fx:id="tableSchedule" layoutX="14.0" layoutY="254.0" prefHeight="174.0" prefWidth="554.0">
         <columns>
           <TableColumn fx:id="schIdColumn" prefWidth="55.0" text="Id" />
@@ -41,15 +42,15 @@
         </columns>
       </TableView>
       <Label fx:id="display" layoutX="214.0" layoutY="25.0" prefHeight="17.0" prefWidth="356.0" text="You must choose a date first!" />
-      <Button layoutX="307.0" layoutY="54.0" mnemonicParsing="false" onAction="#handleGetCustomersUnvisited" prefHeight="25.0" prefWidth="180.0" text="View Unsigned Customer" />
+      <Button layoutX="307.0" layoutY="54.0" mnemonicParsing="false" onAction="#handleGetCustomersUnvisited" prefHeight="25.0" prefWidth="180.0" text="View Unassigned Customer" />
       <Button layoutX="342.0" layoutY="474.0" mnemonicParsing="false" onAction="#handleCreateNewSchedule" prefHeight="25.0" prefWidth="66.0" text="New" />
       <Button layoutX="427.0" layoutY="474.0" mnemonicParsing="false" onAction="#handleDeleteButton" prefHeight="25.0" prefWidth="66.0" text="Remove" />
       <Button fx:id="validation" layoutX="504.0" layoutY="474.0" mnemonicParsing="false" onAction="#handleValidate" prefHeight="25.0" prefWidth="66.0" text="Validate " />
-      <TextField fx:id="textEmpId" layoutX="88.0" layoutY="229.0" prefHeight="25.0" prefWidth="76.0" promptText="EmployeeId" />
-      <TextField fx:id="textCustId" layoutX="164.0" layoutY="229.0" prefHeight="25.0" prefWidth="76.0" promptText="CustomerId" />
-      <TextField fx:id="textStart" layoutX="321.0" layoutY="229.0" prefHeight="25.0" prefWidth="93.0" promptText="Start/HH.MM" />
-      <TextField fx:id="textFinish" layoutX="414.0" layoutY="229.0" prefHeight="25.0" prefWidth="100.0" promptText="Finish/HH.MM" />
-      <TextField fx:id="dateText" layoutX="239.0" layoutY="229.0" prefHeight="25.0" prefWidth="82.0" promptText="Date" />
+      <TextField fx:id="textEmpId" layoutX="80.0" layoutY="229.0" prefHeight="25.0" prefWidth="76.0" promptText="EmployeeId" />
+      <TextField fx:id="textCustId" layoutX="156.0" layoutY="229.0" prefHeight="25.0" prefWidth="76.0" promptText="CustomerId" />
+      <TextField fx:id="textStart" layoutX="321.0" layoutY="229.0" prefHeight="25.0" prefWidth="100.0" promptText="Start/HH:MM:SS" />
+      <TextField fx:id="textFinish" layoutX="421.0" layoutY="229.0" prefHeight="25.0" prefWidth="107.0" promptText="Finish/HH:MM:SS" />
+      <TextField fx:id="dateText" layoutX="231.0" layoutY="229.0" prefHeight="25.0" prefWidth="90.0" promptText="YYYY-MM-DD" />
       <Button fx:id="viewEmployee" layoutX="14.0" layoutY="54.0" mnemonicParsing="false" onAction="#handleViewEmployee" prefHeight="25.0" prefWidth="174.0" text="Select available employees" />
       <Button fx:id="viewSchedule" layoutX="104.0" layoutY="474.0" mnemonicParsing="false" onAction="#handleViewSchedule" prefHeight="25.0" prefWidth="168.0" text="Select schedule by date" />
     </children>

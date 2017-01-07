@@ -374,6 +374,8 @@ public class CustomerController implements Initializable {
     String birthdate;
     String persunnumer;
 
+    private static ErrorHandling eH = new ErrorHandling();
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         buttonRegister.setVisible(false);
@@ -448,6 +450,15 @@ public class CustomerController implements Initializable {
             persunnumerID.clear();
             Customers customer = new Customers(null, firstName, lastName, address, birthdate, persunnumer);
             validate(customer);
+
+            if (lastName.length() == 0 || firstName.length() == 0 || address.length() == 0
+                    || birthdate.length() == 0 || persunnumer.length() == 0) {
+                eH.popUpMessage("Invalid input", "Please make sure all necessary fields have the correct input.");
+
+            } else if (persunnumer.length() > 10 || persunnumer.length() < 10) {
+                eH.popUpMessage("Personal number incorrect", "You can only input 10 numbers.");
+            }
+
             /*  Gson gson = new Gson();
           
              String jsonString = new String(gson.toJson(customer));
@@ -468,7 +479,6 @@ public class CustomerController implements Initializable {
              //System.out.println("Server error: "+response.getStatusLine());
              System.out.println("Server error ");
              }*/
-
             //ByteArrayOutputStream outstream = new ByteArrayOutputStream();
 //                if (response != null) {
 //                    response.getEntity().writeTo(outstream);
@@ -484,6 +494,8 @@ public class CustomerController implements Initializable {
             //  System.out.println(e);
             // }
         } catch (Exception ex) {
+            eH.popUpMessage("Server error", "Please make sure all necessary fields have the correct input.");
+
             ex.printStackTrace();
 
         }
@@ -597,36 +609,36 @@ public class CustomerController implements Initializable {
             System.out.println(ex);
         }
     }
-    
+
     //The method is annulated because the customer does not need !!!!!!!
 /*
-    public void change(int id) throws IOException, JSONException, Exception {
-        Customers myCustomer = new Customers();
+     public void change(int id) throws IOException, JSONException, Exception {
+     Customers myCustomer = new Customers();
 
-        Gson gson = new Gson();
-        Customers customerNew = null;
-        JSONObject jo = new JSONObject();
+     Gson gson = new Gson();
+     Customers customerNew = null;
+     JSONObject jo = new JSONObject();
 
-        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
-        String response = sslc.doGet("customers", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
-        JSONArray jsonArray = new JSONArray(response);
+     SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
+     String response = sslc.doGet("customers", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+     JSONArray jsonArray = new JSONArray(response);
 
-        boolean register = true;
-        System.out.println(jsonArray);
-        for (int i = 0; i < jsonArray.length(); i++) {
-            jo = (JSONObject) jsonArray.getJSONObject(i);
-            myCustomer = gson.fromJson(jo.toString(), Customers.class);
-            if (myCustomer.getCuId().equals(id)) {
-                customerNew = new Customers(1, myCustomer.getCuFirstname(), myCustomer.getCuLastname(),
-                        myCustomer.getCuBirthdate(), myCustomer.getCuAddress(),
-                        myCustomer.getCuPersonnummer());  //error in this line, may something wrong with id.
-            }
+     boolean register = true;
+     System.out.println(jsonArray);
+     for (int i = 0; i < jsonArray.length(); i++) {
+     jo = (JSONObject) jsonArray.getJSONObject(i);
+     myCustomer = gson.fromJson(jo.toString(), Customers.class);
+     if (myCustomer.getCuId().equals(id)) {
+     customerNew = new Customers(1, myCustomer.getCuFirstname(), myCustomer.getCuLastname(),
+     myCustomer.getCuBirthdate(), myCustomer.getCuAddress(),
+     myCustomer.getCuPersonnummer());  //error in this line, may something wrong with id.
+     }
 
-        }
-        deleteRow(id);
-        validate(customerNew);
-    }
-*/
+     }
+     deleteRow(id);
+     validate(customerNew);
+     }
+     */
     public static void validate(Customers cust) throws Exception {
         Gson gson = new Gson();
 
@@ -646,6 +658,7 @@ public class CustomerController implements Initializable {
             System.out.println("Customer added successfully");
         } else {
             //System.out.println("Server error: "+response.getStatusLine());
+            eH.popUpMessage("Server error", "Please make sure all necessary fields have the correct input.");
             System.out.println("Server error ");
         }
     }
