@@ -123,7 +123,7 @@ public class MedicinesController implements Initializable {
 
             String medName = nameField.getText();
             nameField.clear();
-            String medID = idField.getText();
+            int medID = Integer.parseInt(idField.getText());
             idField.clear();
             String volume = volumeField.getText();
             volumeField.clear();
@@ -138,7 +138,7 @@ public class MedicinesController implements Initializable {
 
             Gson gson = new Gson();
             
-            Medicines medicine = new Medicines(1, medName, volume, medMeasurementUnit);
+            Medicines medicine = new Medicines(medID, medName, volume, medMeasurementUnit);
 
             String jsonString = new String(gson.toJson(medicine));
             //StringEntity postString = new StringEntity(jsonString);
@@ -160,7 +160,7 @@ public class MedicinesController implements Initializable {
                     SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.TEXT, 
                     SSLConnection.USER_MODE.ADMIN);
             } else { //we are editing a record 
-                statusCode = sSLConnection.doPut(restfulService+"/"+medicine.getmedId(), jsonString, 
+                statusCode = sSLConnection.doPut(restfulService, jsonString, 
                     SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.TEXT, 
                     SSLConnection.USER_MODE.ADMIN);
                 //HttpEntity = new HttpPut(MedicineRootURL + medID); //so make a http put object
