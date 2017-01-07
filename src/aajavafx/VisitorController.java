@@ -10,7 +10,6 @@ import entitiesproperty.VisitorsProperty;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,7 +38,6 @@ import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
@@ -48,11 +46,6 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
@@ -105,8 +98,6 @@ public class VisitorController implements Initializable {
     ArrayList<Company> companies = new ArrayList<>();
     
     //we can store the root directory of visitors and company here, where most methods are based
-    private static String VisitorsRootURL = "http://localhost:8080/MainServerREST/api/visitors/";
-    private static String CompanyRootURL = "http://localhost:8080/MainServerREST/api/company";
     private static String postHTML = "http://localhost:8080/MainServerREST/api/visitorschedule/upload";
     
     File imageFile;
@@ -180,14 +171,12 @@ public class VisitorController implements Initializable {
         //remove is annotated with @DELETE on server so we use a HttpDelete object
         try {
             String idToDelete = visitorIDField.getText();
-            CredentialsProvider provider = new BasicCredentialsProvider();
-            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN","password");
-            provider.setCredentials(AuthScope.ANY, credentials);
-            HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-            //add the id to the end of the URL so this will call the method at MainServerREST/api/visitors/id
-            HttpDelete delete = new HttpDelete(VisitorsRootURL + idToDelete);
-            HttpResponse response = httpClient.execute(delete);
-            System.out.println("response from server " + response.getStatusLine());
+            SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
+            String response = sslc.doDelete("visitors", idToDelete, SSLConnection.CONTENT_TYPE.JSON,
+                    SSLConnection.ACCEPT_TYPE.JSON,
+                    SSLConnection.USER_MODE.ADMIN);
+            System.out.println(response);
+            System.out.println("response from server " + response);
         } catch (Exception ex) {
             System.out.println(ex);
         }
@@ -211,7 +200,7 @@ public class VisitorController implements Initializable {
     }
     
     @FXML
-    private void handleSave(ActionEvent event) {
+    private void handleSave(ActionEvent event) throws Exception {
         boolean isValid = false;
         // Check if email is in right format
         try {
@@ -238,31 +227,31 @@ public class VisitorController implements Initializable {
                 
                 try {
                     Gson gson = new Gson();
-                    CredentialsProvider provider = new BasicCredentialsProvider();
-                    UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
-                    provider.setCredentials(AuthScope.ANY, credentials);
-                    HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-                    HttpEntityEnclosingRequestBase HttpEntity = null; //this is the superclass for post, put, get, etc
-                    if(visitorIDField.isEditable()) { //then we are posting a new record
-                        HttpEntity = new HttpPost(VisitorsRootURL); //so make a http post object
-                    } else { //we are editing a record
-                        HttpEntity = new HttpPut(VisitorsRootURL); //so make a http put object
-                    }
                     Company company = getCompany(companyId);
                     Visitors visitor = new Visitors(visitorId, firstName, lastName, email, phoneNumber, company);
                     
                     String jsonString = new String(gson.toJson(visitor));
-                    System.out.println("json string: " + jsonString);
-                    StringEntity postString = new StringEntity(jsonString);
                     
-                    HttpEntity.setEntity(postString);
-                    HttpEntity.setHeader("Content-type", "application/json");
-                    HttpResponse response = httpClient.execute(HttpEntity);
-                    int statusCode = response.getStatusLine().getStatusCode();
-                    if(statusCode == 204) {
+                    String restFullServerAddress = "https://localhost:8181/MainServerREST/api/";
+                    SSLConnection sSLConnection = new SSLConnection(restFullServerAddress);
+                    String restfulService = "visitors";
+                    String statusCode;
+                    if(visitorIDField.isEditable()) { //then we are posting a new record
+                        statusCode = sSLConnection.doPost(restfulService, jsonString,
+                            SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON,
+                            SSLConnection.USER_MODE.ADMIN);
+                    } else { //we are editing a record
+                        statusCode = sSLConnection.doPut(restfulService, jsonString,
+                            SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON,
+                            SSLConnection.USER_MODE.ADMIN);
+                    }
+                    System.out.println("json string: " + jsonString);
+                    
+                    if(Integer.parseInt(statusCode) == 204) {
                         System.out.println("New visitor posted successfully");
                     } else{
-                        System.out.println("Server error: " + response.getStatusLine());
+                        eH.popUpMessage("Server error", "Please make sure all necessary fields have the correct input.");
+                        System.out.println("Server error ");
                     }
                     visitorIDField.setEditable(false);
                     firstNameField.setEditable(false);
@@ -337,7 +326,7 @@ public class VisitorController implements Initializable {
         try {
             Node node = (Node) event.getSource();
             Stage stage = (Stage) node.getScene().getWindow();
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("MainPage.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("MainPageTab.fxml"));
             Parent root = loader.load();
             Scene scene = new Scene(root, 879, 599);
             stage.setScene(scene);
@@ -394,22 +383,18 @@ public class VisitorController implements Initializable {
         );
     }
     
-    public ObservableList<VisitorsProperty> getVisitors() throws IOException, JSONException {
+    public ObservableList<VisitorsProperty> getVisitors() throws IOException, JSONException, Exception {
         Visitors myVisitors = new Visitors();
         Gson gson = new Gson();
         ObservableList<VisitorsProperty> visitorsProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
         
-        CredentialsProvider provider = new BasicCredentialsProvider();
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
-        provider.setCredentials(AuthScope.ANY, credentials);
-        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-        HttpGet get = new HttpGet(VisitorsRootURL);
+        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
+        String response = sslc.doGet("visitors", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.ADMIN);
+        JSONArray jsonArray = new JSONArray(response);
         
-        HttpResponse response = client.execute(get);
         System.out.println("RESPONSE IS: " + response);
         
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
@@ -423,20 +408,16 @@ public class VisitorController implements Initializable {
     }
     
     //download the list of available companies from the server so we know what we can select from
-    public void getCompanyList() throws IOException, JSONException {
+    public void getCompanyList() throws IOException, JSONException, Exception {
         Gson gson = new Gson();
         JSONObject jo = new JSONObject();
         
-        CredentialsProvider provider = new BasicCredentialsProvider();
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("ADMIN", "password");
-        provider.setCredentials(AuthScope.ANY, credentials);
-        HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-        HttpGet get = new HttpGet(CompanyRootURL);
+        SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
+        String response = sslc.doGet("company", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.ADMIN);
+        JSONArray jsonArray = new JSONArray(response);
         
-        HttpResponse response = client.execute(get);
         System.out.println("RESPONSE IS: " + response);
         
-        JSONArray jsonArray = new JSONArray(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
