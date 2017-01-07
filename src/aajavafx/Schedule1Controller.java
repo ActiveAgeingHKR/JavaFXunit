@@ -9,6 +9,7 @@ import entitiesproperty.EmployeeProperty;
 import entitiesproperty.EmployeeScheduleProperty;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -41,7 +42,7 @@ import javafx.stage.Stage;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-//import org.panos.SSLConnection;
+import org.panos.SSLConnection;
 
 /**
  * FXML Controller class
@@ -70,7 +71,7 @@ public class Schedule1Controller implements Initializable {
     private Button viewEmployee;
     @FXML
     private Button viewSchedule;
-
+    
     @FXML
     private TableView<EmployeeScheduleProperty> tableSchedule;
     @FXML
@@ -87,7 +88,7 @@ public class Schedule1Controller implements Initializable {
     private TableColumn<EmployeeScheduleProperty, String> customersCuIdColumn;
     @FXML
     private TableColumn<EmployeeScheduleProperty, String> employeesEmpIdColumn;
-
+    
     @FXML
     private TableView<EmployeeProperty> tableEmployee;
     @FXML
@@ -98,7 +99,7 @@ public class Schedule1Controller implements Initializable {
     private TableColumn<EmployeeProperty, String> empLastColumn;
     @FXML
     private TableColumn<EmployeeProperty, String> empUserNameColumn;
-
+    
     @FXML
     private TableView<CustomerProperty> tableCustomer;
     @FXML
@@ -109,7 +110,7 @@ public class Schedule1Controller implements Initializable {
     private TableColumn<CustomerProperty, String> cuLastNameColumn;
     @FXML
     private TableColumn<CustomerProperty, String> cuPersonnumerColumn;
-
+    
     @FXML
     private DatePicker pickADate;
     @FXML
@@ -122,7 +123,7 @@ public class Schedule1Controller implements Initializable {
     boolean allSchedule;
     Singleton singleton, singletonSchedule = null;
     private String myDate = "";
-
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         schIdColumn.setCellValueFactory(cellData -> cellData.getValue().schIdProperty().asObject());
@@ -132,23 +133,23 @@ public class Schedule1Controller implements Initializable {
         emplVisitedCustColumn.setCellValueFactory(cellData -> cellData.getValue().emplVisitedCustProperty().asObject());
         customersCuIdColumn.setCellValueFactory(cellData -> cellData.getValue().customersCuIdProperty());
         employeesEmpIdColumn.setCellValueFactory(cellData -> cellData.getValue().employeesEmpIdProperty());
-
+        
         empIdColumn.setCellValueFactory(cellData -> cellData.getValue().idProperty().asObject());
         empFirstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNProperty());
         empLastColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
         empUserNameColumn.setCellValueFactory(cellData -> cellData.getValue().empUserNameProperty());
-
+        
         cuIdColumn.setCellValueFactory(cellData -> cellData.getValue().customerIdProperty().asObject());
         cuFirstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNameProperty());
         cuLastNameColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
         cuPersonnumerColumn.setCellValueFactory(cellData -> cellData.getValue().personnumerProperty());
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd ");
-
+        
         Date dateTemp = new Date();
         myDate = dateFormat.format(dateTemp);
-
+        
         display.setText("Current date: " + myDate);
-
+        
         pickADate.setValue(LocalDate.now());
         pickADate.setOnAction(new EventHandler() {
             public void handle(Event t) {
@@ -162,11 +163,11 @@ public class Schedule1Controller implements Initializable {
                 //  viewSchedule.setVisible(true);
 
             }
-
+            
         });
-
+        
         try {
-
+            
             tableEmployee.setItems(getEmployee());
             tableCustomer.setItems(getCustomer());
             tableSchedule.setItems(getSchedule());
@@ -183,7 +184,7 @@ public class Schedule1Controller implements Initializable {
         // viewEmployee.setVisible(false);
         // viewSchedule.setVisible(false);
     }
-
+    
     @FXML
     private void handleGetCustomersUnvisited(ActionEvent event) throws IOException {
         try {
@@ -197,14 +198,14 @@ public class Schedule1Controller implements Initializable {
             e.printStackTrace();
         }
     }
-
+    
     @FXML
     private void handleDeleteButton(ActionEvent event) throws Exception {
-
+        
         int id = tableSchedule.getSelectionModel().getSelectedItem().getSchId();
         this.deleteRow(id);
         try {
-
+            
             tableSchedule.setItems(getSchedule());
             System.out.println("Update");
         } catch (IOException ex) {
@@ -213,10 +214,10 @@ public class Schedule1Controller implements Initializable {
             Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
     @FXML
     private void handleGoBack(ActionEvent event) {
-
+        
         try {
             Node node = (Node) event.getSource();
             Stage stage = (Stage) node.getScene().getWindow();
@@ -224,27 +225,27 @@ public class Schedule1Controller implements Initializable {
             Parent root = loader.load();
             Scene scene = new Scene(root, 879, 599);
             stage.setScene(scene);
-
+            
             stage.setTitle("Main menu");
             stage.show();
-
+            
         } catch (Exception ex) {
             Logger.getLogger(MainPageController.class
                     .getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
     public ObservableList<EmployeeScheduleProperty> getSchedule() throws IOException, JSONException, Exception {
         EmployeeSchedule mySchedule = new EmployeeSchedule();
         Gson gson = new Gson();
-
+        
         ObservableList<EmployeeScheduleProperty> employeeScheduleProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
-
+        
         SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
         String response = sslc.doGet("employeeschedule", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
         JSONArray jsonArray = new JSONArray(response);
-
+        
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
@@ -252,51 +253,51 @@ public class Schedule1Controller implements Initializable {
             mySchedule
                     = gson.fromJson(jo.toString(), EmployeeSchedule.class
                     );
-
+            
             employeeScheduleProperty.add(
                     new EmployeeScheduleProperty(mySchedule.getSchId(), mySchedule.getSchDate(),
                             mySchedule.getSchFromTime(), mySchedule.getSchUntilTime(), mySchedule.getEmplVisitedCust(),
                             mySchedule.getCustomersCuId().getCuPersonnummer(), mySchedule.getEmployeesEmpId().getEmpUsername()));
         }
-
+        
         return employeeScheduleProperty;
     }
-
+    
     public ObservableList<CustomerProperty> getCustomer() throws IOException, JSONException, Exception {
         Customers customers = new Customers();
         Gson gson = new Gson();
         ObservableList<CustomerProperty> customerProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
-
+        
         SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
         String response = sslc.doGet("customers", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
         JSONArray jsonArray = new JSONArray(response);
-
+        
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
             customers
                     = gson.fromJson(jo.toString(), Customers.class
                     );
-
+            
             customerProperty.add(
                     new CustomerProperty(customers.getCuId(), customers.getCuFirstname(), customers.getCuLastname(), customers.getCuPersonnummer()));
         }
         return customerProperty;
-
+        
     }
-
+    
     public ObservableList<EmployeeProperty> getEmployee() throws IOException, JSONException, Exception {
         Employees myEmployee = new Employees();
-
+        
         Gson gson = new Gson();
         ObservableList<EmployeeProperty> employeesProperty = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
-
+        
         SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
         String response = sslc.doGet("employees", "", SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
         JSONArray jsonArray = new JSONArray(response);
-
+        
         System.out.println(jsonArray);
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
@@ -307,40 +308,40 @@ public class Schedule1Controller implements Initializable {
         }
         return employeesProperty;
     }
-
+    
     public ObservableList<CustomerProperty> getUnsignedCustomers() throws IOException, JSONException, Exception {
-
+        
         EmployeeSchedule mySchedule = new EmployeeSchedule();
         singleton = Singleton.getInstance();
         Gson gson = new Gson();
-
+        
         ArrayList<CustomerProperty> customerPropertyCustomersSigned = new ArrayList<CustomerProperty>();
         ObservableList<CustomerProperty> customerPropertyAllCustomers = this.getCustomer();
         JSONObject jo = new JSONObject();
-
+        
         SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
         String response = sslc.doGet("employeeschedule/date", myDate, SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
         JSONArray jsonArray = new JSONArray(response);
-
+        
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
-
+            
             mySchedule = gson.fromJson(jo.toString(), EmployeeSchedule.class);
-
+            
             customerPropertyCustomersSigned.add(
                     new CustomerProperty(mySchedule.getCustomersCuId().getCuId(),
                             mySchedule.getCustomersCuId().getCuFirstname(), mySchedule.getCustomersCuId().getCuLastname(),
                             mySchedule.getCustomersCuId().getCuPersonnummer()));
-
+            
         }
-
+        
         try {
             for (int i = 0; i < customerPropertyCustomersSigned.size(); i++) {
-
+                
                 for (int j = 0; j < customerPropertyAllCustomers.size(); j++) {
-
+                    
                     if (customerPropertyCustomersSigned.get(i).getPersonnumer().equals(customerPropertyAllCustomers.get(j).getPersonnumer())) {
-
+                        
                         customerPropertyAllCustomers.remove(j);
                     }
                 }
@@ -348,19 +349,19 @@ public class Schedule1Controller implements Initializable {
         } catch (Exception e) {
             System.out.println(e);
         }
-
+        
         singleton.setList(customerPropertyAllCustomers);
         return customerPropertyAllCustomers;
     }
-
+    
     public double getNumbersOfHoursPerDay(int id) throws JSONException, IOException, Exception {
         double numberHours = 0;
         double numberStart = 0;
         double numberFinish = 0;
-        double total = 8.00;
+        double total = 7.60;
         //Customers customers = new Customers();
         EmployeeSchedule mySchedule = new EmployeeSchedule();
-
+        
         Gson gson = new Gson();
         JSONObject jo = new JSONObject();
         //String date = getDate();
@@ -368,12 +369,12 @@ public class Schedule1Controller implements Initializable {
         SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
         String response = sslc.doGet("employeeschedule/date", myDate, SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
         JSONArray jsonArray = new JSONArray(response);
-
+        
         System.out.println("2 " + jsonArray);
-
+        
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
-
+            
             mySchedule = gson.fromJson(jo.toString(), EmployeeSchedule.class);
             if (mySchedule.getEmployeesEmpId().getEmpId().equals(id)) {
                 numberFinish = Double.valueOf(mySchedule.getSchUntilTime()) + numberFinish;
@@ -384,19 +385,25 @@ public class Schedule1Controller implements Initializable {
             }
         }
         numberHours = this.calculateTime(numberFinish, numberStart);
+        if(total>=numberHours){
         total = this.calculateTime(total, numberHours);
-
+        }else{
+             total = this.calculateTime(numberHours,total);
+             total=total*(-1);
+        }
+        total = this.splitDouble(total);
+        
         return total;
-
+        
     }
-
+    
     @FXML
     private void handleCreateNewSchedule(ActionEvent event) throws JSONException, IOException, Exception {
         String tempDate;
         DecimalFormat df2 = new DecimalFormat(".##");
         idEmployee = tableEmployee.getSelectionModel().getSelectedItem().getId();
         idCustomer = tableCustomer.getSelectionModel().getSelectedItem().getCustomerId();
-
+        
         String tempId = idEmployee + "";
         String tempIdCust = idCustomer + "";
         textEmpId.setText(tempId);
@@ -404,19 +411,19 @@ public class Schedule1Controller implements Initializable {
         dateText.setText(myDate);
         System.out.println(myDate);
         System.out.println("Hours : " + df2.format(this.getNumbersOfHoursPerDay(idEmployee)));
-
+        
         display.setText("There are " + df2.format(this.getNumbersOfHoursPerDay(idEmployee)) + " hours remain to work for this employee");
         validation.setVisible(true);
     }
-
+    
     public String getDate() {
         return date;
     }
-
+    
     public void setDate(String date) {
         this.date = date;
     }
-
+    
     @FXML
     private void handleValidate(ActionEvent event) throws Exception {
         String tempDate;
@@ -424,7 +431,7 @@ public class Schedule1Controller implements Initializable {
         String tempCustId;
         String tempFinish;
         String tempStart;
-
+        
         tempDate = dateText.getText();
         tempEmpId = textEmpId.getText();
         tempCustId = textCustId.getText();
@@ -432,18 +439,22 @@ public class Schedule1Controller implements Initializable {
         tempStart = textStart.getText();
         int empId = Integer.valueOf(tempEmpId);
         int cuId = Integer.valueOf(tempCustId);
-
+        
         try {
-            Gson gson = new Gson();
-            Employees employee = new Employees(empId);
-            Customers customers = new Customers(cuId);
-            EmployeeSchedule schedule = new EmployeeSchedule(1, tempDate, tempStart, tempFinish, false, customers, employee);
-            String jsonString = gson.toJson(schedule);
-
-            SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
-            String response = sslc.doPost("employeeschedule", jsonString, SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
-            System.out.println(response);
-
+            if (tempFinish.equals("") || (tempStart.equals(""))) {
+                display.setText("You must fill the hours first!");
+            } else {
+                
+                Gson gson = new Gson();
+                Employees employee = new Employees(empId);
+                Customers customers = new Customers(cuId);
+                EmployeeSchedule schedule = new EmployeeSchedule(1, tempDate, tempStart, tempFinish, false, customers, employee);
+                String jsonString = gson.toJson(schedule);
+                
+                SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
+                String response = sslc.doPost("employeeschedule", jsonString, SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
+                System.out.println(response);
+            }
         } catch (UnsupportedEncodingException ex) {
             System.out.println(ex);
         } catch (IOException e) {
@@ -457,10 +468,14 @@ public class Schedule1Controller implements Initializable {
             Logger.getLogger(EmployeeController.class.getName()).log(Level.SEVERE, null, ex);
         }
         validation.setVisible(false);
+        textFinish.clear();
+        textStart.clear();
+        display.setText("");
+        
     }
-
+    
     public void deleteRow(int id) {
-
+        
         try {
             String idToDelete = id + "";
             SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
@@ -471,22 +486,22 @@ public class Schedule1Controller implements Initializable {
             System.out.println(ex);
         }
     }
-
+    
     @FXML
     private void handleViewEmployee(ActionEvent event) throws JSONException, Exception {
-
+        
         if (allEmployee == true) {
             viewEmployee.setText("Select available employees");
             allEmployee = false;
             tableEmployee.setItems(getEmployee());
-
+            
         } else {
             viewEmployee.setText("Select all employees");
             allEmployee = true;
             tableEmployee.setItems(getAvailableEmployee());
         }
     }
-
+    
     @FXML
     private void handleViewSchedule(ActionEvent event) throws JSONException, Exception {
         if (allSchedule == true) {
@@ -494,19 +509,19 @@ public class Schedule1Controller implements Initializable {
             allSchedule = false;
             tableSchedule.setItems(getSchedule());
         } else {
-
+            
             viewSchedule.setText("View all schedule");
             allSchedule = true;
             tableSchedule.setItems(getScheduleByDate(myDate));
-
+            
         }
-
+        
     }
-
+    
     public ObservableList<EmployeeProperty> getAvailableEmployee() throws JSONException, Exception {
         double tempHours = 0.0;
         double maxHours = 8.0;
-
+        
         ObservableList<EmployeeProperty> allEmployees = this.getEmployee();
         System.out.println("Size: " + allEmployees.size());
         for (int i = 0; i < allEmployees.size(); i++) {
@@ -519,61 +534,70 @@ public class Schedule1Controller implements Initializable {
             }
             if (tempHours >= maxHours) {
                 allEmployees.remove(i);
-
+                
             } else {
                 System.out.println("You have hours to work!!");
             }
         }
         return allEmployees;
     }
-
+    
     public ObservableList<EmployeeScheduleProperty> getScheduleByDate(String date) throws IOException, JSONException, Exception {
         EmployeeSchedule mySchedule = new EmployeeSchedule();
         Gson gson = new Gson();
         ObservableList<EmployeeScheduleProperty> schedulePropertyByDate = FXCollections.observableArrayList();
         JSONObject jo = new JSONObject();
-
+        
         SSLConnection sslc = new SSLConnection("https://localhost:8181/MainServerREST/api/");
         String response = sslc.doGet("employeeschedule/date", date, SSLConnection.CONTENT_TYPE.JSON, SSLConnection.ACCEPT_TYPE.JSON, SSLConnection.USER_MODE.EMPLOYEE);
         JSONArray jsonArray = new JSONArray(response);
-
+        
         for (int i = 0; i < jsonArray.length(); i++) {
             jo = (JSONObject) jsonArray.getJSONObject(i);
-
+            
             mySchedule = gson.fromJson(jo.toString(), EmployeeSchedule.class);
-
+            
             schedulePropertyByDate.add(
                     new EmployeeScheduleProperty(mySchedule.getSchId(), mySchedule.getSchDate(),
                             mySchedule.getSchFromTime(), mySchedule.getSchUntilTime(), mySchedule.getEmplVisitedCust(),
                             mySchedule.getCustomersCuId().getCuPersonnummer(), mySchedule.getEmployeesEmpId().getEmpUsername()));
         }
-
+        
         return schedulePropertyByDate;
     }
-
+    
     public double splitDouble(double d) {
+        
         double value = 0.0;
         int whole = (int) d;
-        int fract = (int) ((d - whole) * 100);
-
-        if ( fract < 60) {
+        double tempFract =Math.round((d - whole)*100);      
+        int fract=(int)tempFract;
+          
+        if (fract < 60) {
             value = d;
         } else {
             whole = whole + 1;
             fract = fract - 60;
             value = (double) whole + ((double) fract / 100);
         }
-        System.out.println("Number from "+ d+" to "+ value);
+        System.out.println("Number from " + d + " to " + value);
+ 
         return value;
     }
-
+    
     public double calculateTime(double d1, double d2) {
+        
         double value = 0.0;
         int whole1 = (int) d1;
-        int fract1 = (int) ((d1 - whole1) * 100);
+        
+        double tempFract1 =Math.round((d1 - whole1)*100);
+        
+        int fract1=(int)tempFract1;
+        
         int whole2 = (int) d2;
-        int fract2 = (int) ((d2 - whole2) * 100);
-
+        double tempFract2 =Math.round((d2 - whole2)*100);
+        int fract2=(int)tempFract2;
+        System.out.println("d1: " + d1 + " whole1 " + whole1 + " fract1 " + fract1 + " d2: " + d2 + " whole2 " + whole2 + " fract2 " + fract2);
         if (fract1 >= fract2) {
             value = d1 - d2;
         } else {
@@ -582,8 +606,9 @@ public class Schedule1Controller implements Initializable {
             d1 = (double) whole1 + ((double) fract1 / 100);
             value = d1 - d2;
         }
-        System.out.println("Scadere " + value);
+        System.out.println("Scadere " + value + "fract1 " + fract1 + "fract2 " + fract2);
+       
         return value;
     }
-
+    
 }
