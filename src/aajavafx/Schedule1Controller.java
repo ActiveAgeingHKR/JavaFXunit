@@ -42,7 +42,7 @@ import javafx.stage.Stage;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-//import org.panos.SSLConnection;
+import org.panos.SSLConnection;
 
 /**
  * FXML Controller class
