@@ -42,7 +42,7 @@ import javafx.stage.Stage;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.panos.SSLConnection;
+//import org.panos.SSLConnection;
 
 /**
  * FXML Controller class
@@ -399,6 +399,8 @@ public class Schedule1Controller implements Initializable {
     
     @FXML
     private void handleCreateNewSchedule(ActionEvent event) throws JSONException, IOException, Exception {
+        display.setText("");
+        try{
         String tempDate;
         DecimalFormat df2 = new DecimalFormat(".##");
         idEmployee = tableEmployee.getSelectionModel().getSelectedItem().getId();
@@ -414,6 +416,10 @@ public class Schedule1Controller implements Initializable {
         
         display.setText("There are " + df2.format(this.getNumbersOfHoursPerDay(idEmployee)) + " hours remain to work for this employee");
         validation.setVisible(true);
+        }catch(Exception ex){
+            System.out.println("Error: "+ex);
+            display.setText("You must choose one employee and one customer first");
+        }
     }
     
     public String getDate() {
